@@ -3,7 +3,7 @@
 ## 1. Clone project
 
 ```bash
-git clone <link-repository>
+git clone https://github.com/ngthanhhhh/Du-An-My-Pham.git
 cd Du-An-My-Pham
 ```
 
