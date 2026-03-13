@@ -15,3 +15,8 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+backend/src/main/resources/application.properties
+
+frontend/node_modules/
+frontend/build/
