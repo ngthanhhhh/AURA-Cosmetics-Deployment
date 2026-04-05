@@ -1,23 +1,44 @@
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-# https://maven.apache.org/wrapper/#usage-without-binary-jar
-.mvn/wrapper/maven-wrapper.jar
+# ==========================================
+# 1. FRONTEND (React + Vite)
+# ==========================================
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
 
-# Eclipse m2e generated files
-# Eclipse Core
-.project
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
+# ==========================================
+# 2. BACKEND (Spring Boot + Maven)
+# ==========================================
+backend/target/
+backend/build/
+backend/bin/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.apt_generated
+backend/.factorypath
+backend/.springBeans
+backend/.sts4-cache
 
+# Chặn file cấu hình cá nhân (Rất quan trọng)
 backend/src/main/resources/application.properties
 
-frontend/node_modules/
-frontend/build/
+# ==========================================
+# 3. IDE & SYSTEM RÁC (VS Code, IntelliJ, Eclipse)
+# ==========================================
 .vscode/
+!.vscode/extensions.json
+.idea/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+.nb-gradle/
+nbproject/private/
+.DS_Store
+Thumbs.db
+*.suo
+*.sw?
