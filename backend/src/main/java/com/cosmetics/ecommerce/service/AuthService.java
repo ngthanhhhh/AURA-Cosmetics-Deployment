@@ -10,10 +10,12 @@ import com.cosmetics.ecommerce.repository.RoleRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.cosmetics.ecommerce.repository.CartRepository;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class AuthService {
     private final CartRepository cartRepository;
     private final AuthenticationManager authenticationManager;
 
-
+    @Transactional
     // UC3.5 - Dang ky tai khoan (cho khach hang)
     public AuthResponse register(RegisterRequest request){
         //Kiểm tra email đã tồn tại
@@ -66,6 +68,10 @@ public class AuthService {
 
     // dang nhap Admin - dang nhap Customer
     public AuthResponse login (LoginRequest request){
+        //Sử dụng AuthenticationManager để xác thực
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
         //tìm user bằng email
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Email hoac mat khau khong chinh xac"));
