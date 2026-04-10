@@ -47,6 +47,10 @@ public class JwtUtil {
         return extractAllClaims(token).getSubject();
     }
 
+    public String extractRole(String token){
+        return (String) extractAllClaims(token).get("role");
+    }
+
 
     //kiem tra token con hop le khong
     public boolean isTokenValid(String token){
