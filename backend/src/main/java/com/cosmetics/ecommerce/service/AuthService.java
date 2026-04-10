@@ -3,6 +3,7 @@ package com.cosmetics.ecommerce.service;
 import com.cosmetics.ecommerce.dto.AuthResponse;
 import com.cosmetics.ecommerce.dto.LoginRequest;
 import com.cosmetics.ecommerce.dto.RegisterRequest;
+import com.cosmetics.ecommerce.entity.Cart;
 import com.cosmetics.ecommerce.entity.Role;
 import com.cosmetics.ecommerce.entity.User;
 import com.cosmetics.ecommerce.repository.RoleRepository;
@@ -11,6 +12,8 @@ import com.cosmetics.ecommerce.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.cosmetics.ecommerce.repository.CartRepository;
+import org.springframework.security.authentication.AuthenticationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,10 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
+    private final CartRepository cartRepository;
+    private final AuthenticationManager authenticationManager;
+
 
     // UC3.5 - Dang ky tai khoan (cho khach hang)
     public AuthResponse register(RegisterRequest request){
@@ -44,8 +51,15 @@ public class AuthService {
 
         user.setIsActive(true);
 
+
+
         //Lưu vào Database
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        //tạo giỏ hàng trống cho User mới
+        Cart cart = new Cart();
+        cart.setUser(savedUser);
+        cartRepository.save(cart);
 
         return AuthResponse.builder().message("Dang ky tai khoan thanh cong").build();
     }
