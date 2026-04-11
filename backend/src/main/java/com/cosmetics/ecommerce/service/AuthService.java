@@ -68,25 +68,20 @@ public class AuthService {
 
     // dang nhap Admin - dang nhap Customer
     public AuthResponse login (LoginRequest request){
-        //Sử dụng AuthenticationManager để xác thực
+        //b1: xác thực email + password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        //tìm user bằng email
+        //b2: lấy user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Email hoac mat khau khong chinh xac"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
-        //so khớp mật khẩu đã băm
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Email hoac mat khau khong chinh xac");
-        }
-
-        //kiểm tra tài khoản có bị khóa không
+        //b3: kiểm tra tài khoản có bị khóa không
         if(!user.getIsActive()){
-            throw new RuntimeException("Tai khoan da bi khoa");
+            throw new RuntimeException("Tài khoản đã bị khóa");
         }
 
-        // 4. Tạo token (Sử dụng class JwtService bạn sắp viết)
+        // b4. Tạo token
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getRoleName());
 
         // 5. Trả về thông tin cho Frontend
