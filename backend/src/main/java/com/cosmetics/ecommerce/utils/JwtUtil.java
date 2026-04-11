@@ -5,18 +5,17 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
+import org.springframework.beans.factory.annotation.Value;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
 @Component
 
 public class JwtUtil {
 
-    //khoa bi mat de ky token
-    private final String SECRET = "cosmeticsEcommerceSecretKey12345678";
+    @Value("${jwt.secret}")
+    private String SECRET;
 
-    //thoi gian het han: 24 gio
-    private final long EXPIRATION = 86400000;
+    @Value("${jwt.expiration}")
+    private long EXPIRATION;
 
     private SecretKey getKey(){
         return Keys.hmacShaKeyFor((SECRET.getBytes()));
