@@ -1,5 +1,8 @@
 -- Tạo database nếu chưa tồn tại
-CREATE DATABASE IF NOT EXISTS web_store;
+CREATE DATABASE IF NOT EXISTS web_store
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
 -- Chọn database web_store để làm việc
 USE web_store;
 
@@ -204,3 +207,38 @@ CREATE TABLE payments (
     FOREIGN KEY (order_id) REFERENCES orders(order_id)
     ON DELETE CASCADE
 );
+
+-- ===============================
+-- REVIEWS (Đánh giá sản phẩm)
+-- ===============================
+CREATE TABLE reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    
+    -- Số sao từ 1 đến 5
+    rating INT NOT NULL CHECK(rating >= 1 AND rating <= 5),
+    
+    -- Nội dung bình luận
+    comment TEXT,
+    
+    -- Nhãn "Xác nhận đã mua hàng" (True = Đã mua và đơn hàng COMPLETED)
+    is_verified_purchase BOOLEAN DEFAULT FALSE,
+    
+    -- Admin đánh dấu (VD: NORMAL, NEGATIVE_FEEDBACK, SPAM...)
+    admin_flag ENUM('NORMAL', 'NEGATIVE_FEEDBACK', 'ATTENTION_NEEDED') DEFAULT 'NORMAL',
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_reviews_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+    
+    -- Optional: Nếu muốn 1 user chỉ được đánh giá 1 sản phẩm 1 lần thì mở dòng dưới ra
+    -- UNIQUE(user_id, product_id) 
+);
+
+-- Index giúp truy xuất danh sách review của 1 sản phẩm và tính sao trung bình siêu tốc độ
+CREATE INDEX idx_reviews_product ON reviews(product_id);
+-- Index giúp lọc review theo số sao cho phần "Lọc bình luận theo số sao"
+CREATE INDEX idx_reviews_rating ON reviews(product_id, rating);
