@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin/statistics")
+@RequestMapping("/api/v1/admin/statistics")
 @RequiredArgsConstructor
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
 
     //API lấy dữ liệu tổng hợp cho Dashboard của Admin
-    //Endpoint: GET /api/admin/statistics/dashboard
+    //Endpoint: GET /api/v1/admin/statistics/dashboard
 
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, Object>> getDashboardData(){
