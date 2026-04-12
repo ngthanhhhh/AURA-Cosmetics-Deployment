@@ -73,3 +73,31 @@ INSERT INTO payments (order_id, payment_method, amount, status) VALUES
 (3, 'VNPAY', 390000, 'SUCCESS'),
 (4, 'COD', 250000, 'FAILED'),
 (5, 'VNPAY', 520000, 'PENDING');
+
+
+-- 9. REVIEWS (Đánh giá sản phẩm)
+INSERT INTO reviews (user_id, product_id, rating, comment, is_verified_purchase, admin_flag, created_at) VALUES 
+-- =========================================================
+-- CASE 1: Đã mua hàng & Giao thành công (is_verified = TRUE)
+-- =========================================================
+-- User 3 đã mua SP 1 và 8 (Đơn hàng 1 - COMPLETED)
+(3, 1, 5, 'Sữa rửa mặt xài rất êm, da không bị khô. Đóng gói cẩn thận, giao hàng nhanh!', TRUE, 'NORMAL', '2026-03-03 10:00:00'),
+(3, 8, 4, 'Màu son lên môi chuẩn đẹp, nhưng ăn uống xong thì hơi mau trôi nha shop.', TRUE, 'NORMAL', '2026-03-03 10:05:00'),
+
+-- User 4 đã mua SP 4 và 16 (Đơn hàng 2 - COMPLETED) -> Test 1 sao để ra cờ NEGATIVE_FEEDBACK
+(4, 4, 1, 'Xài bị kích ứng, da nổi mẩn đỏ ngứa ngáy quá shop ơi, cần hoàn tiền gấp!!!', TRUE, 'NEGATIVE_FEEDBACK', '2026-03-07 15:30:00'),
+(4, 16, 5, 'Bông tẩy trang dai, mịn, xài siêu tiết kiệm nước tẩy trang, rất đáng tiền.', TRUE, 'NORMAL', '2026-03-07 15:35:00'),
+
+-- =========================================================
+-- CASE 2: Chưa mua/Đơn chưa hoàn thành (is_verified = FALSE)
+-- =========================================================
+-- User 5 có đơn SP 1 nhưng đang PENDING (Chưa nhận hàng) 
+(5, 1, 5, 'Mình chưa nhận được hàng nhưng thấy bạn bè khen dòng B5 này lắm nên cho 5 sao ủng hộ shop trước.', FALSE, 'NORMAL', NOW()),
+
+-- User 7 có đơn CANCELLED, lên bình luận dạo, hoặc test spam -> Test cờ ATTENTION_NEEDED
+(7, 2, 5, 'Sản phẩm này bên mình đang sale rẻ hơn nửa giá, mọi người qua zalo 09xxx mua nha!', FALSE, 'ATTENTION_NEEDED', NOW()),
+
+-- User 6 test tính năng lọc sao (Cho 3 sao)
+(6, 12, 3, 'Giá hơi chát so với dung tích, chưa xài thử nên chưa biết chất lượng ra sao.', FALSE, 'NORMAL', NOW());
+
+INSERT INTO cart (user_id) VALUES (1);
