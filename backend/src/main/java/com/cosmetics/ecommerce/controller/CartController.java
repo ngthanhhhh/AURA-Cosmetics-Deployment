@@ -18,7 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("/api/v1/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
@@ -29,20 +29,20 @@ public class CartController {
         return ResponseEntity.ok(cartService.getCartByUserId(userId));
     }
 
-    @PostMapping("/add")
+    @PostMapping("/items")
     public ResponseEntity<CartResponseDTO> addToCart(@RequestBody @Valid CartItemRequestDTO request) {
         // TODO: Tạm thời fix cứng userId = 1 để test.
         Integer userId = 1;
         return ResponseEntity.ok(cartService.addToCart(userId, request));
     }
 
-    @PutMapping("/update")
+    @PutMapping("/items")
     public ResponseEntity<CartResponseDTO> updateCartItem(@RequestBody @Valid CartItemRequestDTO request) {
         Integer userId = 1;
         return ResponseEntity.ok(cartService.updateCartItem(userId, request));
     }
 
-    @DeleteMapping("/remove/{productId}")
+    @DeleteMapping("/items/{productId}")
     public ResponseEntity<Void> removeCartItem(@PathVariable Integer productId){
         Integer userId = 1;
         cartService.removeCartItem(userId, productId);
