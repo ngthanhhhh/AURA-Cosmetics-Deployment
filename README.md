@@ -48,13 +48,13 @@ npm install
 Chạy React:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Frontend sẽ chạy tại:
 
 ```
-http://localhost:3000
+http://localhost:5173
 ```
 
 ---
@@ -72,5 +72,6 @@ Du-An-My-Pham
 ## 5. Lưu ý
 
 * Backend chạy port **8080**
-* Frontend chạy port **3000**
+* Frontend chạy port **5173**
 * React sẽ gọi API từ Spring Boot
+* Copy file application.properties.example thành application.properties ở backend để chạy DB.

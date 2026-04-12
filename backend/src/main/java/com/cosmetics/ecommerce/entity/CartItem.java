@@ -10,6 +10,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Table(name = "cart_items", uniqueConstraints = {
@@ -24,6 +26,8 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Cart cart;
 
     @ManyToOne
