@@ -30,8 +30,14 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN") //Chỉ Admin mới vào được /admin
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN") //Chỉ Admin mới vào được /admin
+                        .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").permitAll()
                         .anyRequest().authenticated() //Các request khác phải đăng nhập
                 )
                 //Thêm filter của bạn vào trước bộ lọc mặc định của Spring
