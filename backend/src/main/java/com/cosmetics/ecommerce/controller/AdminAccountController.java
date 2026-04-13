@@ -6,8 +6,9 @@ import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
 import com.cosmetics.ecommerce.service.AdminAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,9 +49,10 @@ public class AdminAccountController {
     // @AuthenticationPrincipal lấy thông tin admin đang đăng nhập từ SecurityContext
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAccount(
-            @PathVariable Integer id,
-            @AuthenticationPrincipal UserDetails currentUser) {
-        adminAccountService.deleteAccount(id, currentUser.getUsername());
+            @PathVariable Integer id) {
+        String currentUserEmail = SecurityContextHolder.getContext()
+                        .getAuthentication().getName();
+        adminAccountService.deleteAccount(id, currentUserEmail);
         return ResponseEntity.ok().build();
     }
 
