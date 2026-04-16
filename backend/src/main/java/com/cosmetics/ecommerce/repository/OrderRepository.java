@@ -14,8 +14,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
     //Lấy danh sách đơn hàng của một người dùng
     List<Order> findByUserOrderByCreatedAtDesc(User user);
 
+    //Lấy danh sách đơn hàng theo UserId để phục vụ CustomerService
+    List<Order> findByUserUserId(Integer userId);
+
     //Tính tổng doanh thu từ các đơn hàng đã giao hàng thành công (DELIVERED)
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'DELIVERED'")
+    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED'")
     Double calculateTotalRevenue();
 
     //Đếm tổng số đơn hàng strong hệ thống
