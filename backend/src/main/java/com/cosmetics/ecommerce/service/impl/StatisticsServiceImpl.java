@@ -2,6 +2,7 @@ package com.cosmetics.ecommerce.service.impl;
 
 import com.cosmetics.ecommerce.dto.RevenueChartDTO;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
+import com.cosmetics.ecommerce.enums.OrderStatus;
 import com.cosmetics.ecommerce.repository.OrderRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.StatisticsService;
@@ -30,10 +31,10 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .totalRevenue( totalRevenue != null ? totalRevenue : 0.0)
                 .totalOrders( orderRepository.countTotalOrders())
                 .totalUsers( userRepository.count())
-                .pendingOrders( orderRepository.countByStatus("PENDING"))
-                .shippingOrders( orderRepository.countByStatus("SHIPPING"))
-                .completedOrders(orderRepository.countByStatus("COMPLETED"))
-                .cancelledOrders( orderRepository.countByStatus("CANCELLED"))
+                .pendingOrders( orderRepository.countByStatus(OrderStatus.PENDING))
+                .shippingOrders( orderRepository.countByStatus(OrderStatus.SHIPPING))
+                .completedOrders(orderRepository.countByStatus(OrderStatus.COMPLETED))
+                .cancelledOrders( orderRepository.countByStatus(OrderStatus.CANCELLED))
                 .build();
 
     }

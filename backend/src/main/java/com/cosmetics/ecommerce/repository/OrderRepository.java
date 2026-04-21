@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.cosmetics.ecommerce.entity.Order;
 import com.cosmetics.ecommerce.entity.User;
 import org.springframework.data.repository.query.Param;
-
+import com.cosmetics.ecommerce.enums.OrderStatus;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer>{
@@ -20,8 +20,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
     //Lấy danh sách đơn hàng theo UserId để phục vụ CustomerService
     List<Order> findByUserUserId(Integer userId);
 
-    //Tính tổng doanh thu từ các đơn hàng đã giao hàng thành công (DELIVERED)
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'COMPLETED'")
+    //Tính tổng doanh thu từ các đơn hàng đã giao hàng thành công (COMPLETED)
+    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED")
     Double calculateTotalRevenue();
 
     //Đếm tổng số đơn hàng strong hệ thống
@@ -30,7 +30,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
 
     //Đếm số đơn hàng theo trạng thái (ví dụ: PENDING, DELIVERD, CANCELLED)
     //giúp admin biết có bao nhiêu đơn đang xử lý
-    Long countByStatus(String status);
+    Long countByStatus(OrderStatus status);
 
     //1. Thống kê theo ngày trong tháng (Dùng cho UC3.8 - Biểu đồ doanh thu tháng)
     @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(DAY(o.createdAt), CAST(SUM(o.totalPrice) AS double)) " +
