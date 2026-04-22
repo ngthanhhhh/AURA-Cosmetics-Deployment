@@ -1,5 +1,40 @@
 package com.cosmetics.ecommerce.controller;
 
-public record OrderController() {
-    
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.cosmetics.ecommerce.dto.OrderRequestDTO;
+import com.cosmetics.ecommerce.dto.OrderResponseDTO;
+import com.cosmetics.ecommerce.service.OrderService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/v1/orders")
+@RequiredArgsConstructor
+public class OrderController {
+    private final OrderService orderService;
+
+    //Khach dat hang
+    @PostMapping
+    public ResponseEntity<OrderResponseDTO> placeOrder(@Valid @RequestBody OrderRequestDTO request) {
+        Integer currentUserId = 1;
+        OrderResponseDTO response = orderService.placeOrder(currentUserId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/my-orders")
+    public ResponseEntity<List<OrderResponseDTO>> getMyOrders() {
+        Integer currentUserId = 1;
+        List<OrderResponseDTO> history = orderService.getMyOrders(currentUserId);
+        return ResponseEntity.ok(history);
+        
+    }
 }
