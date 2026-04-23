@@ -2,7 +2,9 @@ package com.cosmetics.ecommerce.service.impl;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.cosmetics.ecommerce.exception.BadRequestException;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,8 @@ import com.cosmetics.ecommerce.dto.OrderItemDTO;
 import com.cosmetics.ecommerce.dto.OrderListDTO;
 import com.cosmetics.ecommerce.dto.OrderRequestDTO;
 import com.cosmetics.ecommerce.dto.OrderResponseDTO;
+import com.cosmetics.ecommerce.dto.OrderStatusUpdateResponseDTO;
+import com.cosmetics.ecommerce.dto.UpdateOrderStatusRequestDTO;
 import com.cosmetics.ecommerce.entity.*;
 import com.cosmetics.ecommerce.enums.OrderStatus;
 import com.cosmetics.ecommerce.enums.PaymentMethod;
@@ -33,6 +38,7 @@ import com.cosmetics.ecommerce.repository.ProductRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.OrderService;
 
+import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -49,6 +55,25 @@ public class OrderServiceImpl implements OrderService{
 
     private static final String PRODUCT_DISCONTINUED_NOTE = "Sản phẩm này hiện đã ngừng kinh doanh";
     private static final String NO_PAYMENT_MESSAGE = "Chưa có thông tin thanh toán";
+
+    /**
+     * Quy tắc chuyển đổi trạng thái đơn hàng.
+     *
+     * Key: trạng thái hiện tại
+     * Value: danh sách trạng thái được phép chuyển tới
+     *
+     * Dùng để đảm bảo:
+     * - Không cho quay ngược quy trình
+     * - Không cho chuyển trạng thái sai logic nghiệp vụ
+     */
+    private static final Map<OrderStatus, Set<OrderStatus>> VALID_TRANSITIONS = Map.of(
+        OrderStatus.PENDING, Set.of(OrderStatus.PREPARING, OrderStatus.CANCELLED),
+        OrderStatus.PREPARING, Set.of(OrderStatus.SHIPPING, OrderStatus.CANCELLED),
+        OrderStatus.SHIPPING, Set.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED),
+        OrderStatus.DELIVERED, Set.of(OrderStatus.COMPLETED),
+        OrderStatus.COMPLETED, Collections.emptySet(),
+        OrderStatus.CANCELLED, Collections.emptySet()
+    );
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
@@ -254,6 +279,61 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /**
+     * Cập nhật trạng thái đơn hàng cho Admin.
+     *
+     * Flow xử lý:
+     * - Validate request
+     * - Parse trạng thái mới
+     * - Kiểm tra chuyển trạng thái hợp lệ
+     * - Check thanh toán nếu chuyển sang COMPLETED
+     * - Hoàn kho nếu chuyển sang CANCELLED
+     * - Cập nhật trạng thái và lưu DB
+     *
+     * @param orderId ID của đơn hàng cần cập nhật
+     * @param request Dữ liệu chứa trạng thái mới (status)
+     * @return DTO chứa:
+     *         - trạng thái cũ
+     *         - trạng thái mới
+     *         - message kết quả
+     *         - danh sách trạng thái tiếp theo (dùng cho FE)
+     */
+    @Override
+    @Transactional
+    public OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, UpdateOrderStatusRequestDTO request) {
+        Order order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại hoặc đã bị xóa!"));
+        validateUpdateStatusRequest(request);
+
+        OrderStatus currentStatus = order.getStatus();
+        OrderStatus newStatus = parseOrderStatus(request.getStatus());
+
+        if (currentStatus == newStatus) {
+            throw new BadRequestException("Đơn hàng đang ở trạng thái " + currentStatus.name());
+        }
+
+        validateStatusTransition(currentStatus, newStatus);
+
+        if (newStatus == OrderStatus.COMPLETED) {
+            validatePaymentForCompletion(orderId);
+        }
+
+        if (newStatus == OrderStatus.CANCELLED) {
+            restockProductsIfNeeded(order);
+        }
+
+        order.setStatus(newStatus);
+        Order updatedOrder = orderRepository.save(order);
+
+        return OrderStatusUpdateResponseDTO.builder()
+                .orderId(updatedOrder.getOrderId())
+                .oldStatus(currentStatus.name())
+                .newStatus(updatedOrder.getStatus().name())
+                .message(buildUpdateStatusMessage(newStatus))
+                .availableNextStatus(getAvailableNextStatuses(updatedOrder.getStatus()))
+                .build();
+    }
+
+    /**
      * Chuyển đổi từ OrderItem Entity sang OrderItemDTO.
      *
      * Ngoài việc mapping dữ liệu cơ bản, method này còn:
@@ -331,5 +411,97 @@ public class OrderServiceImpl implements OrderService{
         }
 
         return builder.build();
+    }
+
+    private void validateUpdateStatusRequest(UpdateOrderStatusRequestDTO request) {
+        if (request == null) {
+            throw new BadRequestException("Request cập nhật trạng thái không hợp lệ!");
+        }
+
+        if (request.getStatus() == null || request.getStatus().trim().isEmpty()) {
+            throw new BadRequestException("Trạng thái đơn hàng không được để trống!");
+        }
+    }
+
+    /**
+     * Chuyển đổi String status sang enum OrderStatus.
+     *
+     * @param status Giá trị trạng thái dạng String từ request
+     * @return Giá trị OrderStatus hợp lệ dùng cho xử lý nghiệp vụ
+     */
+    private OrderStatus parseOrderStatus(String status) {
+        try {
+            return OrderStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Trạng thái đơn hàng không hợp lệ!");
+        }
+    }
+
+    private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
+        Set<OrderStatus> allowedStatuses = VALID_TRANSITIONS.getOrDefault(currentStatus, Collections.emptySet());
+    
+        if (!allowedStatuses.contains(newStatus)) {
+            throw new BadRequestException(
+                "Chuyển đổi trạng thái không hợp lệ. Đơn hàng đang ở trạng thái "
+                + currentStatus.name() + ". không thể chuyển sang " + newStatus.name()
+            );
+        }
+    }
+
+    private void validatePaymentForCompletion(Integer orderId) {
+        Payment payment = paymentRepository.findByOrder_OrderId(orderId)
+            .orElseThrow(() -> new BadRequestException("Không thể hoàn thành đơn hàng do chưa có thông tin thanh toán!"));
+    
+        if (payment.getStatus() != PaymentStatus.SUCCESS) {
+            throw new BadRequestException("Không thể hoàn thành đơn hàng do chưa xác nhận thanh toán thành công");
+        }
+    }
+
+    /**
+     * Hoàn lại số lượng sản phẩm vào kho khi hủy đơn.
+     *
+     * @param order Đơn hàng cần xử lý
+     * @throws BadRequestException nếu không thể hủy đơn
+     *
+     * Side effect:
+     * - Cập nhật lại stock trong bảng Product
+     */
+    private void restockProductsIfNeeded(Order order) {
+        if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.COMPLETED) {
+            throw new BadRequestException("Không thể hủy đơn hàng đã giao thành công hoặc đã hoàn thành!");
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
+
+        for (OrderItem item : orderItems) {
+            if (item.getProduct() == null) continue;
+
+            Product lockedProduct = productRepository.findByIdWithLock(item.getProduct().getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại trong hệ thống!"));
+
+            lockedProduct.setStock(lockedProduct.getStock() + item.getQuantity());
+            productRepository.save(lockedProduct);
+        }
+    }
+
+    private String buildUpdateStatusMessage(OrderStatus newStatus) {
+        if (newStatus == OrderStatus.CANCELLED) {
+            return "Hủy đơn thành công và đã hoàn trả sản phẩm vào kho hàng!";
+        }
+        return "Cập nhật trạng thái thành công";
+    }
+
+    /**
+     * Lấy danh sách trạng thái tiếp theo hợp lệ.
+     *
+     * @param currentStatus Trạng thái hiện tại của đơn hàng
+     * @return Danh sách trạng thái có thể chuyển tiếp (dùng cho FE hiển thị dropdown)
+     */
+    private List<String> getAvailableNextStatuses(OrderStatus currenStatus) {
+        return VALID_TRANSITIONS.getOrDefault(currenStatus, Collections.emptySet())
+                .stream()
+                .map(Enum::name)
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

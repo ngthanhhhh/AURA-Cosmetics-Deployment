@@ -4,14 +4,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cosmetics.ecommerce.dto.OrderDetailResponseDTO;
 import com.cosmetics.ecommerce.dto.OrderListDTO;
+import com.cosmetics.ecommerce.dto.OrderStatusUpdateResponseDTO;
+import com.cosmetics.ecommerce.dto.UpdateOrderStatusRequestDTO;
 import com.cosmetics.ecommerce.service.OrderService;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -53,5 +57,28 @@ public class AdminOrderController {
     public ResponseEntity<OrderDetailResponseDTO> getOrderDetail(@PathVariable Integer id){
         //Tìm kiếm thông tin chi tiết đơn hàng cho Admin qua Service
         return ResponseEntity.ok(orderService.getOrderDetailForAdmin(id));
+    }
+
+    /**
+     * Cập nhật trạng thái đơn hàng.
+     *
+     * API cho phép Admin thay đổi trạng thái của một đơn hàng cụ thể.
+     * Backend sẽ:
+     * - Kiểm tra tính hợp lệ của trạng thái mới
+     * - Kiểm tra luồng chuyển trạng thái (không cho quay ngược)
+     * - Kiểm tra thanh toán nếu chuyển sang COMPLETED
+     * - Hoàn kho nếu chuyển sang CANCELLED
+     *
+     * @param id      ID của đơn hàng cần cập nhật
+     * @param request Dữ liệu chứa trạng thái mới (status)
+     * @return Thông tin trạng thái trước và sau khi cập nhật
+     */
+    @PutMapping("/{id}/status")
+    public ResponseEntity<OrderStatusUpdateResponseDTO> updateOrderStatus(
+            @PathVariable Integer id,
+            @RequestBody UpdateOrderStatusRequestDTO request
+    ) {
+        OrderStatusUpdateResponseDTO result = orderService.updateOrderStatus(id, request);
+        return ResponseEntity.ok(result);
     }
 }
