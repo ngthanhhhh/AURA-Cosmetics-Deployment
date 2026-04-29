@@ -86,6 +86,8 @@ public class CartServiceImpl implements CartService{
         Cart cart = getOrCreateCart(userId);
         CartItem cartItem = getOrCreateCartItem(cart, product);
 
+        boolean isNewItem = cartItem.getCartItemId() == null;
+
         int newQuantity = cartItem.getCartItemId() == null 
             ? request.getQuantity() 
             : cartItem.getQuantity() + request.getQuantity();
@@ -93,9 +95,16 @@ public class CartServiceImpl implements CartService{
         validateQuantityLimits(product, newQuantity);
 
         cartItem.setQuantity(newQuantity);
+        CartItem savedItem = cartItemRepository.saveAndFlush(cartItem);
+        if (isNewItem && cart.getCartItems() != null) {
+            cart.getCartItems().add(savedItem);
+        }
+
+        Cart refreshedCart = cartRepository.findByUser_UserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng!"));
         cartItemRepository.save(cartItem);
 
-        return mapToCartResponse(cart);
+        return mapToCartResponse(refreshedCart);
     }
 
     /**
@@ -151,7 +160,12 @@ public class CartServiceImpl implements CartService{
             .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), productId)
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không có trong giỏ hàng!"));
 
+        // Gỡ khỏi list trong Cart để đồng bộ object trong memory
+        if (cart.getCartItems() != null) {
+            cart.getCartItems().removeIf(item -> item.getProduct().getProductId().equals(productId));
+        }
         cartItemRepository.delete(cartItem);
+        cartItemRepository.flush();
     }
 
     /**
