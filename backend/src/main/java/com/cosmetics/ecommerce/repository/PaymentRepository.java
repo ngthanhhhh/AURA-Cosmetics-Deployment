@@ -15,4 +15,12 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
      * @return Optional chứa Payment nếu tồn tại, ngược lại rỗng
      */
     Optional<Payment> findByOrder_OrderId(Integer orderId);
+
+    /**
+     * Tìm thông tin thanh toán theo mã giao dịch.
+     *
+     * @param transactionNo mã giao dịch (transaction number)
+     * @return Optional chứa Payment nếu tồn tại, ngược lại trả về Optional rỗng
+     */
+    Optional<Payment> findByTransactionNo(String transactionNo);
 }
