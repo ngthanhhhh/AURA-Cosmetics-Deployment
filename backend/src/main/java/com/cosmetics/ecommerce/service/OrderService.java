@@ -86,4 +86,6 @@ public interface OrderService {
      * @return Thông tin kết quả cập nhật trạng thái
      */
     OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, UpdateOrderStatusRequestDTO request);
+
+    OrderDetailResponseDTO getOrderDetailForCustomer(Integer userId, Integer orderId);
 }
