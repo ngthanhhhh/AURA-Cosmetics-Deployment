@@ -24,6 +24,16 @@ import com.cosmetics.ecommerce.service.ReviewService;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Service triển khai các nghiệp vụ liên quan đến đánh giá sản phẩm (Review).
+ *
+ * Bao gồm:
+ * - Tạo đánh giá cho sản phẩm
+ * - Xem danh sách đánh giá của sản phẩm (có lọc theo số sao)
+ * - Admin xem toàn bộ đánh giá
+ * - Admin cập nhật trạng thái kiểm duyệt đánh giá
+ * - Lấy báo cáo tổng hợp đánh giá
+ */
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService{
@@ -32,6 +42,23 @@ public class ReviewServiceImpl implements ReviewService{
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
 
+    /**
+     * Tạo đánh giá mới cho sản phẩm.
+     *
+     * Quy trình:
+     * - Validate request (rating hợp lệ)
+     * - Kiểm tra user tồn tại
+     * - Kiểm tra sản phẩm tồn tại
+     * - Kiểm tra user đã mua sản phẩm chưa (verified purchase)
+     * - Tạo Review và gán các thông tin cần thiết
+     * - Lưu vào database
+     * - Trả về DTO cho frontend
+     *
+     * @param userId ID người dùng
+     * @param productId ID sản phẩm
+     * @param request Nội dung đánh giá
+     * @return Thông tin đánh giá vừa tạo
+     */
     @Override
     @Transactional
     public ReviewResponseDTO createReview(Integer userId, Integer productId, ReviewRequestDTO request) {
@@ -42,23 +69,43 @@ public class ReviewServiceImpl implements ReviewService{
         Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
 
+        // Kiểm tra user đã mua sản phẩm này và đơn đã COMPLETED hay chưa
         boolean isVerifiedPurchase = orderItemRepository.existsByOrder_User_UserIdAndProduct_ProductIdAndOrder_Status(
             userId, productId, OrderStatus.COMPLETED
         );
 
+        // Tạo review mới
         Review review = new Review();
         review.setUser(user);
         review.setProduct(product);
         review.setRating(request.getRating());
         review.setComment(request.getComment());
         review.setIsVerifiedPurchase(isVerifiedPurchase);
+
+        // Mặc định review ở trạng thái bình thường (chưa bị flag)
         review.setAdminFlag(ReviewAdminFlag.NORMAL);
 
+        // Đánh dấu có phải người mua thật hay không
         Review savedReview = reviewRepository.save(review);
 
         return mapToResponse(savedReview);
     }
 
+    /**
+     * Lấy danh sách đánh giá của một sản phẩm (có thể lọc theo số sao).
+     *
+     * Quy trình:
+     * - Kiểm tra sản phẩm tồn tại
+     * - Validate rating filter (nếu có)
+     * - Lấy toàn bộ review để tính điểm trung bình
+     * - Nếu có filter → chỉ lấy review theo số sao
+     * - Tính average rating
+     * - Map sang DTO
+     *
+     * @param productId ID sản phẩm
+     * @param rating Số sao cần lọc (có thể null)
+     * @return Thông tin tổng hợp đánh giá sản phẩm
+     */
     @Override
     @Transactional(readOnly = true)
     public ProductReviewListResponseDTO getProductReviews(Integer productId, Integer rating) {
@@ -69,14 +116,16 @@ public class ReviewServiceImpl implements ReviewService{
             throw new BadRequestException("Số sao lọc phải nằm trong khoảng từ 1 đến 5");
         }
 
-        // Lấy tất cả review để tính điểm trung bình đúng theo toàn bộ sản phẩm
+        // Lấy tất cả review để tính điểm trung bình đúng theo toàn bộ sản phẩm 
+        // (không bị ảnh hưởng bởi filter)
         List<Review> allReviews = reviewRepository.findByProduct_ProductIdOrderByCreatedAtDesc(productId);
 
-        // Danh sách hiển thị thì mới áp dụng filter
+        // Danh sách hiển thị có thể bị filter theo rating
         List<Review> displayedReviews = rating == null
                 ? allReviews
                 : reviewRepository.findByProduct_ProductIdAndRatingOrderByCreatedAtDesc(productId, rating);
 
+        // Tính điểm trung bình
         double averageRating = allReviews.isEmpty()
                 ? 0.0
                 : allReviews.stream()
@@ -84,6 +133,7 @@ public class ReviewServiceImpl implements ReviewService{
                         .average()
                         .orElse(0.0);
 
+        // Map sang DTO
         List<ReviewResponseDTO> reviewResponses = displayedReviews.stream()
             .map(this::mapToResponse)
             .toList();
@@ -97,6 +147,11 @@ public class ReviewServiceImpl implements ReviewService{
             .build();
     }
 
+    /**
+     * Lấy toàn bộ đánh giá (dành cho Admin).
+     *
+     * @return Danh sách tất cả review
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ReviewResponseDTO> getAllReviewsForAdmin() {
@@ -105,7 +160,20 @@ public class ReviewServiceImpl implements ReviewService{
             .map(this::mapToResponse)
             .toList();
     }
-
+    /**
+     * Cập nhật trạng thái kiểm duyệt của một đánh giá (Admin).
+     *
+     * Quy trình:
+     * - Validate input flag
+     * - Tìm review
+     * - Parse flag sang enum
+     * - Cập nhật trạng thái
+     * - Lưu và trả về DTO
+     *
+     * @param reviewId ID đánh giá
+     * @param flag Trạng thái mới (NORMAL, HIDDEN, REPORTED...)
+     * @return Review sau khi cập nhật
+     */
     @Override
     @Transactional
     public ReviewResponseDTO updateReviewFlag(Integer reviewId, String flag) {
@@ -130,12 +198,25 @@ public class ReviewServiceImpl implements ReviewService{
         return mapToResponse(updatedReview);
     }
 
+    /**
+     * Lấy báo cáo tổng hợp đánh giá (thống kê).
+     *
+     * @return Danh sách report (custom query)
+     */
     @Override
     @Transactional(readOnly = true)
     public List<ReviewReportDTO> getReviewReport() {
         return reviewRepository.getReviewReport();
     }
 
+    /**
+     * Validate request tạo review.
+     *
+     * Điều kiện:
+     * - Request không null
+     * - Rating không null
+     * - Rating nằm trong khoảng 1 → 5
+     */
     private void validateReviewRequest(ReviewRequestDTO request){
         if (request == null) {
             throw new BadRequestException("Dữ liệu đánh giá không hợp lệ!");
@@ -150,6 +231,9 @@ public class ReviewServiceImpl implements ReviewService{
         }
     }
 
+    /**
+     * Mapping Review entity sang DTO trả về cho client.
+     */
     private ReviewResponseDTO mapToResponse(Review review) {
         return ReviewResponseDTO.builder()
                 .reviewId(review.getReviewId())
