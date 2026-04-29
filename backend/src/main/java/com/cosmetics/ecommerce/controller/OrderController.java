@@ -4,11 +4,13 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cosmetics.ecommerce.dto.OrderDetailResponseDTO;
 import com.cosmetics.ecommerce.dto.OrderRequestDTO;
 import com.cosmetics.ecommerce.dto.OrderResponseDTO;
 import com.cosmetics.ecommerce.service.OrderService;
@@ -36,5 +38,12 @@ public class OrderController {
         List<OrderResponseDTO> history = orderService.getMyOrders(currentUserId);
         return ResponseEntity.ok(history);
         
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDetailResponseDTO> getMyOrderDetail(@PathVariable Integer id) {
+        Integer currentUserId = 1;
+        OrderDetailResponseDTO detail = orderService.getOrderDetailForCustomer(currentUserId, id);
+        return ResponseEntity.ok(detail);
     }
 }

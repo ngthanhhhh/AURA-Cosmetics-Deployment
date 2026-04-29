@@ -339,6 +339,24 @@ public class OrderServiceImpl implements OrderService{
                 .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDetailResponseDTO getOrderDetailForCustomer(Integer userId, Integer orderId) {
+        Order order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại hoặc đã bị xóa!"));
+        if (order.getUser() == null|| !order.getUser().getUserId().equals(userId)) {
+            throw new BadRequestException("Bạn không có quyền xem đơn hàng này");
+        }
+
+        List<OrderItemDTO> items = orderItemRepository.findByOrder(order)
+            .stream()
+            .map(this::mapToOrderItemDTO)
+            .collect(Collectors.toList());
+
+        Optional<Payment> paymentOpt = paymentRepository.findByOrder_OrderId(orderId);
+        return buildOrderDetailResponse(order, paymentOpt, items);
+    }
+
     /**
      * Chuyển đổi từ OrderItem Entity sang OrderItemDTO.
      *
