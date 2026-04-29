@@ -18,22 +18,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/v1/reviews")
+@RequestMapping("/api/v1/products")
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/products/{productId}")
+    @PostMapping("/{productId}/reviews")
     public ResponseEntity<ReviewResponseDTO> createReview(
-        @RequestParam Integer userId,
         @PathVariable Integer productId,
         @RequestBody ReviewRequestDTO request
     ){
+        Integer userId = 1;
         ReviewResponseDTO response = reviewService.createReview(userId, productId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/products/{productId}")
+    @GetMapping("/{productId}/reviews")
     public ResponseEntity<ProductReviewListResponseDTO> getProductReviews(
         @PathVariable Integer productId,
         @RequestParam(required = false) Integer rating
