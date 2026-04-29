@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cosmetics.ecommerce.dto.OrderDetailResponseDTO;
 import com.cosmetics.ecommerce.dto.OrderItemDTO;
+import com.cosmetics.ecommerce.dto.OrderItemPrototype;
 import com.cosmetics.ecommerce.dto.OrderListDTO;
 import com.cosmetics.ecommerce.dto.OrderRequestDTO;
 import com.cosmetics.ecommerce.dto.OrderResponseDTO;
@@ -143,18 +144,23 @@ public class OrderServiceImpl implements OrderService{
             product.setStock(product.getStock() - item.getQuantity());
             productRepository.save(product);
 
-            //Tạo chi tiết đơn hàng. Note: Lưu cứng tên và giá tại thời điểm mua
-            // để tránh bị ảnh hưởng nếu sau này sản phẩm đổi giá hoặc đổi tên.
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(savedOrder);
-            orderItem.setProduct(product);
-            orderItem.setProductName(product.getName());
-            orderItem.setPrice(product.getPrice());
-            orderItem.setQuantity(item.getQuantity());
+            // Tạo dữ liệu sản phẩm tại thời điểm checkout (từ Product + CartItem)
+            // → đây là object mẫu (prototype)
+            OrderItemPrototype productData = OrderItemPrototype.from(product, item.getQuantity());
+
+            // Clone object mẫu để tạo snapshot độc lập
+            // → dữ liệu này sẽ không bị ảnh hưởng nếu Product thay đổi sau này
+            OrderItemPrototype snapshotData = productData.clone();
+
+            // Tạo OrderItem từ snapshot để lưu vào database
+            // → đảm bảo lưu đúng tên và giá tại thời điểm khách đặt hàng
+            OrderItem orderItem = snapshotData.toOrderItem(savedOrder, product);
             orderItemRepository.save(orderItem);
 
-            //Cộng dồn tổng tiền của đơn hàng (Giá * Số lượng)
-            BigDecimal itemTotal = product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+
+            // Tính tổng tiền dựa trên snapshot (không dùng trực tiếp Product)
+            // → đảm bảo nhất quán với dữ liệu đã lưu trong OrderItem
+            BigDecimal itemTotal = snapshotData.getPrice().multiply(BigDecimal.valueOf(snapshotData.getQuantity()));
             totalAmount = totalAmount.add(itemTotal);
         }
 

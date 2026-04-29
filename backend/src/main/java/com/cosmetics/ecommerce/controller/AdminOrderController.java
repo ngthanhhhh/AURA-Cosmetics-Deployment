@@ -15,7 +15,7 @@ import com.cosmetics.ecommerce.dto.OrderStatusUpdateResponseDTO;
 import com.cosmetics.ecommerce.dto.UpdateOrderStatusRequestDTO;
 import com.cosmetics.ecommerce.service.OrderService;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import lombok.RequiredArgsConstructor;
 
 /**
