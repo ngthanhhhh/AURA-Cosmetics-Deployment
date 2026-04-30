@@ -32,7 +32,7 @@ public class CustomerServiceImpl implements  CustomerService{
     @Override
     public CustomerDetailResponse getCustomerDetail(Integer id){
         User user = customerRepository.findById(id)
-                .filter(u -> u.getRole().getRoleName().equals("CUSTOMER"))
+                .filter(u -> u.getRole().getRoleName().equals("ROLE_CUSTOMER"))
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
 
         // Lấy lịch sử đơn hàng từ OrderRepository
