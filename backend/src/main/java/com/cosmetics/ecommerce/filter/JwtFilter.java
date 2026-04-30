@@ -28,6 +28,12 @@ public class JwtFilter extends OncePerRequestFilter{
                                     FilterChain filterChain)
         throws ServletException, IOException{
 
+        // bỏ qua kiểm tra JWT cho các yêu cầu OPTIONS
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         //1. Doc header Authorization
         String authHeader = request.getHeader("Authorization");
 
@@ -55,7 +61,7 @@ public class JwtFilter extends OncePerRequestFilter{
                 new UsernamePasswordAuthenticationToken(
                         email,
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        List.of(new SimpleGrantedAuthority(role))
                 );
 
         authentication.setDetails(
