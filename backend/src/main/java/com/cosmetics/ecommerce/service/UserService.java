@@ -1,8 +1,8 @@
 package com.cosmetics.ecommerce.service;
+import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
 
-import org.springframework.stereotype.Service;
+public interface UserService {
 
-@Service
-public class UserService {
-    //code o day
+    //UC3.7 - Đổi mật khẩu cho customer đang đăng nhập
+    void changePassword(String email, ChangePasswordRequest request);
 }
