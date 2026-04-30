@@ -30,7 +30,7 @@ public class ApplicationConfig {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .roles(user.getRole().getRoleName()) //Sping se tu them ROLE_
+                    .authorities(user.getRole().getRoleName()) //Sping se tu them ROLE_
                     .build();
         };
 
@@ -44,13 +44,13 @@ public class ApplicationConfig {
 
     //Cấu hình bộ máy xác thực: Kết hợp UserDetailService v PasswordEncoder
 
-    @Bean
-    public AuthenticationProvider authenticationProvider(){
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
+//    @Bean
+//    public AuthenticationProvider authenticationProvider(){
+//        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+//        authProvider.setUserDetailsService(userDetailsService());
+//        authProvider.setPasswordEncoder(passwordEncoder());
+//        return authProvider;
+//    }
 
     //Quản lý xác thực chung cho toàn ứng dụng
     @Bean
