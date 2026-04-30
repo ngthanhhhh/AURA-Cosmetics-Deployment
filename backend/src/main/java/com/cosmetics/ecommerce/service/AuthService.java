@@ -1,8 +1,6 @@
 package com.cosmetics.ecommerce.service;
 
-import com.cosmetics.ecommerce.dto.AuthResponse;
-import com.cosmetics.ecommerce.dto.LoginRequest;
-import com.cosmetics.ecommerce.dto.RegisterRequest;
+import com.cosmetics.ecommerce.dto.*;
 import com.cosmetics.ecommerce.entity.Cart;
 import com.cosmetics.ecommerce.entity.Role;
 import com.cosmetics.ecommerce.entity.User;
@@ -31,7 +29,7 @@ public class AuthService {
 
     @Transactional
     // UC3.5 - Dang ky tai khoan (cho khach hang)
-    public AuthResponse register(RegisterRequest request){
+    public RegisterResponse register(RegisterRequest request){
         //Kiểm tra email đã tồn tại
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email nay da duoc dang ky");
@@ -46,8 +44,8 @@ public class AuthService {
         user.setAddress(request.getAddress());
         user.setPhone(request.getPhone());
 
-        Role customerRole = roleRepository.findByRoleName("CUSTOMER")
-                        .orElseThrow(() -> new RuntimeException("Loi: KHong tim thay quyen CUSTOMER trong he thong!"));
+        Role customerRole = roleRepository.findByRoleName("ROLE_CUSTOMER")
+                        .orElseThrow(() -> new RuntimeException("Loi: Khong tim thay quyen CUSTOMER trong he thong!"));
 
         user.setRole(customerRole);
 
@@ -63,11 +61,11 @@ public class AuthService {
         cart.setUser(savedUser);
         cartRepository.save(cart);
 
-        return AuthResponse.builder().message("Dang ky tai khoan thanh cong").build();
+        return new RegisterResponse("Đăng ký tài khoản thành công");
     }
 
     // dang nhap Admin - dang nhap Customer
-    public AuthResponse login (LoginRequest request){
+    public LoginResponse login (LoginRequest request){
         //b1: xác thực email + password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -85,12 +83,10 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getRoleName());
 
         // 5. Trả về thông tin cho Frontend
-        return AuthResponse.builder()
-                .token(token)
-                .role(user.getRole().getRoleName())
-                .name(user.getName())
-                .message("Đăng nhập thành công")
-                .build();
+        return new LoginResponse(
+                token,
+                user.getRole().getRoleName(),
+                user.getName());
     }
 
 }
