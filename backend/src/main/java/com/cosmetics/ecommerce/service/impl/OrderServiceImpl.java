@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -493,6 +492,12 @@ public class OrderServiceImpl implements OrderService{
     private void restockProductsIfNeeded(Order order) {
         if (order.getStatus() == OrderStatus.DELIVERED || order.getStatus() == OrderStatus.COMPLETED) {
             throw new BadRequestException("Không thể hủy đơn hàng đã giao thành công hoặc đã hoàn thành!");
+        }
+
+        Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId()).orElse(null);
+
+        if (payment != null && payment.getStatus() == PaymentStatus.SUCCESS) {
+            throw new BadRequestException("Không thể hủy đơn hàng đã thanh toán thành công!");
         }
 
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
