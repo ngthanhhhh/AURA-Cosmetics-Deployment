@@ -52,7 +52,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN") //Chỉ Admin mới vào được /admin
-                        .requestMatchers("/api/v1/user/**").hasAuthority("ROLE_CUSTOMER") // Chỉ CUSTOMER mới vào được
+                        .requestMatchers("/api/v1/users/**").hasAuthority("ROLE_CUSTOMER") // Chỉ CUSTOMER mới vào được
                         .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").permitAll() // Xem sản phẩm — public
                         .anyRequest().authenticated() //Các request khác phải đăng nhập
                 )

@@ -2,10 +2,11 @@ package com.cosmetics.ecommerce.controller;
 
 import com.cosmetics.ecommerce.dto.*;
 import com.cosmetics.ecommerce.service.AuthService;
+import com.cosmetics.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
     //dang ky tai khoan (Customer)
     @PostMapping("/register")
@@ -31,11 +32,19 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // Test endcode password (debug)
-    @GetMapping("/test-encode")
-    public String testEncode() {
-        return passwordEncoder.encode("123456");
+    //Đổi mật khẩu
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(
+            @RequestBody ChangePasswordRequest request,
+            Authentication authentication
+    ){
+        if(authentication == null || authentication.getName() == null){
+            throw new RuntimeException("Unauthorized");
+        }
+
+        String email = authentication.getName();
+        userService.changePassword(email, request);
+
+        return ResponseEntity.ok(java.util.Map.of("message", "Đổi mật khẩu thành công"));
     }
-
-
 }

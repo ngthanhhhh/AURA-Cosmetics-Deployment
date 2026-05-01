@@ -27,9 +27,13 @@ public class AuthService {
     private final CartRepository cartRepository;
     private final AuthenticationManager authenticationManager;
 
+
     @Transactional
     // UC3.5 - Dang ky tai khoan (cho khach hang)
+
     public RegisterResponse register(RegisterRequest request){
+        validateRegisterRequest(request);
+
         //Kiểm tra email đã tồn tại
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
             throw new RuntimeException("Email nay da duoc dang ky");
@@ -51,8 +55,6 @@ public class AuthService {
 
         user.setIsActive(true);
 
-
-
         //Lưu vào Database
         User savedUser = userRepository.save(user);
 
@@ -64,8 +66,52 @@ public class AuthService {
         return new RegisterResponse("Đăng ký tài khoản thành công");
     }
 
+    //Validate cho đăng ký
+    private void validateRegisterRequest(RegisterRequest request){
+        if (request == null){
+            throw new RuntimeException("Dữ liệu không hợp lệ");
+        }
+
+        if (request.getName() == null || request.getName().isBlank()){
+            throw new RuntimeException("Tên không được để trống");
+        }
+
+        if (request.getEmail() == null || request.getEmail().isBlank()){
+            throw new RuntimeException("Email không được để trống");
+        }
+
+        if(!request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
+            throw new RuntimeException("Email không hợp lệ");
+        }
+
+        if(request.getPhone() == null ||!request.getPhone().matches("^\\d{10}$")){
+            throw new RuntimeException("SĐT phải là 10 số");
+        }
+
+        if(request.getPassword() == null || request.getPassword().length() < 6){
+            throw new RuntimeException(("Password có ít nhất 6 kí tự"));
+        }
+
+        if(!request.getPassword().equals(request.getConfirmPassword())){
+            throw new RuntimeException(("Mật khẩu xác nhận không khớp"));
+        }
+
+    }
+
+    private void validateLoginRequest(LoginRequest request){
+        if (request == null ||
+            request.getEmail() == null || request.getEmail().isBlank() ||
+                request.getPassword() == null || request.getPassword().isBlank()){
+            throw new RuntimeException("Thiếu email hoặc password");
+        }
+    }
+
+
     // dang nhap Admin - dang nhap Customer
     public LoginResponse login (LoginRequest request){
+
+        validateLoginRequest(request);
+
         //b1: xác thực email + password
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())

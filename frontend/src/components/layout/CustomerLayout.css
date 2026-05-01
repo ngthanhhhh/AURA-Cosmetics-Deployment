@@ -1,0 +1,11 @@
+.customer-layout-container{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /*Đảm bảo layout luôn cao bằng màn hình */
+}
+
+.main-content{
+    flex: 1; /* Đẩy Footer xuống đáy trang ngay cả khi nội dung ít */
+    padding-top: 80px; /* Chừa chỗ cho Header nếu Header của bạn là cố định (fixed) */
+    background-color: #fdfaf7;
+}

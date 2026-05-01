@@ -21,6 +21,13 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request){
+
+        //Validate input
+        if(request == null ||
+            request.getOldPassword() == null || request.getOldPassword().isBlank() || request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
+            throw new RuntimeException("Dữ liệu không hợp lệ");
+        }
+
         //Tìm user theo email lấy từ SecurityContext
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
@@ -33,6 +40,11 @@ public class UserServiceImpl implements UserService {
         //Mật khẩu mới không được trùng mật khẩu cũ
         if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
             throw new RuntimeException("Mật khẩu mới không được trùng mật khẩu cũ");
+        }
+
+        //Check mật khẩu xác nhận
+        if(!request.getNewPassword().equals(request.getConfirmPassword())){
+            throw new RuntimeException("Mật khẩu xác nhận không khớp");
         }
 
         //Mã hóa và lưu mật khẩu mới

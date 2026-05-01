@@ -5,4 +5,5 @@ public interface UserService {
 
     //UC3.7 - Đổi mật khẩu cho customer đang đăng nhập
     void changePassword(String email, ChangePasswordRequest request);
+
 }

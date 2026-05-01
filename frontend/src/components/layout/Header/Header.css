@@ -1,0 +1,55 @@
+/* src/components/layout/Topbar.css */
+.topbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0 5%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  position: sticky; /* Giữ thanh menu luôn ở trên đầu khi cuộn trang */
+  top: 0;
+  z-index: 1000;
+}
+
+.topbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+  letter-spacing: 2px; /* Khoảng cách chữ cho sang trọng */
+}
+
+.search-bar {
+  display: flex;
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 5px 15px;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 8px;
+  width: 300px;
+}
+
+.auth-btn {
+  background-color: #333;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.auth-btn:hover {
+  background-color: #ff85a2; /* Màu hồng điểm nhấn khi hover */
+}

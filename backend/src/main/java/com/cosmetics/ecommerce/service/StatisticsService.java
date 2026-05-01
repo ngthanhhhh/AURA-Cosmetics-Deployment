@@ -16,3 +16,4 @@ public interface StatisticsService{
     //Chức năng 2: Lấy dữ liệu danh sách để vẽ biểu đồ doanh thu
     List<RevenueChartDTO> getRevenueChartData(String type, Integer month, Integer year);
 }
+    
