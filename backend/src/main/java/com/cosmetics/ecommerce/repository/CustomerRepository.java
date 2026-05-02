@@ -11,8 +11,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CustomerRepository extends JpaRepository<User, Integer> {
 
-    //Lọc user có role CUSTOMER và hỗ trợ tìm kiếm theo tên/email
-    @Query("SELECT u FROM User u WHERE u.role.roleName = 'CUSTOMER' AND " +
-            "(:keyword IS NULL OR u.name LIKE %:keyword% OR u.email LIKE %:keyword%)")
-    Page<User> findAllCustomers(@Param("keyword") String keyword, Pageable pageable);
+    //Lọc user có role ROLE_CUSTOMER tìm kiếm theo tên/email, không phân biệt hoa thường
+    @Query("""
+        SELECT u FROM User u
+        WHERE u.role.roleName = 'ROLE_CUSTOMER'
+        AND (:keyword IS NULL 
+            OR LOWER(u.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(u.email) LIKE LOWER(CONCAT('%', :keyword, '%')))
+    """)
+    Page<User> findAllCustomers(@Param("keyword")String keyword, Pageable pageable);
+
 }
