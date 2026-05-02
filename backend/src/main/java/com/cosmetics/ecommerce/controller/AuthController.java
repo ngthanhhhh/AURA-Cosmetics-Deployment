@@ -1,13 +1,11 @@
 package com.cosmetics.ecommerce.controller;
 
-import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.dto.*;
 import com.cosmetics.ecommerce.service.AuthService;
 import com.cosmetics.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,19 +31,5 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    //Đổi mật khẩu
-    @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(
-            @RequestBody ChangePasswordRequest request,
-            Authentication authentication
-    ){
-        if(authentication == null || authentication.getName() == null){
-            throw new BadRequestException("Unauthorized");
-        }
 
-        String email = authentication.getName();
-        userService.changePassword(email, request);
-
-        return ResponseEntity.ok(java.util.Map.of("message", "Đổi mật khẩu thành công"));
-    }
 }
