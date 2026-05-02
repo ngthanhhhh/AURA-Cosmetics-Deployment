@@ -1,5 +1,7 @@
 package com.cosmetics.ecommerce.service.impl;
 
+import com.cosmetics.ecommerce.exception.BadRequestException;
+import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
 import com.cosmetics.ecommerce.entity.User;
 import com.cosmetics.ecommerce.repository.UserRepository;
@@ -25,26 +27,26 @@ public class UserServiceImpl implements UserService {
         //Validate input
         if(request == null ||
             request.getOldPassword() == null || request.getOldPassword().isBlank() || request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
-            throw new RuntimeException("Dữ liệu không hợp lệ");
+            throw new BadRequestException("Dữ liệu không hợp lệ");
         }
 
         //Tìm user theo email lấy từ SecurityContext
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
         //Xác minh mật khẩu cũ
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
-            throw new RuntimeException("Mật khẩu cũ không chính xác");
+            throw new BadRequestException("Mật khẩu cũ không chính xác");
         }
 
         //Mật khẩu mới không được trùng mật khẩu cũ
         if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
-            throw new RuntimeException("Mật khẩu mới không được trùng mật khẩu cũ");
+            throw new BadRequestException("Mật khẩu mới không được trùng mật khẩu cũ");
         }
 
         //Check mật khẩu xác nhận
         if(!request.getNewPassword().equals(request.getConfirmPassword())){
-            throw new RuntimeException("Mật khẩu xác nhận không khớp");
+            throw new BadRequestException("Mật khẩu xác nhận không khớp");
         }
 
         //Mã hóa và lưu mật khẩu mới

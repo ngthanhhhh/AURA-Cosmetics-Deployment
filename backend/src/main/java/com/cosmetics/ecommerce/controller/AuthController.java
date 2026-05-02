@@ -1,5 +1,6 @@
 package com.cosmetics.ecommerce.controller;
 
+import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.dto.*;
 import com.cosmetics.ecommerce.service.AuthService;
 import com.cosmetics.ecommerce.service.UserService;
@@ -39,7 +40,7 @@ public class AuthController {
             Authentication authentication
     ){
         if(authentication == null || authentication.getName() == null){
-            throw new RuntimeException("Unauthorized");
+            throw new BadRequestException("Unauthorized");
         }
 
         String email = authentication.getName();

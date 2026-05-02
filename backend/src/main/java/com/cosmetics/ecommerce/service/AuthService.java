@@ -1,5 +1,5 @@
 package com.cosmetics.ecommerce.service;
-
+import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.dto.*;
 import com.cosmetics.ecommerce.entity.Cart;
 import com.cosmetics.ecommerce.entity.Role;
@@ -36,7 +36,7 @@ public class AuthService {
 
         //Kiểm tra email đã tồn tại
         if(userRepository.findByEmail(request.getEmail()).isPresent()){
-            throw new RuntimeException("Email nay da duoc dang ky");
+            throw new BadRequestException("Email nay da duoc dang ky");
 
         }
 
@@ -49,7 +49,7 @@ public class AuthService {
         user.setPhone(request.getPhone());
 
         Role customerRole = roleRepository.findByRoleName("ROLE_CUSTOMER")
-                        .orElseThrow(() -> new RuntimeException("Loi: Khong tim thay quyen CUSTOMER trong he thong!"));
+                        .orElseThrow(() -> new BadRequestException("Loi: Khong tim thay quyen CUSTOMER trong he thong!"));
 
         user.setRole(customerRole);
 
@@ -69,31 +69,31 @@ public class AuthService {
     //Validate cho đăng ký
     private void validateRegisterRequest(RegisterRequest request){
         if (request == null){
-            throw new RuntimeException("Dữ liệu không hợp lệ");
+            throw new BadRequestException("Dữ liệu không hợp lệ");
         }
 
         if (request.getName() == null || request.getName().isBlank()){
-            throw new RuntimeException("Tên không được để trống");
+            throw new BadRequestException("Tên không được để trống");
         }
 
         if (request.getEmail() == null || request.getEmail().isBlank()){
-            throw new RuntimeException("Email không được để trống");
+            throw new BadRequestException("Email không được để trống");
         }
 
         if(!request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
-            throw new RuntimeException("Email không hợp lệ");
+            throw new BadRequestException("Email không hợp lệ");
         }
 
         if(request.getPhone() == null ||!request.getPhone().matches("^\\d{10}$")){
-            throw new RuntimeException("SĐT phải là 10 số");
+            throw new BadRequestException("SĐT phải là 10 số");
         }
 
         if(request.getPassword() == null || request.getPassword().length() < 6){
-            throw new RuntimeException(("Password có ít nhất 6 kí tự"));
+            throw new BadRequestException(("Password có ít nhất 6 kí tự"));
         }
 
         if(!request.getPassword().equals(request.getConfirmPassword())){
-            throw new RuntimeException(("Mật khẩu xác nhận không khớp"));
+            throw new BadRequestException(("Mật khẩu xác nhận không khớp"));
         }
 
     }
@@ -102,7 +102,7 @@ public class AuthService {
         if (request == null ||
             request.getEmail() == null || request.getEmail().isBlank() ||
                 request.getPassword() == null || request.getPassword().isBlank()){
-            throw new RuntimeException("Thiếu email hoặc password");
+            throw new BadRequestException("Thiếu email hoặc password");
         }
     }
 
@@ -118,11 +118,11 @@ public class AuthService {
         );
         //b2: lấy user
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+                .orElseThrow(() -> new BadRequestException("Không tìm thấy user"));
 
         //b3: kiểm tra tài khoản có bị khóa không
         if(!user.getIsActive()){
-            throw new RuntimeException("Tài khoản đã bị khóa");
+            throw new BadRequestException("Tài khoản đã bị khóa");
         }
 
         // b4. Tạo token
