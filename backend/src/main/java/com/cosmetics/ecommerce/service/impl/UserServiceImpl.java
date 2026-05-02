@@ -1,5 +1,6 @@
 package com.cosmetics.ecommerce.service.impl;
 
+import com.cosmetics.ecommerce.dto.UserProfileResponse;
 import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
@@ -34,6 +35,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
+        if(!user.getIsActive()){
+            throw new BadRequestException("Tài khoản đã bị khóa");
+        }
+
         //Xác minh mật khẩu cũ
         if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
             throw new BadRequestException("Mật khẩu cũ không chính xác");
@@ -52,6 +57,24 @@ public class UserServiceImpl implements UserService {
         //Mã hóa và lưu mật khẩu mới
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    public UserProfileResponse getProfileByEmail(String email){
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+
+        if(!user.getIsActive()){
+            throw new BadRequestException("Tài khoản đã bị khóa");
+        }
+
+        return UserProfileResponse.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .build();
     }
 
 }
