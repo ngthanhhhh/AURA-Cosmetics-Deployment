@@ -30,7 +30,7 @@ public class ApplicationConfig {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getEmail())
                     .password(user.getPassword())
-                    .authorities(user.getRole().getRoleName()) //Sping se tu them ROLE_
+                    .authorities(user.getRole().getRoleName()) //roleName phải là ROLE_ADMIN hoặc ROLE_CUSTOMER
                     .build();
         };
 
