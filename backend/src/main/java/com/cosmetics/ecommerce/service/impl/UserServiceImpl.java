@@ -25,11 +25,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request){
 
-        //Validate input
-        if(request == null ||
-            request.getOldPassword() == null || request.getOldPassword().isBlank() || request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
-            throw new BadRequestException("Dữ liệu không hợp lệ");
-        }
+        validateChangePassword(request);
 
         //Tìm user theo email lấy từ SecurityContext
         User user = userRepository.findByEmail(email)
@@ -44,6 +40,24 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Mật khẩu cũ không chính xác");
         }
 
+        //Mật khẩu mới không được trùng mật khẩu cũ
+        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+            throw new BadRequestException("Mật khẩu mới không được trùng mật khẩu cũ");
+        }
+
+        //Mã hóa và lưu mật khẩu mới
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    private void validateChangePassword(ChangePasswordRequest request){
+
+        //Validate input
+        if(request == null ||
+                request.getOldPassword() == null || request.getOldPassword().isBlank() || request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
+            throw new BadRequestException("Dữ liệu không hợp lệ");
+        }
+
         //Check mật khẩu xác nhận
         if(!request.getNewPassword().equals(request.getConfirmPassword())){
             throw new BadRequestException("Mật khẩu xác nhận không khớp");
@@ -55,18 +69,9 @@ public class UserServiceImpl implements UserService {
         }
 
         // Check chữ + số
-        if(!request.getNewPassword().matches("^(?=.*[A-Za-z])(?=.*\\\\d).+$")){
+        if(!request.getNewPassword().matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
             throw new BadRequestException("Mật khẩu phải chứa chữ và số");
         }
-
-        //Mật khẩu mới không được trùng mật khẩu cũ
-        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
-            throw new BadRequestException("Mật khẩu mới không được trùng mật khẩu cũ");
-        }
-
-        //Mã hóa và lưu mật khẩu mới
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        userRepository.save(user);
     }
 
     @Override
@@ -86,5 +91,7 @@ public class UserServiceImpl implements UserService {
                 .address(user.getAddress())
                 .build();
     }
+
+
 
 }
