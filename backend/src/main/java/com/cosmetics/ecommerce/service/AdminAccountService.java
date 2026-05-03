@@ -27,4 +27,8 @@ public interface AdminAccountService {
     //đổi mật khẩu tài khoản
     //mã hóa BCrypt trước khi lưu
     void changePassword(Integer id, ChangePasswordRequest request);
+
+    // mở/ khóa tài khoản admin
+    void updateStatus(Integer id, Boolean isActive);
+
 }

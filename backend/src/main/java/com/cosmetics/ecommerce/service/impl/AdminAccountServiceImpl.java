@@ -6,10 +6,12 @@ import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
 import com.cosmetics.ecommerce.entity.Role;
 import com.cosmetics.ecommerce.entity.User;
 import com.cosmetics.ecommerce.exception.BadRequestException;
+import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.repository.RoleRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.AdminAccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +28,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    //lấy danh sách tất cả tài khoản admin đang hoạt động
+    //lấy danh sách tất cả tài khoản admin
     @Override
     public List<AdminAccountResponse> getAllAccounts(){
         //Lấy role ADMIN trong database
@@ -34,7 +36,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy role ADMIN"));
 
         //Lọc chỉ lấy user có role ADMIN, chuyển sang DTO rồi trả về
-        return userRepository.findByRoleAndIsActiveTrue(adminRole)
+        return userRepository.findByRole(adminRole)
                 .stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
@@ -47,8 +49,11 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         validateAdminAccountRequest(request, true);
 
+        String email = request.getEmail().trim().toLowerCase();
+        String password = request.getPassword().trim();
+
         //Kiểm tra email đã tồn tại chưa
-        if(userRepository.existsByEmail(request.getEmail())){
+        if(userRepository.existsByEmail(email)){
             throw new BadRequestException("Email đã tồn tại");
         }
 
@@ -57,12 +62,13 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy role ADMIN"));
 
+
         //Tạo user mới với role ADMIN
         User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
+        user.setName(request.getName().trim());
+        user.setEmail(email);
         //mã hóa mật khẩu trước khi lưu
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(password));
         user.setRole(adminRole);
         user.setIsActive(true);
 
@@ -78,18 +84,24 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         validateAdminAccountRequest(request, false);
 
+        String email = request.getEmail().trim().toLowerCase();
+
         //Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy tài khoản"));
 
+        if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
+            throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
+        }
+
         // Kiểm tra email trùng (trừ chính nó)
-        if(userRepository.existsByEmailAndUserIdNot(request.getEmail(),id)){
+        if(userRepository.existsByEmailAndUserIdNot(email,id)){
             throw new BadRequestException("Email đã tồn tại");
         }
 
         //Cập nhật thông tin
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
+        user.setName(request.getName().trim());
+        user.setEmail(email);
 
         //Tránh lỗi null khi frontend không gửi isActive
         if(request.getIsActive() != null){
@@ -108,8 +120,12 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy tài khoản"));
 
+        if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
+            throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
+        }
+
         //Không cho xóa tài khoản đang đăng nhập
-        if(user.getEmail().equals(currentUserEmail)){
+        if(user.getEmail().equalsIgnoreCase(currentUserEmail)){
             throw new BadRequestException("Không thể xóa tài khoản đang đăng nhập");
         }
 
@@ -125,15 +141,23 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         validateChangePassword(request);
 
+        String newPassword = request.getNewPassword().trim();
+
         // Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+
+        if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
+            throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
+        }
+
+
 
         // Không trùng password cũ
-        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+        if(passwordEncoder.matches(newPassword, user.getPassword())){
             throw new BadRequestException("Mật khẩu mới không được trùng mật khẩu cũ");
         }
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
     // Chuyển đổi User entity sang AdminAccountResponse DTO
@@ -148,6 +172,35 @@ public class AdminAccountServiceImpl implements AdminAccountService {
                 .build();
     }
 
+    // Mở / khóa tài khoản admin
+    @Override
+    @Transactional
+    public void updateStatus(Integer id, Boolean isActive){
+
+        if(isActive == null){
+            throw new BadRequestException("Trạng thái không hợp lệ");
+        }
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
+
+        //Check role trước
+        if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
+            throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
+        }
+
+        // Lấy email hiện tại
+        String currentUserEmail = SecurityContextHolder.getContext()
+                .getAuthentication().getName();
+
+        if(user.getEmail().equalsIgnoreCase(currentUserEmail) && !isActive){
+            throw new BadRequestException("Không thể tự vô hiệu hóa tài khoản của mình");
+        }
+
+        user.setIsActive(isActive);
+        userRepository.save(user);
+    }
+
     //Xác thực đổi mật khẩu admin
     private void validateChangePassword(ChangePasswordRequest request){
         if(request == null ||
@@ -155,11 +208,18 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Dữ liệu không hợp lệ");
         }
 
-        if(request.getNewPassword().length() < 6){
+        String newPassword = request.getNewPassword().trim();
+        String confirmPassword = request.getConfirmPassword().trim();
+
+        if(newPassword.length() < 6){
             throw new BadRequestException("Mật khẩu phải có ít nhất 6 kí tự");
         }
 
-        if(!request.getNewPassword().equals(request.getConfirmPassword())){
+        if(!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
+            throw new BadRequestException("Mật khẩu phải chứa chữ và số");
+        }
+
+        if(!newPassword.equals(confirmPassword)){
             throw new BadRequestException("Mật khẩu xác nhận không khớp");
         }
     }
@@ -171,28 +231,34 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Dữ liệu không hợp lệ");
         }
 
-        if(request.getName() == null || request.getName().isBlank()){
+        String email = request.getEmail() != null ? request.getEmail().trim() : null;
+        String name = request.getName() != null ? request.getName().trim() : null;
+        String password = request.getPassword() != null ? request.getPassword().trim() : null;
+
+        if(name == null || name.isBlank()){
             throw new BadRequestException("Tên không được để trống");
         }
 
-        if(request.getEmail() == null || request.getEmail().isBlank()){
+        if(email == null || email.isBlank()){
             throw new BadRequestException("Email không được để trống");
         }
 
-        if(!request.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
+        if(!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")){
             throw new BadRequestException("Email không hợp lệ");
         }
 
         //chỉ check password khi tạo mới
         if(isCreate){
-            if(request.getPassword() == null || request.getPassword().length() < 6){
+            if(password == null || password.length() < 6){
                 throw new BadRequestException("Password phải có ít nhất 6 ký tự");
             }
 
             //Bắt buộc có chữ + số
-            if(!request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
+            if(!password.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
                 throw new BadRequestException("Password phải chứa chữ và số");
             }
         }
     }
+
+
 }

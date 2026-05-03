@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/admin/customers")
 @RequiredArgsConstructor
@@ -33,5 +35,22 @@ public class CustomerController {
     public ResponseEntity<CustomerDetailResponse> getCustomerDetail(@PathVariable Integer id){
         return ResponseEntity.ok(customerService.getCustomerDetail(id));
     }
+
+    ///{id}/status
+    // Mở / Khóa tài khoản customer
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Boolean> request
+    ){
+        Boolean isActive = request.get("isActive");
+
+        customerService.updateStatus(id, isActive);
+
+        return ResponseEntity.ok(
+                Map.of("message", "Cập nhật trạng thái khách hàng thành công"));
+
+    }
+
 
 }

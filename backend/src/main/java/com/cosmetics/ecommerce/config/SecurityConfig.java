@@ -61,7 +61,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
 
         //Cho phép các phương thức HTTP
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         //Cho phép các Header (rất quan trọng khi dùng JWT)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));

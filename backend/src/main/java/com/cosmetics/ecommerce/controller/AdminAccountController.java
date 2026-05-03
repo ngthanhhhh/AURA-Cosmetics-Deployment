@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin/accounts")
@@ -59,11 +60,28 @@ public class AdminAccountController {
     // PUT /api/v1/admin/accounts/{id}/password
     // Đổi mật khẩu tài khoản
     @PutMapping("/{id}/password")
-    public ResponseEntity<Void> changePassword(
+    public ResponseEntity<?> changePassword(
             @PathVariable Integer id,
             @RequestBody ChangePasswordRequest request) {
         adminAccountService.changePassword(id, request);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+                Map.of("message", "Đổi mật khẩu thành công")
+        );
+    }
+    // PUT /api/v1/admin/accounts/{id}/status
+    // Mở / Khóa tài khoản admin
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Boolean> request
+    ){
+        Boolean isActive = request.get("isActive");
+
+        adminAccountService.updateStatus(id, isActive);
+
+        return ResponseEntity.ok(
+                Map.of("message", "Cập nhật trạng thái tài khoản thành công"));
+
     }
 
 }

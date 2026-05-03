@@ -3,13 +3,17 @@ package com.cosmetics.ecommerce.service.impl;
 import com.cosmetics.ecommerce.dto.CustomerResponse;
 import com.cosmetics.ecommerce.dto.CustomerDetailResponse;
 import com.cosmetics.ecommerce.entity.User;
+import com.cosmetics.ecommerce.exception.BadRequestException;
+import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.repository.CustomerRepository;
 import com.cosmetics.ecommerce.repository.OrderRepository;
 import com.cosmetics.ecommerce.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.TypeRegistration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,7 +37,7 @@ public class CustomerServiceImpl implements  CustomerService{
     public CustomerDetailResponse getCustomerDetail(Integer id){
         User user = customerRepository.findById(id)
                 .filter(u -> u.getRole().getRoleName().equals("ROLE_CUSTOMER"))
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy khách hàng với ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
         // Lấy lịch sử đơn hàng từ OrderRepository
         List<CustomerDetailResponse.OrderHistoryDTO> history = orderRepository.findByUserUserId(id)
@@ -56,5 +60,26 @@ public class CustomerServiceImpl implements  CustomerService{
                 user.getIsActive(),
                 history
         );
+    }
+
+    // Mở / khóa tài khoản khách hàng
+    @Override
+    @Transactional
+    public void updateStatus(Integer id, Boolean isActive){
+
+        if(isActive == null){
+            throw new BadRequestException("Trạng thái không hợp lệ");
+        }
+
+        User user = customerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng"));
+
+        if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
+            throw new BadRequestException("Chỉ áp dụng cho khách hàng");
+        }
+
+        user.setIsActive(isActive);
+
+        customerRepository.save(user);
     }
 }
