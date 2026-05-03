@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.core.Authentication;
+import java.util.Map;
+
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -20,13 +24,16 @@ public class UserController {
     //PUT /api/v1/users/change-password
     //Customer tự đổi mật khẩu của mình
     @PutMapping("/change-password")
-    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request){
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request){
         //Lấy email của customer đang đăng nhập từ SecurityContext
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
+
         userService.changePassword(email, request);
-        return ResponseEntity.ok().build();
+
+        return ResponseEntity.ok(
+                Map.of("message", "Đổi mật khẩu thành công"));
     }
 
     // GET /api/v1/users/me
