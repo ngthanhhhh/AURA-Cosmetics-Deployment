@@ -31,13 +31,15 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getAllCustomers(keyword, pageable));
     }
 
+    // GET /api/v1/admin/customers/{id}
+    // Xem chi tiết khách hàng
     @GetMapping("/{id}")
     public ResponseEntity<CustomerDetailResponse> getCustomerDetail(@PathVariable Integer id){
         return ResponseEntity.ok(customerService.getCustomerDetail(id));
     }
 
     ///{id}/status
-    // Mở / Khóa tài khoản customer
+    // Mở / Khóa tài khoản khách hàng
     @PutMapping("/{id}/status")
     public ResponseEntity<?> updateStatus(
             @PathVariable Integer id,
