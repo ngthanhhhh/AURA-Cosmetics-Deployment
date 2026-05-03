@@ -3,6 +3,7 @@ package com.cosmetics.ecommerce.service.impl;
 import com.cosmetics.ecommerce.dto.RevenueChartDTO;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
 import com.cosmetics.ecommerce.enums.OrderStatus;
+import com.cosmetics.ecommerce.enums.StatisticType;
 import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.repository.OrderRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
@@ -26,8 +27,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         //Lấy doanh thu (Chỉ tính đơn COMPLETED)
         Double totalRevenue = orderRepository.calculateTotalRevenue();
+
         return StatisticsResponse.builder()
-                .totalRevenue( totalRevenue != null ? totalRevenue : 0.0)
+                .totalRevenue( totalRevenue == null ? 0.0 : totalRevenue )
                 .totalOrders( orderRepository.countTotalOrders())
                 .totalUsers( userRepository.count())
                 .pendingOrders( orderRepository.countByStatus(OrderStatus.PENDING))
@@ -39,30 +41,39 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public List<RevenueChartDTO> getRevenueChartData(String type, Integer month, Integer year){
-        if(type == null || type.trim().isEmpty()){
+    public List<RevenueChartDTO> getRevenueChartData(StatisticType type, Integer month, Integer year, LocalDate fromDate, LocalDate toDate){
+
+        if(type == null){
             throw new BadRequestException("Vui lòng chọn loại thống kê");
         }
 
-        type = type.trim().toLowerCase();
-
         int targetYear = (year == null) ? LocalDate.now().getYear() : year;
 
-        if("day".equals(type)){
-            if(month == null){
-                throw new BadRequestException("Vui lòng chọn tháng khi xem thống kê theo ngày");
-            }
-            if(month < 1 || month > 12){
-                throw new BadRequestException("Tháng không hợp lệ (1–12)");
-            }
-            return orderRepository.getRevenueByDay(month, targetYear);
-        }
+        switch (type) {
+            case DAY:
+                if (month == null) {
+                    throw new BadRequestException("Vui lòng chọn tháng khi xem theo ngày");
+                }
+                if (month < 1 || month > 12) {
+                    throw new BadRequestException("Tháng không hợp lệ (1-12)");
+                }
+                return orderRepository.getRevenueByDay(month, targetYear);
 
-        if("month".equals(type)){
-            return orderRepository.getRevenueByMonth(targetYear);
+            case MONTH:
+                return orderRepository.getRevenueByMonth(targetYear);
+
+            case RANGE:
+                if (fromDate == null || toDate == null) {
+                    throw new BadRequestException("Vui lòng nhập khoảng ngày");
+                }
+
+                if (fromDate.isAfter(toDate)) {
+                    throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
+                }
+
+                return orderRepository.getRevenueByDateRange(fromDate, toDate);
         }
 
         throw new BadRequestException("Loại thống kê không hợp lệ");
     }
-
 }

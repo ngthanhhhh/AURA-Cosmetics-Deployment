@@ -1,5 +1,6 @@
 package com.cosmetics.ecommerce.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -56,5 +57,16 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
             "FROM Order o WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED AND YEAR(o.createdAt) = :y " +
             "GROUP BY MONTH(o.createdAt) ORDER BY MONTH(o.createdAt)")
     List<RevenueChartDTO> getRevenueByMonth(@Param("y") int year);
+
+    //3. Thống kê theo khoảng ngày
+    @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(DAY(o.createdAt), SUM(o.totalPrice)) " +
+            "FROM Order o " +
+            "WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED " +
+            "AND o.createdAt BETWEEN :from AND :to " +
+            "GROUP BY DAY(o.createdAt) " +
+            "ORDER BY DAY(o.createdAt)")
+    List<RevenueChartDTO> getRevenueByDateRange(
+            @Param("from")LocalDate from,
+            @Param("to") LocalDate to);
 
 }
