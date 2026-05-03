@@ -1,6 +1,7 @@
 package com.cosmetics.ecommerce.controller;
 
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
+import com.cosmetics.ecommerce.dto.UpdateProfileRequest;
 import com.cosmetics.ecommerce.dto.UserProfileResponse;
 import com.cosmetics.ecommerce.entity.User;
 import com.cosmetics.ecommerce.service.UserService;
@@ -45,5 +46,21 @@ public class UserController {
                 .getName();
 
         return ResponseEntity.ok(userService.getProfileByEmail(email));
+    }
+
+    // PUT /api/v1/users/me
+    // Customer sửa profile cá nhân
+    @PutMapping("/me")
+    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request){
+
+        String email = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        userService.updateProfile(email, request);
+
+        return ResponseEntity.ok(
+                Map.of("message", "Cập nhật thông tin thành công")
+        );
     }
 }

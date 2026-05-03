@@ -4,6 +4,7 @@ import com.cosmetics.ecommerce.dto.UserProfileResponse;
 import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
+import com.cosmetics.ecommerce.dto.UpdateProfileRequest;
 import com.cosmetics.ecommerce.entity.User;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.UserService;
@@ -90,6 +91,40 @@ public class UserServiceImpl implements UserService {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateProfile(String email, UpdateProfileRequest request){
+
+        if (request == null){
+            throw new BadRequestException("Dữ liệu không hợp lệ");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+
+        if(!user.getIsActive()){
+            throw new BadRequestException("Tài khoản đã bị khóa");
+        }
+
+        // xác thực và cập nhật
+        if(request.getName() != null && !request.getName().isBlank()){
+            user.setName(request.getName().trim());
+        }
+
+        if(request.getPhone() != null){
+            if(!request.getPhone().matches("^\\d{10}$")){
+                throw new BadRequestException("SĐT phải là 10 số");
+            }
+            user.setPhone(request.getPhone());
+        }
+
+        if(request.getAddress() != null){
+            user.setAddress(request.getAddress());
+        }
+
+        userRepository.save(user);
     }
 
 
