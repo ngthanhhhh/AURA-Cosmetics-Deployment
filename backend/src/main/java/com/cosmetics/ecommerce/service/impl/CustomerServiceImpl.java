@@ -9,7 +9,6 @@ import com.cosmetics.ecommerce.repository.CustomerRepository;
 import com.cosmetics.ecommerce.repository.OrderRepository;
 import com.cosmetics.ecommerce.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.TypeRegistration;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +25,8 @@ public class CustomerServiceImpl implements  CustomerService{
 
     @Override
     public Page<CustomerResponse> getAllCustomers(String keyword, Pageable pageable){
+
+        keyword = (keyword == null || keyword.trim().isEmpty() ? null : keyword.trim());
         return customerRepository.findAllCustomers(keyword, pageable)
                 .map(u -> new CustomerResponse(
                         u.getUserId(), u.getName(), u.getEmail(),
@@ -36,8 +37,11 @@ public class CustomerServiceImpl implements  CustomerService{
     @Override
     public CustomerDetailResponse getCustomerDetail(Integer id){
         User user = customerRepository.findById(id)
-                .filter(u -> u.getRole().getRoleName().equals("ROLE_CUSTOMER"))
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
+
+        if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
+            throw new BadRequestException("User không phải khách hàng");
+        }
 
         // Lấy lịch sử đơn hàng từ OrderRepository
         List<CustomerDetailResponse.OrderHistoryDTO> history = orderRepository.findByUserUserId(id)
@@ -72,7 +76,7 @@ public class CustomerServiceImpl implements  CustomerService{
         }
 
         User user = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: \" + id"));
 
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
             throw new BadRequestException("Chỉ áp dụng cho khách hàng");
