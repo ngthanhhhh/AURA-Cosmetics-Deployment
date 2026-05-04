@@ -28,6 +28,9 @@ public class UserServiceImpl implements UserService {
 
         validateChangePassword(request);
 
+        String oldPassword = request.getOldPassword().trim();
+        String newPassword = request.getNewPassword().trim();
+
         //Tìm user theo email lấy từ SecurityContext
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
@@ -37,40 +40,49 @@ public class UserServiceImpl implements UserService {
         }
 
         //Xác minh mật khẩu cũ
-        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
+            if(!passwordEncoder.matches(oldPassword, user.getPassword())){
             throw new BadRequestException("Mật khẩu cũ không chính xác");
         }
 
         //Mật khẩu mới không được trùng mật khẩu cũ
-        if(passwordEncoder.matches(request.getNewPassword(), user.getPassword())){
+        if(passwordEncoder.matches(newPassword, user.getPassword())){
             throw new BadRequestException("Mật khẩu mới không được trùng mật khẩu cũ");
         }
 
         //Mã hóa và lưu mật khẩu mới
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
     private void validateChangePassword(ChangePasswordRequest request){
 
         //Validate input
-        if(request == null ||
-                request.getOldPassword() == null || request.getOldPassword().isBlank() || request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
-            throw new BadRequestException("Dữ liệu không hợp lệ");
+        if(request == null){
+            throw new BadRequestException("Dữ liệu đổi mật khẩu không hợp lệ");
+        }
+
+        String oldPassword = request.getOldPassword() != null ? request.getOldPassword().trim() : null;
+        String newPassword = request.getNewPassword() != null ? request.getNewPassword().trim() : null;
+        String confirmPassword = request.getConfirmPassword() != null ? request.getConfirmPassword().trim() : null;
+
+        if (oldPassword == null || oldPassword.isBlank()
+                || newPassword == null || newPassword.isBlank()
+                || confirmPassword == null || confirmPassword.isBlank()) {
+            throw new BadRequestException("Vui lòng nhập đầy đủ thông tin");
         }
 
         //Check mật khẩu xác nhận
-        if(!request.getNewPassword().equals(request.getConfirmPassword())){
-            throw new BadRequestException("Mật khẩu xác nhận không khớp");
+        if(!newPassword.equals(confirmPassword)){
+            throw new BadRequestException("Mật khẩu mới và xác nhận mật khẩu không khớp");
         }
 
         // Check độ dài
-        if (request.getNewPassword().length() < 6){
-            throw new BadRequestException("Mật khẩu  phải có ít nhất 6 ký tự");
+        if (newPassword.length() < 6){
+            throw new BadRequestException("Mật khẩu mới phải có ít nhất 6 ký tự");
         }
 
         // Check chữ + số
-        if(!request.getNewPassword().matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
+        if(!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
             throw new BadRequestException("Mật khẩu phải chứa chữ và số");
         }
     }
@@ -98,7 +110,7 @@ public class UserServiceImpl implements UserService {
     public void updateProfile(String email, UpdateProfileRequest request){
 
         if (request == null){
-            throw new BadRequestException("Dữ liệu không hợp lệ");
+            throw new BadRequestException("Vui lòng nhập đầy đủ thông tin");
         }
 
         User user = userRepository.findByEmail(email)
