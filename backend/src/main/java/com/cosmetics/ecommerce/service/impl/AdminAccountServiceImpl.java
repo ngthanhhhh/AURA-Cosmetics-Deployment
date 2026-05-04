@@ -33,7 +33,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
     public List<AdminAccountResponse> getAllAccounts(){
         //Lấy role ADMIN trong database
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy role ADMIN"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ROLE_ADMIN"));
 
         //Lọc chỉ lấy user có role ADMIN, chuyển sang DTO rồi trả về
         return userRepository.findByRole(adminRole)
@@ -60,7 +60,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         //Lấy role ADMIN từ database
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy role ADMIN"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ROLE_ADMIN"));
 
 
         //Tạo user mới với role ADMIN
@@ -88,7 +88,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         //Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
         if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
@@ -118,7 +118,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
     public void deleteAccount(Integer id, String currentUserEmail){
         //Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy tài khoản"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
         if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
@@ -150,8 +150,6 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
         }
-
-
 
         // Không trùng password cũ
         if(passwordEncoder.matches(newPassword, user.getPassword())){
@@ -203,16 +201,20 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
     //Xác thực đổi mật khẩu admin
     private void validateChangePassword(ChangePasswordRequest request){
-        if(request == null ||
-                request.getNewPassword() == null || request.getNewPassword().isBlank() || request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()){
+        if(request == null ){
             throw new BadRequestException("Dữ liệu không hợp lệ");
         }
 
-        String newPassword = request.getNewPassword().trim();
-        String confirmPassword = request.getConfirmPassword().trim();
+        String newPassword = request.getNewPassword() != null ? request.getNewPassword().trim() : null;
+        String confirmPassword = request.getConfirmPassword() != null ? request.getConfirmPassword().trim() : null;
+
+        if(newPassword == null || confirmPassword == null ||
+           newPassword.isBlank() || confirmPassword.isBlank()){
+            throw new BadRequestException("Mật khẩu không được để trống");
+        }
 
         if(newPassword.length() < 6){
-            throw new BadRequestException("Mật khẩu phải có ít nhất 6 kí tự");
+            throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");
         }
 
         if(!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
@@ -236,7 +238,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         String password = request.getPassword() != null ? request.getPassword().trim() : null;
 
         if(name == null || name.isBlank()){
-            throw new BadRequestException("Tên không được để trống");
+            throw new BadRequestException("Họ tên không được để trống");
         }
 
         if(email == null || email.isBlank()){
@@ -250,12 +252,12 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         //chỉ check password khi tạo mới
         if(isCreate){
             if(password == null || password.length() < 6){
-                throw new BadRequestException("Password phải có ít nhất 6 ký tự");
+                throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");
             }
 
             //Bắt buộc có chữ + số
             if(!password.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
-                throw new BadRequestException("Password phải chứa chữ và số");
+                throw new BadRequestException("Mật khẩu phải chứa chữ và số");
             }
         }
     }
