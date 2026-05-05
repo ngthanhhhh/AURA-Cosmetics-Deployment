@@ -35,12 +35,10 @@ public class StatisticsController {
     @GetMapping("/revenue-chart")
     public ResponseEntity<List<RevenueChartDTO>> getRevenueChart(
             @RequestParam StatisticType type,
-            @RequestParam(required = false) Integer month,
-            @RequestParam(required = false) Integer year,
             @RequestParam(required = false) LocalDate fromDate,
             @RequestParam(required = false) LocalDate toDate
     ){
-        return ResponseEntity.ok(statisticsService.getRevenueChartData(type, month, year, fromDate, toDate));
+        return ResponseEntity.ok(statisticsService.getRevenueChartData(type, fromDate, toDate));
     }
 
 
