@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").permitAll() // Xem sản phẩm — public
                         .anyRequest().authenticated() //Các request khác phải đăng nhập
                 )
+
                 //Thêm filter của bạn vào trước bộ lọc mặc định của Spring
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
