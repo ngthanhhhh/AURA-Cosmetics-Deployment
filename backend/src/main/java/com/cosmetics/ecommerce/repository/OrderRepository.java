@@ -59,11 +59,11 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
     List<RevenueChartDTO> getRevenueByMonth(@Param("y") int year);
 
     //3. Thống kê theo khoảng ngày
-    @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(DAY(o.createdAt), SUM(o.totalPrice)) " +
+    @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(DAY(o.createdAt), CAST(SUM(o.totalPrice) AS double)) " +
             "FROM Order o " +
             "WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED " +
             "AND o.createdAt BETWEEN :from AND :to " +
-            "GROUP BY DAY(o.createdAt) " +
+            "GROUP BY DATE(o.createdAt) " +
             "ORDER BY DAY(o.createdAt)")
     List<RevenueChartDTO> getRevenueByDateRange(
             @Param("from")LocalDate from,

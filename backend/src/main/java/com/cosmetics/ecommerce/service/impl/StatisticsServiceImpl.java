@@ -51,13 +51,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         switch (type) {
             case DAY:
-                if (month == null) {
-                    throw new BadRequestException("Vui lòng chọn tháng khi xem theo ngày");
-                }
-                if (month < 1 || month > 12) {
+                // Nếu xem theo ngày mà không chọn tháng, mặc định lấy tháng hiện tại
+                int targetMonth = (month == null) ? LocalDate.now().getMonthValue() : month;
+                if (targetMonth < 1 || targetMonth > 12) {
                     throw new BadRequestException("Tháng không hợp lệ (1-12)");
                 }
-                return orderRepository.getRevenueByDay(month, targetYear);
+                return orderRepository.getRevenueByDay(targetMonth, targetYear);
 
             case MONTH:
                 return orderRepository.getRevenueByMonth(targetYear);
