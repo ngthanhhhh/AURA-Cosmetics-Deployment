@@ -1,8 +1,6 @@
-import { registerApi } from "./authApi.js";
+import { registerApi } from "./authApi";
 
-export const handleRegister = async (data) => {
-    
+export const registerUser = async (data) => {
     const res = await registerApi(data);
-    return res.data; //Trả về thông báo thành công
-    
+    return res.data;
 };

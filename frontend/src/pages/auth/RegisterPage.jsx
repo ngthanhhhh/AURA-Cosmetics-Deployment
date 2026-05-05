@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import {Link, useNavigate} from 'react-router-dom';
-import { handleRegister } from "../../features/auth/authService";
-import './RegisterPage.css';
-
+import { registerUser } from "../../features/auth/authService";
+import "./RegisterPage.css";
 
 function RegisterPage() {
     
@@ -53,7 +52,7 @@ function RegisterPage() {
 
         try{
             setLoading(true);
-            await handleRegister(dataToSubmit);
+            await registerUser(dataToSubmit);
             alert("Dang ky thanh cong!");
             navigate("/auth/login"); //Chuyen huong sau khi thanh cong
         } catch (err){
@@ -63,8 +62,7 @@ function RegisterPage() {
         }
 
     };
-
-
+    
     return (
         <div className="register-container">
            
@@ -76,7 +74,7 @@ function RegisterPage() {
 
                 {/* Phần nhập họ tên */}
                 <div className="form-group">
-                    <label>Ho va ten</label>
+                    <label>Họ tên</label>
                     <input 
                         name="name"
                         type="text" 

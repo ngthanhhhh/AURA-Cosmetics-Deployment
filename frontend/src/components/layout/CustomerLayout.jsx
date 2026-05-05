@@ -1,21 +1,12 @@
-import Header from "./Header/Header";
+import Header from "../common/Header";
 import Footer from "../common/Footer";
-import { Outlet } from "react-router-dom";
-import "./CustomerLayout.css";
 
-
-function CustomerLayout() {
+function CustomerLayout({ children }) {
     return (
         <>
-            <div className="customer-layout-container">
-                <Header />
-                <hr />
-                <main className="main-content">
-                    <Outlet />
-                </main>
-                <Footer />
-            </div>
-            
+            <Header />
+                <main>{children}</main>
+            <Footer />
         </>
     );
 }
