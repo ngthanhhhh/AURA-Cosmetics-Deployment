@@ -24,10 +24,11 @@ public class CustomerServiceImpl implements  CustomerService{
     private final OrderRepository orderRepository;
 
     @Override
-    public Page<CustomerResponse> getAllCustomers(String keyword, Pageable pageable){
+    public Page<CustomerResponse> getAllCustomers(String keyword, Boolean isActive, Pageable pageable){
 
         keyword = (keyword == null || keyword.trim().isEmpty() ? null : keyword.trim());
-        return customerRepository.findAllCustomers(keyword, pageable)
+
+        return customerRepository.findAllCustomers(keyword, isActive, pageable)
                 .map(u -> new CustomerResponse(
                         u.getUserId(), u.getName(), u.getEmail(),
                         u.getPhone(), u.getCreatedAt(), u.getIsActive()
@@ -76,7 +77,7 @@ public class CustomerServiceImpl implements  CustomerService{
         }
 
         User user = customerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: \" + id"));
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
             throw new BadRequestException("Chỉ áp dụng cho khách hàng");

@@ -11,13 +11,12 @@ import com.cosmetics.ecommerce.repository.RoleRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.AdminAccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,16 +29,14 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
     //lấy danh sách tất cả tài khoản admin
     @Override
-    public List<AdminAccountResponse> getAllAccounts(){
-        //Lấy role ADMIN trong database
-        Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ROLE_ADMIN"));
+    public Page<AdminAccountResponse> getAllAccounts(String keyword, Boolean isActive, Pageable pageable){
+
+        keyword = (keyword == null || keyword.trim().isEmpty()) ? null : keyword.trim();
 
         //Lọc chỉ lấy user có role ADMIN, chuyển sang DTO rồi trả về
-        return userRepository.findByRole(adminRole)
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        return userRepository.findAdmins(keyword, isActive, pageable)
+                .map(this::toResponse);
+
     }
 
     //Tạo tài khoản admin mới

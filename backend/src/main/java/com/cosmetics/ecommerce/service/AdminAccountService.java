@@ -3,13 +3,15 @@ package com.cosmetics.ecommerce.service;
 import com.cosmetics.ecommerce.dto.AdminAccountRequest;
 import com.cosmetics.ecommerce.dto.AdminAccountResponse;
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface AdminAccountService {
 
     //Lấy danh sách tất cả tài khoản Admin
-    List<AdminAccountResponse> getAllAccounts();
+    Page<AdminAccountResponse> getAllAccounts(String keyword, Boolean isActive, Pageable pageable);
 
     //Thêm tài khoản admin mới
     //Kiểm tra email trùng trước khi tạo

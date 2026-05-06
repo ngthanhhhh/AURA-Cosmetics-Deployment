@@ -23,12 +23,21 @@ public class CustomerController {
     //Xem danh sách khách hàng
     @GetMapping
     public ResponseEntity<Page<CustomerResponse>> getCustomers(
-            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size){
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort)
+    {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-        return ResponseEntity.ok(customerService.getAllCustomers(keyword, pageable));
+        // parse sort
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction,sortParams[0]));
+        return ResponseEntity.ok(customerService.getAllCustomers(keyword, isActive, pageable));
     }
 
     // GET /api/v1/admin/customers/{id}

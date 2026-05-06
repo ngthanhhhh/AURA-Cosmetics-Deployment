@@ -3,15 +3,19 @@ package com.cosmetics.ecommerce.controller;
 import com.cosmetics.ecommerce.dto.AdminAccountRequest;
 import com.cosmetics.ecommerce.dto.AdminAccountResponse;
 import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
+import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.service.AdminAccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,9 +28,23 @@ public class AdminAccountController {
     // GET /api/v1/admin/accounts
     // Lấy danh sách tất cả tài khoản admin
     @GetMapping
-    public ResponseEntity<List<AdminAccountResponse>> getAllAccounts(){
-        return ResponseEntity.ok(adminAccountService.getAllAccounts());
+    public ResponseEntity<Page<AdminAccountResponse>> getAllAccounts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("createdAt").descending()
+        );
+
+        return ResponseEntity.ok(
+                adminAccountService.getAllAccounts(keyword, isActive, pageable)
+        );
     }
+
 
     // POST /api/v1/admin/accounts
     // Thêm tài khoản admin mới
@@ -54,13 +72,13 @@ public class AdminAccountController {
         String currentUserEmail = SecurityContextHolder.getContext()
                         .getAuthentication().getName();
         adminAccountService.deleteAccount(id, currentUserEmail);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build(); //trả về HTTP 204
     }
 
     // PUT /api/v1/admin/accounts/{id}/password
     // Đổi mật khẩu tài khoản
     @PutMapping("/{id}/password")
-    public ResponseEntity<?> changePassword(
+    public ResponseEntity<Map<String, String>> changePassword(
             @PathVariable Integer id,
             @RequestBody ChangePasswordRequest request) {
         adminAccountService.changePassword(id, request);
@@ -76,6 +94,10 @@ public class AdminAccountController {
             @RequestBody Map<String, Boolean> request
     ){
         Boolean isActive = request.get("isActive");
+
+        if(isActive == null){
+            throw new BadRequestException("Thiếu isActive");
+        }
 
         adminAccountService.updateStatus(id, isActive);
 
