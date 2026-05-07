@@ -66,7 +66,7 @@ function RegisterPage() {
     return (
         <div className="register-container">
            
-            <h2 className="register-title">Tao tai khoan</h2>
+            <h2 className="register-title">Tạo tài khoản</h2>
 
             {error && <p className="error-message" style={{color: 'red', marginBottom: '10px'}}>{error}</p>}
             
@@ -78,7 +78,7 @@ function RegisterPage() {
                     <input 
                         name="name"
                         type="text" 
-                        placeholder="Nhap ho va ten cua ban"
+                        placeholder="Nhập họ và tên"
                         value={formData.name}
                         onChange={handleChange}
                         required></input>
@@ -118,7 +118,7 @@ function RegisterPage() {
                     <input 
                         name="password"
                         type="password" 
-                        placeholder="Toi thieu 6 ki tu"
+                        placeholder="Tối thiểu 6 kí tự"
                         value={formData.password}
                         onChange={handleChange}
                         required></input>
@@ -145,13 +145,14 @@ function RegisterPage() {
                     className="btn-submit"
                     disabled={loading}
                     >
-                        {loading ? "Đang đăng ký..." : "Dang ky"}</button>
+                        {loading ? "Đang đăng ký..." : "Đăng ký"}
+                </button>
             </form>
 
             {/* Link chuyển hướng trang đăng nhập */}
             <div className="register-footer">
-                <span>Ban da co tai khoan?  </span>
-                <Link to="/auth/login">Dang nhap!</Link>
+                <span>Bạn đã có tài khoản?  </span>
+                <Link to="/auth/login">Đăng nhập!</Link>
             </div>
             
         </div>

@@ -3,6 +3,9 @@ import CustomerLayout from "../components/layout/CustomerLayout";
 import HomePage from "../pages/customer/HomePage";
 import ProductListPage from "../pages/customer/ProductListPage";
 import RegisterPage from "../pages/auth/RegisterPage";
+import LoginPage from "../pages/auth/LoginPage";
+import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
+
 
 function CustomerRoutes() {
     return (
@@ -12,6 +15,9 @@ function CustomerRoutes() {
         <Route path="/products" element={<ProductListPage />} />
         
         <Route path="auth/register" element={<RegisterPage />} />
+        <Route path="auth/login" element={<LoginPage />} />
+        <Route path="change-password" element={<ChangePasswordPage />} />
+        
         </Routes>
     </CustomerLayout>
     );
