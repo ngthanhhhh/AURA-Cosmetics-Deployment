@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Prototype dùng để tạo "snapshot" dữ liệu sản phẩm tại thời điểm checkout.
+ * Concrete Prototype dùng để tạo "snapshot" dữ liệu sản phẩm tại thời điểm checkout.
  *
  * Ý tưởng chính:
  * - Không lấy trực tiếp dữ liệu từ Product khi tạo OrderItem
