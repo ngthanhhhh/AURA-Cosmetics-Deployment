@@ -4,23 +4,14 @@ import com.cosmetics.ecommerce.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-
-
-import org.springframework.security.authentication.AuthenticationManager;
-
-import org.springframework.security.authentication.AuthenticationProvider;
 
 import java.util.Arrays;
 
@@ -52,10 +43,11 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN") //Chỉ Admin mới vào được /admin
-                        .requestMatchers("/api/v1/user/**").hasAuthority("ROLE_CUSTOMER") // Chỉ CUSTOMER mới vào được
+                        .requestMatchers("/api/v1/users/**").authenticated() // Admin + Customer đều truy cập được
                         .requestMatchers("/api/v1/products/**", "/api/v1/categories/**").permitAll() // Xem sản phẩm — public
                         .anyRequest().authenticated() //Các request khác phải đăng nhập
                 )
+
                 //Thêm filter của bạn vào trước bộ lọc mặc định của Spring
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -70,7 +62,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
 
         //Cho phép các phương thức HTTP
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
 
         //Cho phép các Header (rất quan trọng khi dùng JWT)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));

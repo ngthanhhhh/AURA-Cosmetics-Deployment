@@ -3,16 +3,17 @@ package com.cosmetics.ecommerce.service.impl;
 import com.cosmetics.ecommerce.dto.RevenueChartDTO;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
 import com.cosmetics.ecommerce.enums.OrderStatus;
+import com.cosmetics.ecommerce.enums.StatisticType;
+import com.cosmetics.ecommerce.exception.BadRequestException;
 import com.cosmetics.ecommerce.repository.OrderRepository;
+import com.cosmetics.ecommerce.repository.StatisticRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ import java.util.Map;
 public class StatisticsServiceImpl implements StatisticsService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final StatisticRepository statisticRepository;
 
     @Override
     //Lấy tổng hợp các thông số thống kê chính cho Dashboard của Admin
@@ -27,8 +29,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         //Lấy doanh thu (Chỉ tính đơn COMPLETED)
         Double totalRevenue = orderRepository.calculateTotalRevenue();
+
         return StatisticsResponse.builder()
-                .totalRevenue( totalRevenue != null ? totalRevenue : 0.0)
+                .totalRevenue( totalRevenue == null ? 0.0 : totalRevenue )
                 .totalOrders( orderRepository.countTotalOrders())
                 .totalUsers( userRepository.count())
                 .pendingOrders( orderRepository.countByStatus(OrderStatus.PENDING))
@@ -40,18 +43,31 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public List<RevenueChartDTO> getRevenueChartData(String type, Integer month, Integer year){
-        //Nếu admin không chọn, mặc định lấy năm/tháng hiện tại
-        int targetYear = (year == null) ? LocalDate.now().getYear() : year;
-        int targetMonth = (month == null) ? LocalDate.now().getMonthValue() : month;
+    public List<RevenueChartDTO> getRevenueChartData(StatisticType type, LocalDate fromDate, LocalDate toDate){
 
-        //Tách logic gọi Repository theo loại thống kê
-        if ("day".equalsIgnoreCase(type)){
-            return orderRepository.getRevenueByDay(targetMonth, targetYear);
+        if(type == null){
+            throw new BadRequestException("Vui lòng chọn loại thống kê");
         }
 
-        // Mặc định trả về thống kê theo tháng trong năm
-        return orderRepository.getRevenueByMonth(targetYear);
-    }
+        LocalDate start = (fromDate != null) ? fromDate:LocalDate.now().minusDays(30);
+        LocalDate end = (toDate != null) ? toDate:LocalDate.now();
 
+        if(start.isAfter(end)){
+            throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
+        }
+
+        switch (type) {
+            case DAY:
+                return statisticRepository.getRevenueByDay(start, end);
+
+            case WEEK:
+                return statisticRepository.getRevenueByWeek(start, end);
+
+            case MONTH:
+                return statisticRepository.getRevenueByMonth(start, end);
+
+            default:
+                throw new BadRequestException("Loại thống kê không hợp lệ");
+        }
+    }
 }
