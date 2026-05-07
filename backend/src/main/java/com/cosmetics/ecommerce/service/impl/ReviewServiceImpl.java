@@ -62,8 +62,6 @@ public class ReviewServiceImpl implements ReviewService{
     @Override
     @Transactional
     public ReviewResponseDTO createReview(Integer userId, Integer productId, ReviewRequestDTO request) {
-        validateUserId(userId);
-        validateProductId(productId);
         validateReviewRequest(request);
 
         User user = userRepository.findById(userId)
@@ -81,7 +79,7 @@ public class ReviewServiceImpl implements ReviewService{
         review.setUser(user);
         review.setProduct(product);
         review.setRating(request.getRating());
-        review.setComment(normalizeComment(request.getComment()));
+        review.setComment(request.getComment());
         review.setIsVerifiedPurchase(isVerifiedPurchase);
 
         // Mặc định review ở trạng thái bình thường (chưa bị flag)
@@ -111,7 +109,6 @@ public class ReviewServiceImpl implements ReviewService{
     @Override
     @Transactional(readOnly = true)
     public ProductReviewListResponseDTO getProductReviews(Integer productId, Integer rating) {
-        validateProductId(productId);
         Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
 
@@ -174,14 +171,12 @@ public class ReviewServiceImpl implements ReviewService{
      * - Lưu và trả về DTO
      *
      * @param reviewId ID đánh giá
-     * @param flag Trạng thái mới (NORMAL, NEGATIVE_FEEDBACK, ATTENTION_NEEDED)
+     * @param flag Trạng thái mới (NORMAL, HIDDEN, REPORTED...)
      * @return Review sau khi cập nhật
      */
     @Override
     @Transactional
     public ReviewResponseDTO updateReviewFlag(Integer reviewId, String flag) {
-        validateReviewId(reviewId);
-
         if (flag == null || flag.trim().isEmpty()) {
             throw new BadRequestException("Trạng thái đánh giá không được để trống");
         }
@@ -195,10 +190,6 @@ public class ReviewServiceImpl implements ReviewService{
             newFlag = ReviewAdminFlag.valueOf(flag.trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new BadRequestException("Trạng thái đánh giá không hợp lệ");
-        }
-
-        if (review.getAdminFlag() == newFlag) {
-            throw new BadRequestException("Đánh giá đang ở trạng thái này.");
         }
 
         review.setAdminFlag(newFlag);
@@ -244,45 +235,17 @@ public class ReviewServiceImpl implements ReviewService{
      * Mapping Review entity sang DTO trả về cho client.
      */
     private ReviewResponseDTO mapToResponse(Review review) {
-        Product product = review.getProduct();
-        User user = review.getUser();
-
         return ReviewResponseDTO.builder()
                 .reviewId(review.getReviewId())
-                .productId(product != null ? product.getProductId() : null)
-                .productName(product != null ? product.getName() : "Sản phẩm không còn tồn tại!")
-                .userId(user != null ? user.getUserId() : null)
-                .userName(user != null ? user.getName() : "Người dùng không còn tồn tại!")
+                .productId(review.getProduct().getProductId())
+                .productName(review.getProduct().getName())
+                .userId(review.getUser().getUserId())
+                .userName(review.getUser().getName())
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .isVerifiedPurchase(review.getIsVerifiedPurchase())
-                .adminFlag(review.getAdminFlag() != null ? review.getAdminFlag().name() : ReviewAdminFlag.NORMAL.name())
+                .adminFlag(review.getAdminFlag().name())
                 .createdAt(review.getCreatedAt())
                 .build();
-    }
-
-    private void validateUserId(Integer userId) {
-        if (userId == null) {
-            throw new BadRequestException("Người dùng không hợp lệ!");
-        }
-    }
-
-    private void validateProductId(Integer productId) {
-        if (productId == null) {
-            throw new BadRequestException("Mã sản phẩm không hợp lệ!");
-        }
-    }
-
-    private String normalizeComment(String comment) {
-        if (comment == null || comment.trim().isEmpty()) {
-            return null;
-        }
-        return comment.trim();
-    }
-
-    private void validateReviewId(Integer reviewId) {
-        if (reviewId == null) {
-            throw new BadRequestException("Mã đánh giá không hợp lệ!");
-        }
     }
 }

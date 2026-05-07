@@ -61,6 +61,4 @@ public class User {
     public void preUpdate(){
         updatedAt = LocalDateTime.now();
     }
-
-
 }

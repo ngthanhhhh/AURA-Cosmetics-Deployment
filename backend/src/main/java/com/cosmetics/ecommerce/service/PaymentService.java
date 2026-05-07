@@ -25,7 +25,7 @@ public interface PaymentService {
      * @param ipAddress Địa chỉ IP của người dùng thực hiện thanh toán
      * @return URL thanh toán VNPay
      */
-    String createVnPayPaymentUrl(Integer userId, Integer orderId, String ipAddress);
+    String createVnPayPaymentUrl(Integer orderId, String ipAddress);
 
     /**
      * Xử lý phản hồi trả về từ VNPay sau khi thanh toán.

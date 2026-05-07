@@ -1,7 +1,6 @@
 package com.cosmetics.ecommerce.service.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,7 +28,6 @@ import com.cosmetics.ecommerce.entity.*;
 import com.cosmetics.ecommerce.enums.OrderStatus;
 import com.cosmetics.ecommerce.enums.PaymentMethod;
 import com.cosmetics.ecommerce.enums.PaymentStatus;
-import com.cosmetics.ecommerce.enums.ProductStatus;
 import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.repository.CartItemRepository;
 import com.cosmetics.ecommerce.repository.CartRepository;
@@ -40,7 +38,7 @@ import com.cosmetics.ecommerce.repository.ProductRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.OrderService;
 
-import java.util.Collections;
+import io.jsonwebtoken.lang.Collections;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -71,7 +69,7 @@ public class OrderServiceImpl implements OrderService{
     private static final Map<OrderStatus, Set<OrderStatus>> VALID_TRANSITIONS = Map.of(
         OrderStatus.PENDING, Set.of(OrderStatus.PREPARING, OrderStatus.CANCELLED),
         OrderStatus.PREPARING, Set.of(OrderStatus.SHIPPING, OrderStatus.CANCELLED),
-        OrderStatus.SHIPPING, Set.of(OrderStatus.DELIVERED),
+        OrderStatus.SHIPPING, Set.of(OrderStatus.DELIVERED, OrderStatus.CANCELLED),
         OrderStatus.DELIVERED, Set.of(OrderStatus.COMPLETED),
         OrderStatus.COMPLETED, Collections.emptySet(),
         OrderStatus.CANCELLED, Collections.emptySet()
@@ -104,9 +102,6 @@ public class OrderServiceImpl implements OrderService{
     @Transactional
     public OrderResponseDTO placeOrder(Integer userId, OrderRequestDTO request) {
 
-        validateUserId(userId);
-        validateOrderRequest(request);
-
         //1. Kiểm tra sự tồn tại của User
         User user = userRepository.findById(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng!"));
@@ -115,7 +110,7 @@ public class OrderServiceImpl implements OrderService{
         Cart cart = cartRepository.findByUser_UserId(userId)
                     .orElseThrow(() -> new ResourceNotFoundException("Giỏ hàng của bạn hiện đang trống!"));
 
-        List<CartItem> cartItems = new ArrayList<>(cart.getCartItems());
+        List<CartItem> cartItems = cart.getCartItems();
         if (cartItems.isEmpty()) {
             throw new BadRequestException("Giỏ hàng của bạn đang trống, không thể đặt hàng!");
         }
@@ -138,10 +133,6 @@ public class OrderServiceImpl implements OrderService{
             //-> Ngăn tình trạng "Race Condition" khi nhiều người cùng mua 1 món hàng cuối cùng lúc.
             Product product = productRepository.findByIdWithLock(item.getProduct().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
-
-            if (product.getStatus() != ProductStatus.ACTIVE) {
-                throw new BadRequestException("Sản phẩm " + product.getName() + " đã ngừng bán!");
-            }
 
             //Kiểm tra số lượng tồn kho
             if (product.getStock() < item.getQuantity()){
@@ -177,13 +168,10 @@ public class OrderServiceImpl implements OrderService{
         orderRepository.save(savedOrder);
 
         //6. Tạo bản ghi thanh toán tương ứng với đơn hàng
-        // Payment ban đầu luôn ở trạng thái PENDING.
-        // Với VNPay, trạng thái sẽ được cập nhật sau callback.
-        // Với COD, trạng thái được xác nhận trong quá trình xử lý/giao hàng.
         Payment payment = new Payment();
         payment.setOrder(savedOrder);
         payment.setAmount(totalAmount);
-        payment.setPaymentMethod(parsePaymentMethod(request.getPaymentMethod()));
+        payment.setPaymentMethod(PaymentMethod.valueOf(request.getPaymentMethod().toUpperCase()));
         payment.setStatus(PaymentStatus.PENDING);
         paymentRepository.save(payment);
 
@@ -210,10 +198,7 @@ public class OrderServiceImpl implements OrderService{
      * @return Danh sách đơn hàng được sắp xếp theo thời gian tạo giảm dần
      */
     @Override
-    @Transactional(readOnly = true)
     public List<OrderResponseDTO> getMyOrders(Integer userId) {
-
-        validateUserId(userId);
         //Tìm đơn hàng theo userId, sắp xếp mới nhất lên đầu và map sang DTO
         return orderRepository.findByUser_UserIdOrderByCreatedAtDesc(userId)
                 .stream()
@@ -237,26 +222,17 @@ public class OrderServiceImpl implements OrderService{
      * @return Danh sách đơn hàng dạng phân trang
      */
     @Override
-    @Transactional(readOnly = true)
     public Page<OrderListDTO> getAdminOrders(String status, String keyword, int page, int size) {
-        if (page < 0) {
-            throw new BadRequestException("Số trang không hợp lệ!");
-        }
-
-        if (size <= 0) {
-            throw new BadRequestException("Kích thước trang không hợp lệ!");
-        }
-
         //Cấu hình phân trang, mặc định sắp xếp theo ngày tạo giảm dần (mới nhất trước)
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         //Chuyển trạng thái từ String sang Enum
         OrderStatus orderStatus = null;
-        if (status != null && !status.trim().isEmpty()) {
+        if (status != null && !status.isEmpty()) {
             try {
-                orderStatus = OrderStatus.valueOf(status.trim().toUpperCase());
+                orderStatus = OrderStatus.valueOf(status.toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Trạng thái đơn hàng không hợp lệ!");
+                //Bỏ qua nếu Client gửi lên Status không tồn tại trong Enum
             }
         }
 
@@ -294,8 +270,6 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional(readOnly = true)
     public OrderDetailResponseDTO getOrderDetailForAdmin(Integer orderId) {
-        validateOrderId(orderId);
-
         Order order = orderRepository.findById(orderId)
                         .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại hoặc đã bị xóa"));
         
@@ -331,10 +305,9 @@ public class OrderServiceImpl implements OrderService{
     @Override
     @Transactional
     public OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, UpdateOrderStatusRequestDTO request) {
-        validateOrderId(orderId);
-        validateUpdateStatusRequest(request);
         Order order = orderRepository.findById(orderId)
                         .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại hoặc đã bị xóa!"));
+        validateUpdateStatusRequest(request);
 
         OrderStatus currentStatus = order.getStatus();
         OrderStatus newStatus = parseOrderStatus(request.getStatus());
@@ -559,49 +532,5 @@ public class OrderServiceImpl implements OrderService{
                 .map(Enum::name)
                 .sorted()
                 .collect(Collectors.toList());
-    }
-
-    private void validateOrderRequest(OrderRequestDTO request) {
-        if (request == null) {
-            throw new BadRequestException("Thông tin đặt hàng không hợp lệ!");
-        }
-
-        if (request.getRecipientName() == null || request.getRecipientName().trim().isEmpty()) {
-            throw new BadRequestException("Họ tên không được để trống!");
-        }
-
-        if (request.getRecipientPhone() == null || !request.getRecipientPhone().matches("^\\d{10}$")) {
-            throw new BadRequestException("Số điện thoại không hợp lệ, vui lòng nhập đủ 10 chữ số!");
-        }
-
-        if (request.getShippingAddress() == null || request.getShippingAddress().trim().isEmpty()) {
-            throw new BadRequestException("Địa chỉ nhận hàng không được để trống!");
-        }
-
-        parsePaymentMethod(request.getPaymentMethod());
-    }
-
-    private PaymentMethod parsePaymentMethod(String paymentMethod) {
-        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
-            throw new BadRequestException("Phương thức thanh toán không được để trống!");
-        }
-
-        try {
-            return PaymentMethod.valueOf(paymentMethod.trim().toUpperCase());
-        } catch (IllegalArgumentException e){
-            throw new BadRequestException("Phương thức thanh toán không hợp lệ! Chỉ hỗ trợ COD hoặc VNPAY.");
-        }
-    }
-
-    private void validateUserId(Integer userId) {
-        if (userId == null) {
-            throw new BadRequestException("Người dùng không hợp lệ!");
-        }
-    }
-
-    private void validateOrderId(Integer orderId) {
-        if (orderId == null) {
-            throw new BadRequestException("Mã đơn hàng không hợp lệ!");
-        }
     }
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.cosmetics.ecommerce.dto.RevenueChartDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,5 +44,17 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
     //giúp admin biết có bao nhiêu đơn đang xử lý
     Long countByStatus(OrderStatus status);
 
+    //1. Thống kê theo ngày trong tháng (Dùng cho UC3.8 - Biểu đồ doanh thu tháng)
+    @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(DAY(o.createdAt), CAST(SUM(o.totalPrice) AS double)) " +
+            "FROM Order o WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED " +
+            "AND MONTH(o.createdAt) = :m AND YEAR(o.createdAt) = :y " +
+            "GROUP BY DAY(o.createdAt) ORDER BY DAY(o.createdAt)")
+    List<RevenueChartDTO> getRevenueByDay(@Param("m") int month, @Param("y") int year);
+
+    //2. Thống kê theo tháng trong năm
+    @Query("SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(MONTH(o.createdAt), CAST(SUM(o.totalPrice) AS double)) " +
+            "FROM Order o WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED AND YEAR(o.createdAt) = :y " +
+            "GROUP BY MONTH(o.createdAt) ORDER BY MONTH(o.createdAt)")
+    List<RevenueChartDTO> getRevenueByMonth(@Param("y") int year);
 
 }

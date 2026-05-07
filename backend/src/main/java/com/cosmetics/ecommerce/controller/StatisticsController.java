@@ -2,7 +2,6 @@ package com.cosmetics.ecommerce.controller;
 
 import com.cosmetics.ecommerce.dto.RevenueChartDTO;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
-import com.cosmetics.ecommerce.enums.StatisticType;
 import com.cosmetics.ecommerce.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -31,14 +29,12 @@ public class StatisticsController {
     }
 
     //API phục vụ vẽ biểu đồ doanh thu theo Ngày/Tháng
-    // GET /api/v1/admin/statistics/revenue-chart
-    @GetMapping("/revenue-chart")
+    @GetMapping("/revenue")
     public ResponseEntity<List<RevenueChartDTO>> getRevenueChart(
-            @RequestParam StatisticType type,
-            @RequestParam(required = false) LocalDate fromDate,
-            @RequestParam(required = false) LocalDate toDate
-    ){
-        return ResponseEntity.ok(statisticsService.getRevenueChartData(type, fromDate, toDate));
+            @RequestParam(defaultValue = "month") String type,
+            @RequestParam(required = false) Integer month,
+            @RequestParam(required = false) Integer year){
+        return ResponseEntity.ok(statisticsService.getRevenueChartData(type, month, year));
     }
 
 

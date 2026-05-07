@@ -73,15 +73,7 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Override
     @Transactional
-    public String createVnPayPaymentUrl(Integer userId, Integer orderId, String ipAddress) {
-        
-        if (orderId == null) {
-            throw new BadRequestException("Mã đơn hàng không hợp lệ");
-        }
-
-        if (ipAddress == null || ipAddress.isBlank()) {
-            ipAddress = "127.0.0.1";
-        }
+    public String createVnPayPaymentUrl(Integer orderId, String ipAddress) {
         //Tìm thông tin thanh toán gắn với đơn hàng.
         // Nếu không có Payment thì không thể tạo link VNPay.
         Payment payment = paymentRepository.findByOrder_OrderId(orderId)
@@ -107,10 +99,6 @@ public class PaymentServiceImpl implements PaymentService{
             throw new ResourceNotFoundException("Không tìm thấy đơn hàng!");
         }
 
-        if (!order.getUser().getUserId().equals(userId)) {
-            throw new BadRequestException("Bạn không có quyền thanh toán đơn hàng này!");
-        }
-
         // Chỉ cho thanh toán khi đơn hàng đang ở trạng thái PENDING.
         // Các trạng thái khác như PREPARING, SHIPPING, CANCELLED... không được thanh toán lại.
         if (order.getStatus() != OrderStatus.PENDING) {
@@ -132,7 +120,7 @@ public class PaymentServiceImpl implements PaymentService{
         paymentRepository.save(payment);
 
         // Tạo thời gian theo timezone GMT+7 để gửi cho VNPay.
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         
         // VNPay yêu cầu format thời gian là yyyyMMddHHmmss.
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -213,10 +201,6 @@ public class PaymentServiceImpl implements PaymentService{
     @Transactional
     public String handleVnPayReturn(Map<String, String> params) {
 
-        if (params == null || params.isEmpty()) {
-            throw new BadRequestException("Dữ liệu phản hồi VNPay không hợp lệ!");
-        }
-        
         // Lấy chữ ký VNPay gửi về trong callback/redirect.
         // Chữ ký này dùng để xác thực dữ liệu trả về có hợp lệ không.
         String receivedHash = params.get("vnp_SecureHash");
@@ -258,10 +242,6 @@ public class PaymentServiceImpl implements PaymentService{
         // Theo VNPay, "00" thường là giao dịch thành công.
         String responseCode = params.get("vnp_ResponseCode");
 
-        if (responseCode == null || responseCode.isBlank()) {
-            throw new BadRequestException("Thiếu mã kết quả thanh toán VNPay");
-        }
-
         // Nếu thiếu mã giao dịch thì không biết callback này thuộc payment nào.
         if (txnRef == null || txnRef.isBlank()) {
             throw new BadRequestException("Thiếu mã giao dịch VNPay");
@@ -271,10 +251,6 @@ public class PaymentServiceImpl implements PaymentService{
         Payment payment = paymentRepository.findByTransactionNo(txnRef)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giao dịch thanh toán"));
 
-        if (payment.getPaymentMethod() != PaymentMethod.VNPAY) {
-            throw new BadRequestException("Giao dịch không thuộc phương thức thanh toán VNPay");
-        }
-
         // Nếu giao dịch đã SUCCESS trước đó thì không update lại nữa.
         // Mục đích: chống callback lặp / user reload return URL.
         if (payment.getStatus() == PaymentStatus.SUCCESS) {
@@ -283,9 +259,7 @@ public class PaymentServiceImpl implements PaymentService{
 
         // Lấy đơn hàng liên kết với payment.
         Order order = payment.getOrder();
-        if (order == null) {
-            throw new ResourceNotFoundException("Không tìm thấy đơn hàng của giao dịch thanh toán");
-        }
+
         // Nếu responseCode = "00" -> thanh toán thành công.
         if ("00".equals(responseCode)) {
             // Cập nhật trạng thái thanh toán thành SUCCESS.

@@ -44,6 +44,6 @@ public class Payment {
     @Column(name = "status")
     private PaymentStatus status = PaymentStatus.PENDING;
 
-    @Column(name = "payment_date")
+    @Column(name = "payment_date", updatable = false)
     private LocalDateTime paymentDate;
 }
