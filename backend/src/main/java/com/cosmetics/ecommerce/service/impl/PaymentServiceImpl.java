@@ -73,7 +73,7 @@ public class PaymentServiceImpl implements PaymentService{
      */
     @Override
     @Transactional
-    public String createVnPayPaymentUrl(Integer orderId, String ipAddress) {
+    public String createVnPayPaymentUrl(Integer userId, Integer orderId, String ipAddress) {
         
         if (orderId == null) {
             throw new BadRequestException("Mã đơn hàng không hợp lệ");
@@ -105,6 +105,10 @@ public class PaymentServiceImpl implements PaymentService{
         // Nếu payment không liên kết được với order thì dữ liệu bị lỗi.
         if (order == null) {
             throw new ResourceNotFoundException("Không tìm thấy đơn hàng!");
+        }
+
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new BadRequestException("Bạn không có quyền thanh toán đơn hàng này!");
         }
 
         // Chỉ cho thanh toán khi đơn hàng đang ở trạng thái PENDING.
