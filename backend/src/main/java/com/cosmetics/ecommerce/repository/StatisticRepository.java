@@ -5,14 +5,11 @@ import com.cosmetics.ecommerce.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
-
-public interface StatisticRepository {
+public interface StatisticRepository extends JpaRepository<Order, Integer>{
 
     //1. DAY - Xem doanh thu chi tiết từng ngày trong một khoảng thời gian
     @Query("""
@@ -26,12 +23,12 @@ public interface StatisticRepository {
     GROUP BY DATE(o.createdAt)
     ORDER BY DATE(o.createdAt)
 """)
-    List<RevenueChartDTO> getRevenueByDay(@Param("from") LocalDate from, @Param("to") LocalDate to);
+    List<RevenueChartDTO> getRevenueByDay(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     //2. WEEK - Xem xu hướng doanh thu theo từng tuần trong tháng.
     @Query("""
     SELECT new com.cosmetics.ecommerce.dto.RevenueChartDTO(
-        FUNCTION("WEEK", createdAt),
+        FUNCTION("WEEK", o.createdAt),
         CAST(SUM(o.totalPrice) AS double)
     )
     FROM Order o
@@ -40,7 +37,7 @@ public interface StatisticRepository {
         GROUP BY FUNCTION('WEEK', o.createdAt)
         ORDER BY FUNCTION('WEEK', o.createdAt)
 """)
-    List<RevenueChartDTO> getRevenueByWeek(@Param("from") LocalDate from, @Param("to") LocalDate to);
+    List<RevenueChartDTO> getRevenueByWeek(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     //2. MONTH - Xem tổng doanh thu theo từng tháng trong năm
     @Query("""
@@ -54,6 +51,6 @@ public interface StatisticRepository {
     GROUP BY FUNCTION('MONTH', o.createdAt)
     ORDER BY FUNCTION('MONTH', o.createdAt)
 """)
-    List<RevenueChartDTO> getRevenueByMonth(@Param("from") LocalDate from, @Param("to") LocalDate to);
+    List<RevenueChartDTO> getRevenueByMonth(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
 }

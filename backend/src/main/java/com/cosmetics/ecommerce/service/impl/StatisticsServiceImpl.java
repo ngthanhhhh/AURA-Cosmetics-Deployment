@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -55,16 +56,18 @@ public class StatisticsServiceImpl implements StatisticsService {
         if(start.isAfter(end)){
             throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
         }
+        LocalDateTime fromDateTime = start.atStartOfDay();
+        LocalDateTime toDateTime = end.atTime(23, 59, 59);
 
         switch (type) {
             case DAY:
-                return statisticRepository.getRevenueByDay(start, end);
+                return statisticRepository.getRevenueByDay(fromDateTime, toDateTime);
 
             case WEEK:
-                return statisticRepository.getRevenueByWeek(start, end);
+                return statisticRepository.getRevenueByWeek(fromDateTime, toDateTime);
 
             case MONTH:
-                return statisticRepository.getRevenueByMonth(start, end);
+                return statisticRepository.getRevenueByMonth(fromDateTime, toDateTime);
 
             default:
                 throw new BadRequestException("Loại thống kê không hợp lệ");
