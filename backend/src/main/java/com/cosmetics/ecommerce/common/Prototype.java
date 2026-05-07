@@ -1,7 +1,7 @@
 package com.cosmetics.ecommerce.common;
 
 /**
- * Interface chung cho các project có khả năng tự tạo bản sao.
+ * Interface chung cho các object có khả năng tự tạo bản sao.
  * @param <T> kiểu object được clone
  */
 public interface Prototype<T> {
