@@ -57,8 +57,9 @@ public class CartServiceImpl implements CartService{
      * @return Thông tin giỏ hàng sau khi ánh xạ sang DTO
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public CartResponseDTO getCartByUserId(Integer userId) {
+        validateUserId(userId);
         Cart cart = getOrCreateCart(userId);
         return mapToCartResponse(cart);
     }
@@ -67,6 +68,7 @@ public class CartServiceImpl implements CartService{
      * Thêm sản phẩm vào giỏ hàng.
      *
      * Quy trình xử lý:
+     * - Kiểm tra người dùng hợp lệ
      * - Kiểm tra request hợp lệ
      * - Kiểm tra sản phẩm tồn tại và còn đang kinh doanh
      * - Lấy hoặc tạo giỏ hàng cho người dùng
@@ -74,6 +76,7 @@ public class CartServiceImpl implements CartService{
      * - Tính số lượng mới sau khi cộng thêm
      * - Kiểm tra giới hạn số lượng và tồn kho
      * - Lưu CartItem vào database
+     * - Truy xuất lại giỏ hàng mới nhất để trả về cho client
      *
      * @param userId ID của người dùng
      * @param request Thông tin sản phẩm và số lượng cần thêm
@@ -81,42 +84,42 @@ public class CartServiceImpl implements CartService{
      */
     @Override
     public CartResponseDTO addToCart(Integer userId, CartItemRequestDTO request) {
+        validateUserId(userId);
         validateAddToCartRequest(request);
+
         Product product = getValidProduct(request.getProductId());
         Cart cart = getOrCreateCart(userId);
         CartItem cartItem = getOrCreateCartItem(cart, product);
 
         boolean isNewItem = cartItem.getCartItemId() == null;
 
-        int newQuantity = cartItem.getCartItemId() == null 
-            ? request.getQuantity() 
-            : cartItem.getQuantity() + request.getQuantity();
-
+        int currentQuantity = cartItem.getCartItemId() == null ? 0 : cartItem.getQuantity();
+        int newQuantity = currentQuantity + request.getQuantity();
+        
         validateQuantityLimits(product, newQuantity);
 
         cartItem.setQuantity(newQuantity);
-        CartItem savedItem = cartItemRepository.saveAndFlush(cartItem);
-        if (isNewItem && cart.getCartItems() != null) {
+        CartItem savedItem = cartItemRepository.save(cartItem);
+
+        if (isNewItem) {
             cart.getCartItems().add(savedItem);
         }
 
-        Cart refreshedCart = cartRepository.findByUser_UserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng!"));
-        cartItemRepository.save(cartItem);
-
-        return mapToCartResponse(refreshedCart);
+        return mapToCartResponse(cart);
     }
 
     /**
      * Cập nhật số lượng của một sản phẩm đã có trong giỏ hàng.
      *
      * Quy trình xử lý:
+     * - Kiểm tra người dùng hợp lệ
      * - Kiểm tra request hợp lệ
      * - Kiểm tra sản phẩm tồn tại và còn đang kinh doanh
      * - Lấy giỏ hàng của người dùng
      * - Tìm CartItem tương ứng trong giỏ
      * - Kiểm tra số lượng cập nhật có vượt giới hạn hoặc tồn kho không
      * - Cập nhật lại số lượng và lưu vào database
+     * - Trả về giỏ hàng sau khi cập nhật
      *
      * @param userId ID của người dùng
      * @param request Thông tin sản phẩm và số lượng mới
@@ -124,9 +127,10 @@ public class CartServiceImpl implements CartService{
      */
     @Override
     public CartResponseDTO updateCartItem(Integer userId, CartItemRequestDTO request){
+        validateUserId(userId);
         validateUpdateCartRequest(request);
         Product product = getValidProduct(request.getProductId());
-        Cart cart = getOrCreateCart(userId);
+        Cart cart = getExistingCart(userId);
 
         CartItem cartItem = cartItemRepository
             .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), product.getProductId())
@@ -138,15 +142,20 @@ public class CartServiceImpl implements CartService{
         cartItem.setQuantity(newQuantity);
         cartItemRepository.save(cartItem);
 
-        return mapToCartResponse(cart);
+        Cart refreshedCart = cartRepository.findByUser_UserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng!"));
+        return mapToCartResponse(refreshedCart);
     }
 
     /**
      * Xóa một sản phẩm khỏi giỏ hàng của người dùng.
      *
      * Quy trình xử lý:
-     * - Lấy giỏ hàng hiện tại
-     * - Tìm CartItem theo productId
+     * - Kiểm tra người dùng hợp lệ
+     * - Kiểm tra productId hợp lệ
+     * - Lấy giỏ hàng hiện tại của người dùng
+     * - Tìm CartItem tương ứng trong giỏ
+     * - Gỡ CartItem khỏi danh sách trong Cart để đồng bộ object trong memory
      * - Xóa CartItem khỏi database
      *
      * @param userId ID của người dùng
@@ -154,7 +163,10 @@ public class CartServiceImpl implements CartService{
      */
     @Override
     public void removeCartItem(Integer userId, Integer productId) {
-        Cart cart = getOrCreateCart(userId);
+        validateUserId(userId);
+        validateProductId(productId);
+
+        Cart cart = getExistingCart(userId);
 
         CartItem cartItem = cartItemRepository
             .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), productId)
@@ -165,7 +177,6 @@ public class CartServiceImpl implements CartService{
             cart.getCartItems().removeIf(item -> item.getProduct().getProductId().equals(productId));
         }
         cartItemRepository.delete(cartItem);
-        cartItemRepository.flush();
     }
 
     /**
@@ -351,5 +362,37 @@ public class CartServiceImpl implements CartService{
         if (product.getStock() < targetQuantity) {
             throw new BadRequestException("Tồn kho không đủ. Chỉ còn " + product.getStock() + " sản phẩm!");
         }
+    }
+
+    /**
+     * Kiểm tra ID người dùng có hợp lệ không.
+     *
+     * @param userId ID của người dùng đang thao tác với giỏ hàng
+     */
+    private void validateUserId(Integer userId) {
+        if (userId == null) {
+            throw new BadRequestException("Người dùng không hợp lệ!");
+        }
+    }
+
+    /**
+     * Kiểm tra ID sản phẩm có hợp lệ không.
+     *
+     * @param productId ID sản phẩm cần thao tác
+     */
+    private void validateProductId(Integer productId) {
+        if (productId == null) {
+            throw new BadRequestException("Mã sản phẩm không được để trống!");
+        }
+    }
+
+    /**
+     * Lấy giỏ hàng hiện có của người dùng.     *
+     * @param userId ID người dùng
+     * @return Giỏ hàng hiện có của người dùng
+     */
+    private Cart getExistingCart(Integer userId) {
+        return cartRepository.findByUser_UserId(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng!"));
     }
 }

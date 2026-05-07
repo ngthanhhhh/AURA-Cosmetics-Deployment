@@ -1,12 +1,13 @@
 package com.cosmetics.ecommerce.dto;
+
+import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+@Builder
+public class UserProfileResponse {
     private String name;
     private String email;
-    private String password;
-    private String address;
     private String phone;
-    private String confirmPassword;
+    private String address;
 }
