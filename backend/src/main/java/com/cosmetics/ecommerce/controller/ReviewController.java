@@ -40,9 +40,24 @@ public class ReviewController {
     @GetMapping("/{productId}/reviews")
     public ResponseEntity<ProductReviewListResponseDTO> getProductReviews(
         @PathVariable Integer productId,
-        @RequestParam(required = false) Integer rating
+        @RequestParam(required = false) Integer rating,
+        @RequestParam(required = false) Boolean verified,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDir
     ) {
-        ProductReviewListResponseDTO response = reviewService.getProductReviews(productId, rating);
+        ProductReviewListResponseDTO response = reviewService.getProductReviews(
+            productId, 
+            rating,
+            verified,
+            keyword,
+            page,
+            size,
+            sortBy,
+            sortDir
+        );
         return ResponseEntity.ok(response);
     }
 }

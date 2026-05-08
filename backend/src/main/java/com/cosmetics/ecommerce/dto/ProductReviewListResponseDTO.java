@@ -13,4 +13,11 @@ public class ProductReviewListResponseDTO {
     private Double averageRating;
     private Integer totalReviews;
     private List<ReviewResponseDTO> reviews;
+
+    private int pageNumber;
+    private int pageSize;
+    private long totalElements;
+    private int totalPages;
+    private boolean first;
+    private boolean last;
 }

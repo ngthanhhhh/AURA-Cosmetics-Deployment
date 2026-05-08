@@ -1,7 +1,15 @@
 package com.cosmetics.ecommerce.service.impl;
 
-import java.util.List;
+import org.springframework.data.domain.PageImpl;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.cosmetics.ecommerce.dto.ProductReviewListResponseDTO;
@@ -42,6 +50,23 @@ public class ReviewServiceImpl implements ReviewService{
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
 
+    private static final Set<String> REVIEW_SORT_FIELDS = Set.of(
+        "reviewId",
+        "createdAt",
+        "updatedAt",
+        "rating",
+        "adminFlag",
+        "isVerifiedPurchase"
+    );
+
+    private static final Set<String> REVIEW_REPORT_SORT_FIELDS = Set.of(
+        "productId",
+        "productName",
+        "totalReviews",
+        "averageRating",
+        "satisfactionRate"
+    );
+    
     /**
      * Tạo đánh giá mới cho sản phẩm.
      *
@@ -110,43 +135,57 @@ public class ReviewServiceImpl implements ReviewService{
      */
     @Override
     @Transactional(readOnly = true)
-    public ProductReviewListResponseDTO getProductReviews(Integer productId, Integer rating) {
+    public ProductReviewListResponseDTO getProductReviews(
+        Integer productId, 
+        Integer rating,
+        Boolean verified,
+        String keyword,
+        int page,
+        int size,
+        String sortBy,
+        String sortDir
+    ) {
         validateProductId(productId);
         Product product = productRepository.findById(productId)
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại!"));
 
-        if (rating != null && (rating < 1 || rating > 5)) {
-            throw new BadRequestException("Số sao lọc phải nằm trong khoảng từ 1 đến 5");
-        }
+        validateRatingFilter(rating);
 
-        // Lấy tất cả review để tính điểm trung bình đúng theo toàn bộ sản phẩm 
-        // (không bị ảnh hưởng bởi filter)
-        List<Review> allReviews = reviewRepository.findByProduct_ProductIdOrderByCreatedAtDesc(productId);
+        Pageable pageable = buildPageable(
+            page,
+            size,
+            sortBy,
+            sortDir,
+            REVIEW_SORT_FIELDS,
+            "createdAt"
+        );
 
-        // Danh sách hiển thị có thể bị filter theo rating
-        List<Review> displayedReviews = rating == null
-                ? allReviews
-                : reviewRepository.findByProduct_ProductIdAndRatingOrderByCreatedAtDesc(productId, rating);
+        Page<ReviewResponseDTO> reviewPage = reviewRepository.searchProductReviews(
+            productId, 
+            rating, 
+            verified, 
+            normalizeKeyword(keyword), 
+            pageable).map(this::mapToResponse);
 
+        Double averageRatingValue = reviewRepository.calculateAverageRatingByProductId(productId);
+        
         // Tính điểm trung bình
-        double averageRating = allReviews.isEmpty()
-                ? 0.0
-                : allReviews.stream()
-                        .mapToInt(Review::getRating)
-                        .average()
-                        .orElse(0.0);
+        double averageRating = averageRatingValue == null ? 0.0 : averageRatingValue;
 
-        // Map sang DTO
-        List<ReviewResponseDTO> reviewResponses = displayedReviews.stream()
-            .map(this::mapToResponse)
-            .toList();
+        Long totalReviews = reviewRepository.countByProduct_ProductId(productId);
 
         return ProductReviewListResponseDTO.builder()
             .productId(product.getProductId())
             .productName(product.getName())
             .averageRating(averageRating)
-            .totalReviews(allReviews.size())
-            .reviews(reviewResponses)
+            .totalReviews(totalReviews != null ? totalReviews.intValue() : 0)
+            .reviews(reviewPage.getContent())
+            .pageNumber(reviewPage.getNumber())
+            .pageSize(reviewPage.getSize())
+            .totalElements(reviewPage.getTotalElements())
+            .totalPages(reviewPage.getTotalPages())
+            .first(reviewPage.isFirst())
+            .last(reviewPage.isLast())
             .build();
     }
 
@@ -157,11 +196,37 @@ public class ReviewServiceImpl implements ReviewService{
      */
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewResponseDTO> getAllReviewsForAdmin() {
-        return reviewRepository.findAllByOrderByCreatedAtDesc()
-            .stream()
-            .map(this::mapToResponse)
-            .toList();
+    public Page<ReviewResponseDTO> getAllReviewsForAdmin(
+        Integer rating,
+        String flag,
+        Boolean verified,
+        Integer productId,
+        String keyword,
+        int page,
+        int size,
+        String sortBy,
+        String sortDir
+    ) {
+        validateRatingFilter(rating);
+        ReviewAdminFlag parsedFlag = parseNullableReviewFlag(flag);
+
+        Pageable pageable = buildPageable(
+            page,
+            size,
+            sortBy,
+            sortDir,
+            REVIEW_SORT_FIELDS,
+            "createdAt"
+        );
+
+        return reviewRepository.searchAdminReviews(
+            rating,
+            parsedFlag,
+            verified,
+            productId,
+            normalizeKeyword(keyword),
+            pageable
+        ).map(this::mapToResponse);
     }
     /**
      * Cập nhật trạng thái kiểm duyệt của một đánh giá (Admin).
@@ -214,8 +279,43 @@ public class ReviewServiceImpl implements ReviewService{
      */
     @Override
     @Transactional(readOnly = true)
-    public List<ReviewReportDTO> getReviewReport() {
-        return reviewRepository.getReviewReport();
+    public Page<ReviewReportDTO> getReviewReport(
+        String keyword,
+        Double minAverageRating,
+        int page,
+        int size,
+        String sortBy,
+        String sortDir
+    ) {
+        if (minAverageRating != null && (minAverageRating < 0 || minAverageRating > 5)) {
+            throw new BadRequestException("Số sao trung bình phải từ 0 đến 5");
+        }
+
+        Pageable pageable = buildReportPageable(page, size, sortBy, sortDir);
+
+        List<ReviewReportDTO> reports = reviewRepository.searchReviewReport(
+            normalizeKeyword(keyword),
+            minAverageRating
+        );
+
+        Comparator<ReviewReportDTO> comparator = buildReviewReportComparator(sortBy);
+
+        Sort.Direction direction = parseSortDirection(sortDir);
+        if (direction == Sort.Direction.DESC) {
+            comparator = comparator.reversed();
+        }
+
+        List<ReviewReportDTO> sortedReports = reports.stream()
+            .sorted(comparator)
+            .toList();
+            
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), sortedReports.size());
+
+        List<ReviewReportDTO> pageContent = start >= sortedReports.size() 
+            ? List.of() : sortedReports.subList(start, end);
+
+        return new PageImpl<>(pageContent, pageable, sortedReports.size());
     }
 
     /**
@@ -284,5 +384,130 @@ public class ReviewServiceImpl implements ReviewService{
         if (reviewId == null) {
             throw new BadRequestException("Mã đánh giá không hợp lệ!");
         }
+    }
+
+    private Pageable buildPageable(
+        int page,
+        int size,
+        String sortBy,
+        String sortDir,
+        Set<String> allowedSortFields,
+        String defaultSortBy
+    ){
+        if (page < 0) {
+            throw new BadRequestException("Số trang không hợp lệ!");
+        }
+
+        if (size <= 0 || size > 100) {
+            throw new BadRequestException("Kích thước trang phải từ 1 đến 100!");
+        }
+
+        String finalSortBy = (sortBy == null || sortBy.trim().isEmpty()) 
+            ? defaultSortBy : sortBy.trim();
+
+        if (!allowedSortFields.contains(finalSortBy)) {
+            throw new BadRequestException("Tiêu chí sắp xếp không hợp lệ!");
+        }
+
+        Sort.Direction direction = parseSortDirection(sortDir);
+
+        return PageRequest.of(page, size, Sort.by(direction, finalSortBy));
+    }
+
+    private Pageable buildReportPageable(int page, int size, String sortBy, String sortDir) {
+        if (page < 0) {
+            throw new BadRequestException("Số trang không hợp lệ!");
+        }
+
+        if (size <= 0 || size > 100) {
+            throw new BadRequestException("Kích thước trang phải từ 1 đến 100!");
+        }
+
+        String finalSortBy = (sortBy == null || sortBy.trim().isEmpty())
+            ? "averageRating" : sortBy.trim();
+
+        if (!REVIEW_REPORT_SORT_FIELDS.contains(finalSortBy)) {
+            throw new BadRequestException("Tiêu chí sắp xếp báo cáo đánh giá không hợp lệ!");
+        }
+
+        parseSortDirection(sortDir);
+
+        return PageRequest.of(page, size);
+    }
+
+    private Sort.Direction parseSortDirection(String sortDir) {
+        if (sortDir == null || sortDir.trim().isEmpty()) {
+            return Sort.Direction.DESC;
+        }
+
+        if ("asc".equalsIgnoreCase(sortDir.trim())) {
+            return Sort.Direction.ASC;
+        }
+
+        if ("desc".equalsIgnoreCase(sortDir.trim())) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new BadRequestException("Hướng sắp xếp chỉ được là asc hoặc desc!");
+    }
+
+    private void validateRatingFilter(Integer rating) {
+        if (rating != null && (rating < 1 || rating > 5)) {
+            throw new BadRequestException("Số sao lọc phải nằm trong khoảng từ 1 đến 5!");
+        }
+    }
+
+    private ReviewAdminFlag parseNullableReviewFlag(String flag) {
+        if (flag == null || flag.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return ReviewAdminFlag.valueOf(flag.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Trạng thái đánh giá không hợp lệ!");
+        }
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return null;
+        }
+
+        return keyword.trim();
+    }
+
+    private Comparator<ReviewReportDTO> buildReviewReportComparator(String sortBy) {
+        String finalSortBy = (sortBy == null || sortBy.trim().isEmpty()) 
+            ? "averageRating" : sortBy.trim();
+        
+        return switch (finalSortBy) {
+            case "productId" -> Comparator.comparing(
+                ReviewReportDTO::getProductId,
+                Comparator.nullsLast(Integer::compareTo)
+            );
+
+            case "productName" -> Comparator.comparing(
+                ReviewReportDTO::getProductName,
+                Comparator.nullsLast(String::compareToIgnoreCase)
+            );
+
+            case "totalReviews" -> Comparator.comparing(
+                ReviewReportDTO::getTotalReviews,
+                Comparator.nullsLast(Long::compareTo)
+            );
+
+            case "averageRating" -> Comparator.comparing(
+                ReviewReportDTO::getAverageRating,
+                Comparator.nullsLast(Double::compareTo)
+            );
+
+            case "satisfactionRate" -> Comparator.comparing(
+                ReviewReportDTO::getSatisfactionRate,
+                Comparator.nullsLast(Double::compareTo)
+            );
+
+            default -> throw new BadRequestException("Tiêu chí sắp xếp báo cáo đánh giá không hợp lệ!");
+        };
     }
 }
