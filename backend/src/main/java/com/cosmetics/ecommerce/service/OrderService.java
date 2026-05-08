@@ -40,7 +40,15 @@ public interface OrderService {
      * @param userId ID của người dùng
      * @return Danh sách đơn hàng của user
      */
-    List<OrderResponseDTO> getMyOrders(Integer userId);
+    Page<OrderResponseDTO> getMyOrders(
+        Integer userId,
+        String status,
+        String keyword,
+        int page,
+        int size,
+        String sortBy,
+        String sortDir
+    );
 
     /**
      * Lấy danh sách đơn hàng cho Admin (có phân trang và filter).
@@ -56,7 +64,16 @@ public interface OrderService {
      * @param size    Số lượng bản ghi mỗi trang
      * @return Page chứa danh sách đơn hàng
      */
-    Page<OrderListDTO> getAdminOrders(String status, String keyword, int page, int size);
+    Page<OrderListDTO> getAdminOrders(
+        String status, 
+        String keyword,
+        String paymentMethod,
+        String paymentStatus, 
+        int page, 
+        int size,
+        String sortBy,
+        String sortDir
+    );
 
     /**
      * Lấy thông tin chi tiết của một đơn hàng (dành cho Admin).

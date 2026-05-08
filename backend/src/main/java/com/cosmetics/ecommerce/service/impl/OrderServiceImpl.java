@@ -57,6 +57,13 @@ public class OrderServiceImpl implements OrderService{
 
     private static final String PRODUCT_DISCONTINUED_NOTE = "Sản phẩm này hiện đã ngừng kinh doanh";
     private static final String NO_PAYMENT_MESSAGE = "Chưa có thông tin thanh toán";
+    private static final Set<String> ORDER_SORT_FIELDS = Set.of(
+        "orderId",
+        "createdAt",
+        "updatedAt",
+        "totalPrice",
+        "status"
+    );
 
     /**
      * Quy tắc chuyển đổi trạng thái đơn hàng.
@@ -211,20 +218,37 @@ public class OrderServiceImpl implements OrderService{
      */
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponseDTO> getMyOrders(Integer userId) {
+    public Page<OrderResponseDTO> getMyOrders(
+        Integer userId,
+        String status,
+        String keyword,
+        int page,
+        int size,
+        String sortBy,
+        String sortDir
+    ) {
 
         validateUserId(userId);
+
+        OrderStatus orderStatus = parseNullableOrderStatus(status);
+        Pageable pageable = buildOrderPageable(page, size, sortBy, sortDir);
+
         //Tìm đơn hàng theo userId, sắp xếp mới nhất lên đầu và map sang DTO
-        return orderRepository.findByUser_UserIdOrderByCreatedAtDesc(userId)
-                .stream()
-                .map(order -> OrderResponseDTO.builder()
-                                .orderId(order.getOrderId())
-                                .status(order.getStatus().name())
-                                .totalPrice(order.getTotalPrice())
-                                .recipientName(order.getRecipientName())
-                                .createdAt(order.getCreatedAt())
-                                .build())
-                .collect(Collectors.toList());
+        return orderRepository.searchMyOrders(
+            userId,
+            orderStatus,
+            normalizeKeyword(keyword),
+            pageable
+        ).map(order -> OrderResponseDTO.builder()
+                        .orderId(order.getOrderId())
+                        .status(order.getStatus().name())
+                        .totalPrice(order.getTotalPrice())
+                        .recipientName(order.getRecipientName())
+                        .recipientPhone(order.getRecipientPhone())
+                        .shippingAddress(order.getShippingAddress())
+                        .createdAt(order.getCreatedAt())
+                        .build()
+        );
     }
 
     /**
@@ -238,30 +262,29 @@ public class OrderServiceImpl implements OrderService{
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<OrderListDTO> getAdminOrders(String status, String keyword, int page, int size) {
-        if (page < 0) {
-            throw new BadRequestException("Số trang không hợp lệ!");
-        }
+    public Page<OrderListDTO> getAdminOrders(
+        String status, 
+        String keyword, 
+        String paymentMethod,
+        String paymentStatus,    
+        int page, 
+        int size,
+        String sortBy,
+        String sortDir
+    ) {
+        OrderStatus orderStatus = parseNullableOrderStatus(status);
+        PaymentMethod parsedPaymentMethod = parseNullablePaymentMethod(paymentMethod);
+        PaymentStatus parsedPaymentStatus = parseNullablePaymentStatus(paymentStatus);
 
-        if (size <= 0) {
-            throw new BadRequestException("Kích thước trang không hợp lệ!");
-        }
-
-        //Cấu hình phân trang, mặc định sắp xếp theo ngày tạo giảm dần (mới nhất trước)
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-
-        //Chuyển trạng thái từ String sang Enum
-        OrderStatus orderStatus = null;
-        if (status != null && !status.trim().isEmpty()) {
-            try {
-                orderStatus = OrderStatus.valueOf(status.trim().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new BadRequestException("Trạng thái đơn hàng không hợp lệ!");
-            }
-        }
+        Pageable pageable = buildOrderPageable(page, size, sortBy, sortDir);
 
         //Gọi query để tìm kiếm và lọc
-        Page<Order> orderPage = orderRepository.searchAdminOrders(orderStatus, keyword, pageable);
+        Page<Order> orderPage = orderRepository.searchAdminOrders(
+            orderStatus, 
+            normalizeKeyword(keyword),
+            parsedPaymentMethod,
+            parsedPaymentStatus, 
+            pageable);
 
         //Chuyển đổi từ entity Order sang dto OrderListDTO để trả về
         return orderPage.map(order -> OrderListDTO.builder()
@@ -603,5 +626,84 @@ public class OrderServiceImpl implements OrderService{
         if (orderId == null) {
             throw new BadRequestException("Mã đơn hàng không hợp lệ!");
         }
+    }
+
+    private Pageable buildOrderPageable(int page, int size, String sortBy, String sortDir) {
+        if (page < 0) {
+            throw new BadRequestException("Số trang không hợp lệ!");
+        }
+
+        if (size <= 0 || size > 100) {
+            throw new BadRequestException("Kích thước trang phải từ 1 đến 100!");
+        }
+        
+        String finalSortBy = (sortBy == null || sortBy.trim().isEmpty()) ? "createdAt" : sortBy.trim();
+        if (!ORDER_SORT_FIELDS.contains(finalSortBy)) {
+            throw new BadRequestException("Tiêu chí sắp xếp đơn hàng không hợp lệ!");
+        }
+
+        Sort.Direction direction = parseSortDirection(sortDir);
+
+        return PageRequest.of(page, size, Sort.by(direction, finalSortBy));
+    }
+
+    private Sort.Direction parseSortDirection(String sortDir) {
+        if (sortDir == null || sortDir.trim().isEmpty()) {
+            return Sort.Direction.DESC;
+        }
+
+        if ("asc".equalsIgnoreCase(sortDir.trim())) {
+            return Sort.Direction.ASC;
+        }
+
+        if ("desc".equalsIgnoreCase(sortDir.trim())) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new BadRequestException("Hướng sắp xếp chỉ được là asc hoặc desc!");
+    }
+
+    private OrderStatus parseNullableOrderStatus(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return OrderStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Trạng thái đơn hàng không hợp lệ!");
+        }
+    }
+
+    private PaymentMethod parseNullablePaymentMethod(String paymentMethod) {
+        if (paymentMethod == null || paymentMethod.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return PaymentMethod.valueOf(paymentMethod.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Phương thức thanh toán không hợp lệ!");
+        }
+    }
+
+    private PaymentStatus parseNullablePaymentStatus(String paymentStatus) {
+        if (paymentStatus == null || paymentStatus.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return PaymentStatus.valueOf(paymentStatus.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Trạng thái thanh toán không hợp lệ!");
+        }
+    }
+
+    private String normalizeKeyword(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return null;
+        }
+
+        return keyword.trim();
     }
 }

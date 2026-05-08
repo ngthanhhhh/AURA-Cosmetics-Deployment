@@ -40,11 +40,24 @@ public class AdminOrderController {
     public ResponseEntity<Page<OrderListDTO>> getOrders(
         @RequestParam(required = false)  String status,
         @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String paymentMethod,
+        @RequestParam(required = false) String paymentStatus,
         @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "createdAt") String sortBy,
+        @RequestParam(defaultValue = "desc") String sortDir
     ) {
         //Gọi xuống tầng Service để xử lý logic lấy dữ liệu từ Database
-        Page<OrderListDTO> result = orderService.getAdminOrders(status, keyword, page, size);
+        Page<OrderListDTO> result = orderService.getAdminOrders(
+            status, 
+            keyword, 
+            paymentMethod,
+            paymentStatus,
+            page, 
+            size,
+            sortBy,
+            sortDir
+        );
         return ResponseEntity.ok(result);
     }
 
