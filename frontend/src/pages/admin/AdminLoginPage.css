@@ -1,21 +1,24 @@
 .admin-login-container {
-    max-width: 400px;
-    margin: 60px auto;
-    padding: 24px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fff;
+    max-width: 420px;
+    margin: 80px auto;
+    padding: 32px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .admin-login-title {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 28px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #222;
 }
 
-.login-form {
+.admin-login-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
 }
 
 .form-group {
@@ -23,20 +26,56 @@
     flex-direction: column;
 }
 
+.form-group label {
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+}
+
 .form-group input {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #111827;
 }
 
 .btn-submit {
+    margin-top: 8px;
     padding: 12px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    background-color: #111827;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.error-message {
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 14px;
 }
 
 .login-footer {
-    margin-top: 16px;
+    margin-top: 18px;
     text-align: center;
+    font-size: 14px;
 }
