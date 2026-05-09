@@ -18,6 +18,7 @@ function CustomerRoutes() {
         <Route path="auth/login" element={<LoginPage />} />
         <Route path="change-password" element={<ChangePasswordPage />} />
         
+        
         </Routes>
     </CustomerLayout>
     );
