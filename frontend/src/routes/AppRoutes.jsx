@@ -8,8 +8,9 @@ function AppRoutes() {
     <BrowserRouter>
         <Routes>
         <Route path="/*" element={<CustomerRoutes />} />
-        <Route path="/admin/*" element={<AdminRoutes />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/*" element={<AdminRoutes />} />
+        
         </Routes>
     </BrowserRouter>
     );

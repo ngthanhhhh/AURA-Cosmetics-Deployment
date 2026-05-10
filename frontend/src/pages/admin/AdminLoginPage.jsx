@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../features/auth/authService";
+import { useNavigate } from "react-router-dom";
+import { loginUser, logoutUser } from "../../features/auth/authService";
 import "./AdminLoginPage.css";
 
 
@@ -26,12 +26,11 @@ function AdminLoginPage(){
             });
 
             // Kiểm tra ROLE
-            if(data.user.role !== "ROLE_ADMIN"){
+            if(data.role !== "ROLE_ADMIN"){
 
                 setError("Bạn không có quyền truy cập admin");
 
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                logoutUser();
 
                 return;
 

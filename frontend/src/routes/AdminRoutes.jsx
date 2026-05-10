@@ -10,7 +10,7 @@ function AdminRoutes() {
         <AdminLayout>
         <Routes>
             <Route path="/" element={<DashboardPage />} />
-            <Route path="/customers" element={<CustomerManagementPage />} />
+            <Route path="customers" element={<CustomerManagementPage />} />
             
         </Routes>
         </AdminLayout>
