@@ -11,6 +11,7 @@ import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -49,8 +50,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             throw new BadRequestException("Vui lòng chọn loại thống kê");
         }
 
-        LocalDate start = (fromDate != null) ? fromDate:LocalDate.now().minusDays(30);
-        LocalDate end = (toDate != null) ? toDate:LocalDate.now();
+        LocalDateTime start = (fromDate != null) ? fromDate.atStartOfDay():LocalDate.now().minusDays(30).atStartOfDay();
+        LocalDateTime end = (toDate != null) ? toDate.atTime(23, 59, 59):LocalDate.now().atTime(23, 59, 59);
 
         if(start.isAfter(end)){
             throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
