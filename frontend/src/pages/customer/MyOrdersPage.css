@@ -1,210 +1,210 @@
 .my-orders-page {
-  padding: 24px;
+    padding: 24px;
 }
 
 .my-orders-page__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .my-orders-page__header h2 {
-  margin: 0;
+    margin: 0;
 }
 
 .my-orders-page__header a,
 .my-orders-page__detail-link {
-  color: #6b4f3f;
-  text-decoration: none;
-  font-weight: 600;
+    color: #6b4f3f;
+    text-decoration: none;
+    font-weight: 600;
 }
 
 .my-orders-page__header a:hover,
 .my-orders-page__detail-link:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .my-orders-page__filters {
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  background: #fff;
-  display: grid;
-  grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(140px, 1fr)) auto;
-  gap: 12px;
-  align-items: end;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(140px, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
 }
 
 .my-orders-page__filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .my-orders-page__filter-group label {
-  font-weight: 600;
+    font-weight: 600;
 }
 
 .my-orders-page__filter-group input,
 .my-orders-page__filter-group select {
-  padding: 9px 10px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font: inherit;
+    padding: 9px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font: inherit;
 }
 
 .my-orders-page__filter-actions {
-  display: flex;
-  gap: 8px;
+    display: flex;
+    gap: 8px;
 }
 
 .my-orders-page__filter-actions button {
-  padding: 10px 12px;
-  border: 1px solid #6b4f3f;
-  border-radius: 8px;
-  background: #fff;
-  color: #6b4f3f;
-  cursor: pointer;
-  font-weight: 600;
+    padding: 10px 12px;
+    border: 1px solid #6b4f3f;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b4f3f;
+    cursor: pointer;
+    font-weight: 600;
 }
 
 .my-orders-page__filter-actions button:first-child {
-  background: #6b4f3f;
-  color: #fff;
+    background: #6b4f3f;
+    color: #fff;
 }
 
 .my-orders-page__error {
-  padding: 12px;
-  margin-bottom: 16px;
-  border: 1px solid #f5c2c7;
-  border-radius: 8px;
-  background: #f8d7da;
-  color: #842029;
+    padding: 12px;
+    margin-bottom: 16px;
+    border: 1px solid #f5c2c7;
+    border-radius: 8px;
+    background: #f8d7da;
+    color: #842029;
 }
 
 .my-orders-page__empty,
 .my-orders-page__summary {
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fff;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
 }
 
 .my-orders-page__table-wrapper {
-  overflow-x: auto;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
 }
 
 .my-orders-page__table {
-  width: 100%;
-  border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
 }
 
 .my-orders-page__table th,
 .my-orders-page__table td {
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-  vertical-align: middle;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: middle;
 }
 
 .my-orders-page__table th {
-  background: #fafafa;
-  font-weight: 600;
+    background: #fafafa;
+    font-weight: 600;
 }
 
 .my-orders-page__status {
-  display: inline-block;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: #eee;
-  font-size: 13px;
-  font-weight: 600;
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #eee;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .status-PENDING {
-  background: #fff3cd;
-  color: #664d03;
+    background: #fff3cd;
+    color: #664d03;
 }
 
 .status-PREPARING {
-  background: #cff4fc;
-  color: #055160;
+    background: #cff4fc;
+    color: #055160;
 }
 
 .status-SHIPPING {
-  background: #cfe2ff;
-  color: #084298;
+    background: #cfe2ff;
+    color: #084298;
 }
 
 .status-DELIVERED {
-  background: #e2e3e5;
-  color: #41464b;
+    background: #e2e3e5;
+    color: #41464b;
 }
 
 .status-COMPLETED {
-  background: #d1e7dd;
-  color: #0f5132;
+    background: #d1e7dd;
+    color: #0f5132;
 }
 
 .status-CANCELLED {
-  background: #f8d7da;
-  color: #842029;
+    background: #f8d7da;
+    color: #842029;
 }
 
 .my-orders-page__pagination {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
 }
 
 .my-orders-page__pagination button {
-  padding: 8px 12px;
-  border: 1px solid #6b4f3f;
-  border-radius: 8px;
-  background: #fff;
-  color: #6b4f3f;
-  cursor: pointer;
+    padding: 8px 12px;
+    border: 1px solid #6b4f3f;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b4f3f;
+    cursor: pointer;
 }
 
 .my-orders-page__pagination button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 @media (max-width: 1024px) {
-  .my-orders-page__filters {
-    grid-template-columns: 1fr 1fr;
-  }
+    .my-orders-page__filters {
+        grid-template-columns: 1fr 1fr;
+    }
 
-  .my-orders-page__filter-actions {
-    grid-column: span 2;
-  }
+    .my-orders-page__filter-actions {
+        grid-column: span 2;
+    }
 }
 
 @media (max-width: 768px) {
-  .my-orders-page {
-    padding: 16px;
-  }
+    .my-orders-page {
+        padding: 16px;
+    }
 
-  .my-orders-page__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    .my-orders-page__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .my-orders-page__filters {
-    grid-template-columns: 1fr;
-  }
+    .my-orders-page__filters {
+        grid-template-columns: 1fr;
+    }
 
-  .my-orders-page__filter-actions {
-    grid-column: auto;
-  }
+    .my-orders-page__filter-actions {
+        grid-column: auto;
+    }
 }
