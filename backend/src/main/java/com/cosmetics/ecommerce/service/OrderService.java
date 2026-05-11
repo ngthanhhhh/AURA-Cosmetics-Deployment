@@ -1,5 +1,4 @@
 package com.cosmetics.ecommerce.service;
-import java.util.List;
 
 import org.springframework.data.domain.Page;
 
