@@ -4,7 +4,7 @@ import { cartService } from "../features/cart/cartService";
 export const CartContext = createContext();
 
 export function CartProvider({ children }) {
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(null);
     const [cartItems, setCartItems] = useState([]);
     const [totalCartValue, setTotalCartValue] = useState(0);
     const [totalItems, setTotalItems] = useState(0);
@@ -12,7 +12,7 @@ export function CartProvider({ children }) {
     const [loadingCart, setLoadingCart] = useState(false);
     const [cartError, setCartError] = useState("");
 
-    const applyCartData = (cartData) => {
+    const applyCartData = useCallback((cartData) => {
         const items = cartData?.items || [];
 
         setCart(cartData || null);
@@ -25,9 +25,26 @@ export function CartProvider({ children }) {
         );
 
         setTotalItems(itemCount);
-    };
+    }, []);
+
+    const isCustomer = () => {
+        const user = JSON.parse(localStorage.getItem("user") || "null");
+        const role = localStorage.getItem("role") || user?.role;
+
+        return role === "ROLE_CUSTOMER";
+    }
 
     const fetchCart = useCallback(async () => {
+
+        const token = localStorage.getItem("token");
+
+        // Chưa login hoặc không phải CUSTOMER thì không gọi /cart
+        if (!token || !isCustomer()) {
+            applyCartData(null);
+            setCartError("");
+            return;
+        }
+
         try {
             setLoadingCart(true);
             setCartError("");
@@ -45,33 +62,50 @@ export function CartProvider({ children }) {
         } finally {
             setLoadingCart(false);
         }
-    }, []);
+    }, [applyCartData]);
 
     const addItemToCart = async (productId, quantity = 1) => {
+
+        const token = localStorage.getItem("token");
+
+        if (!token || !isCustomer()) {
+            throw new Error("Vui lòng đăng nhập bằng tài khoản khách hàng để thêm sản phẩm vào giỏ.");
+        }
+
         const data = await cartService.addItemToCart(productId, quantity);
         applyCartData(data);
     };
 
     const updateItemQuantity = async (productId, quantity) => {
+        const token = localStorage.getItem("token");
+
+        if (!token || !isCustomer()) {
+            throw new Error("Vui lòng đăng nhập bằng tài khoản khách hàng để cập nhật giỏ hàng.");
+        }
+
         const data = await cartService.updateCartItem(productId, quantity);
         applyCartData(data);
     };
 
     const removeItemFromCart = async (productId) => {
+
+        const token = localStorage.getItem("token");
+
+        if (!token || !isCustomer()) {
+            throw new Error("Vui lòng đăng nhập bằng tài khoản khách hàng để xóa sản phẩm khỏi giỏ.");
+        }
+
         await cartService.removeCartItem(productId);
         await fetchCart();
     };
 
-    const clearCartState = () => {
+    const clearCartState = useCallback(() => {
         applyCartData(null);
-    };
+        setCartError("");
+    }, [applyCartData]);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        if (token) {
-            fetchCart();
-        }
+        fetchCart();
     }, [fetchCart]);
 
     return (

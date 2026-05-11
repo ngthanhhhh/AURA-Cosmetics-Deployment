@@ -1,30 +1,84 @@
 import { Routes, Route } from "react-router-dom";
+
 import AdminLayout from "../components/layout/AdminLayout";
-import DashboardPage from "../pages/admin/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
+
+import AdminLoginPage from "../pages/admin/AdminLoginPage";
+import DashboardPage from "../pages/admin/DashboardPage";
+import CustomerManagementPage from "../pages/admin/CustomerManagementPage";
 
 import OrderManagementPage from "../pages/admin/OrderManagementPage";
 import OrderDetailManagementPage from "../pages/admin/OrderDetailManagementPage";
 import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
 import ReviewReportPage from "../pages/admin/ReviewReportPage";
-import CustomerManagementPage from "../pages/admin/CustomerManagementPage";
+
+function ProtectedAdminPage({ children }) {
+    return (
+        <ProtectedRoute requiredRole="ROLE_ADMIN">
+            <AdminLayout>{children}</AdminLayout>
+        </ProtectedRoute>
+    );
+}
+
 function AdminRoutes() {
     return (
-    <ProtectedRoute>
-        <AdminLayout>
         <Routes>
-            <Route path="/" element={<DashboardPage />} />
+            <Route path="login" element={<AdminLoginPage />} />
 
-            <Route path="/customers" element={<CustomerManagementPage />} />
+            <Route
+                path=""
+                element={
+                    <ProtectedAdminPage>
+                        <DashboardPage />
+                    </ProtectedAdminPage>
+                }
+            />
 
-            <Route path="/orders" element={<OrderManagementPage/>} />
-            <Route path="/orders/:orderId" element={<OrderDetailManagementPage />} />
+            <Route
+                path="customers"
+                element={
+                    <ProtectedAdminPage>
+                        <CustomerManagementPage />
+                    </ProtectedAdminPage>
+                }
+            />
 
-            <Route path="/reviews" element={<ReviewManagementPage />} />
-            <Route path="/reviews/report" element={<ReviewReportPage />} />
+            <Route
+                path="orders"
+                element={
+                    <ProtectedAdminPage>
+                        <OrderManagementPage />
+                    </ProtectedAdminPage>
+                }
+            />
+
+            <Route
+                path="orders/:orderId"
+                element={
+                    <ProtectedAdminPage>
+                        <OrderDetailManagementPage />
+                    </ProtectedAdminPage>
+                }
+            />
+
+            <Route
+                path="reviews"
+                element={
+                    <ProtectedAdminPage>
+                        <ReviewManagementPage />
+                    </ProtectedAdminPage>
+                }
+            />
+
+            <Route
+                path="reviews/report"
+                element={
+                    <ProtectedAdminPage>
+                        <ReviewReportPage />
+                    </ProtectedAdminPage>
+                }
+            />
         </Routes>
-        </AdminLayout>
-    </ProtectedRoute>
     );
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { reviewService } from "../../features/reviews/reviewService";
+import "./ReviewReportPage.css";
 
 function ReviewReportPage() {
     const [reports, setReports] = useState([]);

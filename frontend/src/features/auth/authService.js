@@ -15,6 +15,8 @@ export const loginUser = async (data) => {
     }
 
     localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
+    localStorage.setItem("name", name);
     localStorage.setItem(
         "user",
         JSON.stringify({
@@ -24,4 +26,11 @@ export const loginUser = async (data) => {
     );
 
     return res.data;
+};
+
+export const logoutUser = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
+    localStorage.removeItem("user");
 };

@@ -1,15 +1,17 @@
-import { useAuth } from "../hooks/useAuth";
 import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
-    const { user } = useAuth();
+function ProtectedRoute({ children, requiredRole }) {
+    const token = localStorage.getItem("token");
+    const role =
+        localStorage.getItem("role") ||
+        JSON.parse(localStorage.getItem("user") || "null")?.role;
 
-    if (!user) {
-        return <Navigate to="/admin/login" replace />;
+    if (!token) {
+        return <Navigate to="/auth/login" replace />;
     }
 
-    if (user.role !== "ROLE_ADMIN"){
-        return <Navigate to="/" replace/>;
+    if (requiredRole && role !== requiredRole) {
+        return <Navigate to="/admin/login" replace />;
     }
 
     return children;

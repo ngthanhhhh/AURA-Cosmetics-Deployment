@@ -10,6 +10,7 @@ function AppRoutes() {
         <Route path="/*" element={<CustomerRoutes />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/*" element={<AdminRoutes />} />
+        
         </Routes>
     </BrowserRouter>
     );

@@ -6,7 +6,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
 
 function OrderManagementPage() {
-    const [order, setOrders] = useState([]);
+    const [orders, setOrders] = useState([]);
 
     const [keyword, setKeyword] = useState("");
     const [status, setStatus] = useState("");
@@ -41,6 +41,7 @@ function OrderManagementPage() {
 
             setOrders(data?.content || []);
             setTotalPages(data?.totalPages || 0);
+            setTotalElements(data?.totalElements || 0);
         } catch (err) {
             console.error("Fetch admin orders error: ", err);
 

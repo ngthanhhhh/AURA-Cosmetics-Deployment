@@ -5,3 +5,15 @@ export const changePasswordApi = (data) => {
 };
 
 // ADMIN - QUẢN LÝ KHÁCH HÀNG
+
+export const getCustomersApi = (params) => {
+    return axiosClient.get("/admin/customers", {params});
+};
+
+export const getCustomersDetailApi = (id) => {
+    return axiosClient.get(`/admin/customers/${id}`);
+};
+
+export const updateCustomersStatusApi = (id, isActive) => {
+    return axiosClient.put(`/admin/customers/${id}/status`, {isActive});
+};
