@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../features/auth/authService";
+import { useNavigate } from "react-router-dom";
+import { loginUser, logoutUser } from "../../features/auth/authService";
+import "./AdminLoginPage.css";
 
 
 function AdminLoginPage(){
@@ -20,17 +21,16 @@ function AdminLoginPage(){
         try{
             
             const data = await loginUser({
-                email,
+                email: email.trim(),
                 password,
             });
 
             // Kiểm tra ROLE
-            if(data.user.role !== "ROLE_ADMIN"){
+            if(data.role !== "ROLE_ADMIN"){
 
                 setError("Bạn không có quyền truy cập admin");
 
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                logoutUser();
 
                 return;
 
@@ -38,13 +38,14 @@ function AdminLoginPage(){
 
             // Chuyển hướng admin dashboard
 
-             navigate("/admin");
+             navigate("/admin/customers");
 
         } catch (err) {
             setError(
                 err.response?.data?.message ||
                 "Email hoặc mật khẩu không đúng"
             );  
+
         } finally {
             setLoading(false);
         }
@@ -53,7 +54,7 @@ function AdminLoginPage(){
     return (
         <div className="admin-login-container">
 
-            <h2 className="admin-login-title">Đăng nhập</h2>
+            <h2 className="admin-login-title">Đăng nhập quản trị</h2>
 
             {error && (
                 <p

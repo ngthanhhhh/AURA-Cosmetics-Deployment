@@ -8,8 +8,20 @@ export const registerUser = async (data) => {
 export const loginUser = async (data) => {
     const res = await loginApi(data);
 
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("user", JSON.stringify(res.data.user));
+    const { token, role, name } = res.data;
+
+    if (!token) {
+        throw new Error("Đăng nhập thành công nhưng không nhận được token");
+    }
+
+    localStorage.setItem("token", token);
+    localStorage.setItem(
+        "user",
+        JSON.stringify({
+            name,
+            role,
+        })
+    );
 
     return res.data;
 };
