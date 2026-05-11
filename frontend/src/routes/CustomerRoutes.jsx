@@ -12,7 +12,15 @@ import VnpayReturnPage from "../pages/customer/VnpayReturnPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
+import ProtectedRoute from "./ProtectedRoute";
 
+function CustomerProtectedPage({ children }) {
+    return (
+        <ProtectedRoute requiredRole="ROLE_CUSTOMER">
+            {children}
+        </ProtectedRoute>
+    );
+}
 
 function CustomerRoutes() {
     return (
@@ -22,17 +30,52 @@ function CustomerRoutes() {
             <Route path="/products" element={<ProductListPage />} />
             <Route path="/products/:productId" element={<ProductDetailPage />} />
             
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route 
+                path="/cart" 
+                element={
+                    <CustomerProtectedPage>
+                        <CartPage />
+                    </CustomerProtectedPage>
+                } 
+            />
+            <Route 
+                path="/checkout" 
+                element={
+                    <CustomerProtectedPage>
+                        <CheckoutPage />
+                    </CustomerProtectedPage>
+                } 
+            />
 
-            <Route path="/my-orders" element={<MyOrdersPage />} />
-            <Route path="/my-orders/:orderId" element={<OrderDetailPage />} />
+            <Route 
+                path="/my-orders" 
+                element={
+                    <CustomerProtectedPage>
+                        <MyOrdersPage />
+                    </CustomerProtectedPage>
+                } 
+            />
+            <Route 
+                path="/my-orders/:orderId" 
+                element={
+                    <CustomerProtectedPage>
+                        <OrderDetailPage />
+                    </CustomerProtectedPage>
+                } 
+            />
 
             <Route path="/payments/vnpay-return" element={<VnpayReturnPage />} />
 
             <Route path="/auth/register" element={<RegisterPage />} />
             <Route path="/auth/login" element={<LoginPage />} />
-            <Route path="/change-password" element={<ChangePasswordPage />} />
+            <Route 
+                path="/change-password" 
+                element={
+                    <CustomerProtectedPage>
+                        <ChangePasswordPage />
+                    </CustomerProtectedPage>
+                } 
+            />
         
         </Routes>
     </CustomerLayout>

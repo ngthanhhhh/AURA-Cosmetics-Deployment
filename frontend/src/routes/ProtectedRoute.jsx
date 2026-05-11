@@ -11,7 +11,11 @@ function ProtectedRoute({ children, requiredRole }) {
     }
 
     if (requiredRole && role !== requiredRole) {
-        return <Navigate to="/admin/login" replace />;
+        if (role === "ROLE_ADMIN") {
+            return <Navigate to="/admin/customers" replace />;
+        }
+
+        return <Navigate to="/auth/login" replace />;
     }
 
     return children;

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../features/auth/authService";
+import { loginUser, logoutUser } from "../../features/auth/authService";
 import "./LoginPage.css";
 
 function LoginPage(){
@@ -19,15 +19,21 @@ function LoginPage(){
 
         try{
             
-            await loginUser({
-                email,
+            const data = await loginUser({
+                email: email.trim(),
                 password,
             });
 
-             navigate("/");
+            if (data.role === "ROLE_ADMIN") {
+                logoutUser();
+                setError("Tài khoản quản trị vui lòng đăng nhập tại trang quản trị.");
+                return;
+            }
+
+            navigate("/");
         } catch (err) {
             setError(
-                err.response?.data?.message ||
+                err.response?.data?.message || err.message ||
                 "Email hoặc mật khẩu không đúng"
             );  
         } finally {
