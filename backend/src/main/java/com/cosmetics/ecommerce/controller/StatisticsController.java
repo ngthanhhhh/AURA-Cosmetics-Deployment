@@ -1,10 +1,12 @@
 package com.cosmetics.ecommerce.controller;
 
 import com.cosmetics.ecommerce.dto.RevenueChartDTO;
+import com.cosmetics.ecommerce.dto.RevenueStatisticsResponse;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
 import com.cosmetics.ecommerce.enums.StatisticType;
 import com.cosmetics.ecommerce.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+
+
+// Controller xử lý API thống kê cho Admin
 
 @RestController
 @RequestMapping("/api/v1/admin/statistics")
@@ -22,23 +26,29 @@ public class StatisticsController {
 
     private final StatisticsService statisticsService;
 
-    //API lấy dữ liệu tổng hợp cho Dashboard của Admin
+    // DASHBOARD TỔNG QUAN
     //Endpoint: GET /api/v1/admin/statistics/dashboard
 
     @GetMapping("/dashboard")
-    public ResponseEntity<StatisticsResponse> getDashboardData(){
-        return ResponseEntity.ok(statisticsService.getAdminDashboard());
+    public StatisticsResponse getDashboardData(){
+        return statisticsService.getAdminDashboard();
     }
 
-    //API phục vụ vẽ biểu đồ doanh thu theo Ngày/Tháng
-    // GET /api/v1/admin/statistics/revenue-chart
-    @GetMapping("/revenue-chart")
-    public ResponseEntity<List<RevenueChartDTO>> getRevenueChart(
+    // THỐNG KÊ DOANH THU
+    // GET /api/v1/admin/statistics/revenue
+    @GetMapping("/revenue")
+    public RevenueStatisticsResponse getRevenueChart(
             @RequestParam StatisticType type,
-            @RequestParam(required = false) LocalDate fromDate,
-            @RequestParam(required = false) LocalDate toDate
+
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate fromDate,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
+            LocalDate toDate
     ){
-        return ResponseEntity.ok(statisticsService.getRevenueChartData(type, fromDate, toDate));
+        return statisticsService.getRevenueStatistics(type, fromDate, toDate);
     }
 
 
