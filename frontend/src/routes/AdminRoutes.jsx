@@ -6,7 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AdminLoginPage from "../pages/admin/AdminLoginPage";
 import DashboardPage from "../pages/admin/DashboardPage";
 import CustomerManagementPage from "../pages/admin/CustomerManagementPage";
-
+import AdminAccountManagementPage from "../pages/admin/AdminAccountManagementPage";
 import OrderManagementPage from "../pages/admin/OrderManagementPage";
 import OrderDetailManagementPage from "../pages/admin/OrderDetailManagementPage";
 import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
@@ -39,6 +39,15 @@ function AdminRoutes() {
                 element={
                     <ProtectedAdminPage>
                         <CustomerManagementPage />
+                    </ProtectedAdminPage>
+                }
+            />
+
+            <Route
+                path="accounts"
+                element={
+                    <ProtectedAdminPage>
+                        <AdminAccountManagementPage />
                     </ProtectedAdminPage>
                 }
             />

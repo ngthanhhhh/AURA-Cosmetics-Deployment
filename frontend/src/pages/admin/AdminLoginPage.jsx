@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
-import { useAuth } from "../../hooks/useAuth";
 import "./AdminLoginPage.css";
 
 
@@ -12,7 +11,6 @@ function AdminLoginPage(){
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
-    const { setUser } = useAuth();
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -37,10 +35,6 @@ function AdminLoginPage(){
                 return;
 
             }
-
-            // Cập nhật context để ProtectedRoute nhận ra user
-            setUser({ name: data.name, role: data.role});
-
             // Chuyển hướng admin dashboard
              navigate("/admin/customers");
 

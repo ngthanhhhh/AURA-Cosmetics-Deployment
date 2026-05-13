@@ -8,7 +8,7 @@ export const registerUser = async (data) => {
 export const loginUser = async (data) => {
     const res = await loginApi(data);
 
-    const { token, role, name } = res.data;
+    const { token, role, name, email } = res.data;
 
     if (!token) {
         throw new Error("Đăng nhập thành công nhưng không nhận được token");
@@ -22,6 +22,7 @@ export const loginUser = async (data) => {
         JSON.stringify({
             name,
             role,
+            email,
         })
     );
 
