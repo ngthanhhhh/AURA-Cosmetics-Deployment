@@ -3,18 +3,18 @@ import Button from "../ui/Button";
 import { logoutUser } from "../../features/auth/authService";
 import { useAuth } from "../../hooks/useAuth";
 
-const LogoutButton = () =>{
+const LogoutButton = ({redirectPath = "/auth/login"}) =>{
     const navigate  = useNavigate();
-    const {user, setUser} = useAuth();
+    const {setUser} = useAuth();
 
     const handleLogout = () => {
         //Xóa dữ liệu đăng nhập
-        const isAdmin = user?.role == "ROLE_ADMIN";
+        
         logoutUser();
         setUser(null);
 
         //Chuyển về login
-        navigate(isAdmin ? "/admin/login" : "/auth/login");
+        navigate(redirectPath);
 
     };
 

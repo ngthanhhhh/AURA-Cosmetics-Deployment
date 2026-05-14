@@ -14,7 +14,10 @@ import ReviewReportPage from "../pages/admin/ReviewReportPage";
 
 function ProtectedAdminPage({ children }) {
     return (
-        <ProtectedRoute requiredRole="ROLE_ADMIN">
+        <ProtectedRoute 
+            requiredRole="ROLE_ADMIN"
+            loginPath="/admin/login"
+        >
             <AdminLayout>{children}</AdminLayout>
         </ProtectedRoute>
     );
