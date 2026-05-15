@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import productApi from "../../api/productApi";
+import { productService } from "../../features/products/productService";
 import { Link } from "react-router-dom";
 
 function ProductListPage() {
@@ -23,7 +23,7 @@ function ProductListPage() {
     try {
       setLoading(true);
 
-      const res = await productApi.getAllProducts({
+      const data = await productService.getAllProducts({
         keyword: keyword || undefined,
         page: page,
         size: 8,
@@ -31,8 +31,8 @@ function ProductListPage() {
         direction: "asc",
       });
 
-      setProducts(res.data.content || []);
-      setTotalPages(res.data.totalPages || 0);
+      setProducts(data.content || []);
+      setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
       alert("Không thể tải danh sách sản phẩm");

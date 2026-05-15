@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import productApi from "../../api/productApi";
+import { productService } from "../../features/products/productService";
 
 function ProductDetailPage() {
   const { productId } = useParams();
@@ -11,10 +11,13 @@ function ProductDetailPage() {
   const loadProduct = async () => {
     try {
       setLoading(true);
-      const res = await productApi.getProductById(productId);
-      setProduct(res.data);
+
+      // productService đã return thẳng res.data
+      const data = await productService.getProductById(productId);
+
+      setProduct(data);
     } catch (error) {
-      console.error(error);
+      console.error("Lỗi tải chi tiết sản phẩm:", error);
       alert("Không thể tải chi tiết sản phẩm");
     } finally {
       setLoading(false);
@@ -26,6 +29,7 @@ function ProductDetailPage() {
   }, [productId]);
 
   if (loading) return <p>Đang tải...</p>;
+
   if (!product) return <p>Không tìm thấy sản phẩm</p>;
 
   return (
@@ -50,7 +54,7 @@ function ProductDetailPage() {
       <p>{product.description}</p>
 
       {/* KHU VỰC REVIEW SẢN PHẨM */}
-      {/* Nhóm trưởng sẽ gắn component review sản phẩm vào đây sau */}
+      {/* Nhóm trưởng sẽ gắn component review vào đây sau */}
       <div
         style={{
           marginTop: "40px",
