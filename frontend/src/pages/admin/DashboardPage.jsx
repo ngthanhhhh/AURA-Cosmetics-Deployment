@@ -1,50 +1,82 @@
+import { useEffect, useState } from "react";
+import { fetchDashboardStatistics } from "../../features/statistics/statisticService";
+import Loading from "../../components/common/Loading";
+import "./DashboardPage.css";
 
 function DashboardPage() {
+
+    const [dashboardData, setDashboardData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
+    useEffect(() => {
+        loadDashboardData();
+    }, []);
+
+    const formatCurrency = (value) => {
+        return Number(value || 0).toLocaleString("vi-VN") + "đ";
+    };
+
+    const loadDashboardData = async () => {
+        try{
+            setLoading(true);
+            setError("");
+
+            const data = await fetchDashboardStatistics();
+            setDashboardData(data);
+        } catch {
+            setError("Không thể tải dữ liệu dashboard.");
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const summaryCards = [
         {
             title: "Tổng doanh thu",
-            value: "128.500.000đ",
-            desc: "+12% so với tháng trước",
+            value: formatCurrency(dashboardData?.totalRevenue),
+            desc: "Doanh thu từ đơn hoàn thành",
         },
         {
             title: "Tổng đơn hàng",
-            value: "1.248",
-            desc: "86 đơn hôm nay",
+            value: dashboardData?.totalOrders || 0,
+            desc: "Tất cả đơn hàng trong hệ thống",
         },
         {
             title: "Khách hàng",
-            value: "3.420",
-            desc: "124 khách hàng mới",
+            value: dashboardData?.totalUsers || 0,
+            desc: "Tổng số tài khoản khách hàng",
         },
         {
-            title: "Đánh giá trung bình",
-            value: "4.8/5",
-            desc: "980 đánh giá",
+            title: "Đơn hoàn thành",
+            value: dashboardData?.completedOrders || 0,
+            desc: "Đơn đã hoàn thành",
         },
         
     ];
 
-    const recentOrders = [
+    const orderStatusCards = [
         {
-            id: "DH001",
-            customer: "Nguyễn Thảo",
-            total: "850.000đ",
-            status: "Đang xử lý",
+            title: "Chờ xử lý",
+            value: dashboardData?.pendingOrders || 0,
         },
         {
-            id: "DH002",
-            customer: "Minh Anh",
-            total: "1.850.000đ",
-            status: "Hoàn thành",
+            title: "Đang chuẩn bị",
+            value: dashboardData?.preparingOrders || 0,
         },
         {
-            id: "DH003",
-            customer: "Hoàng Linh",
-            total: "420.000đ",
-            status: "Chờ xác nhận",
+            title: "Đang giao",
+            value: dashboardData?.shippingOrders || 0,
+        },
+        {
+            title: "Đã hủy",
+            value: dashboardData?.cancelledOrders || 0,
         },
     ];
+
+    if(loading) {
+        return <Loading/>;
+    }
 
     return (
         <div className="dashboard-page">
@@ -58,6 +90,8 @@ function DashboardPage() {
                 </div>
             </div>
 
+            {error && <p className="dashboard-error">{error}</p>}
+
             <div className="dashboard-summary">
                 {summaryCards.map((item) => (
                     <div className="dashboard-card" key={item.title}>
@@ -68,41 +102,46 @@ function DashboardPage() {
                 ))}
             </div>
 
-            <div className="dashboard-grid">
-                <section className="dashboard-panel dashboard-panel--large">
-                    <div className="dashboard-panel__header">
-                        <h3>Doanh thu gần đây</h3>
-                        <span>7 ngày qua</span>
-                    </div>
-
-                    <div className="dashboard-chart-placeholder">
-                        Biểu đồ doanh thu
-                    </div>
-                </section>
-
-                <section className="dashboard-panel">
-                    <div className="dashboard-panel__header">
-                        <h3>Đơn hàng gần đây</h3>
-                    </div>
-
-                    <div className="recent-orders">
-                        {recentOrders.map((order) => (
-                            <div className="recent-order" key={order.id}>
-                                <div>
-                                    <strong>{order.id}</strong>
-                                    <p>{order.customer}</p>
-                                </div>
-
-                                <div>
-                                    <strong>{order.total}</strong>
-                                    <span>{order.status}</span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            </div>
             
+            <section className="dashboard-panel">
+                <div className="dashboard-panel__header">
+                    <h3>Doanh thu gần đây</h3>
+                    <span>Biểu đồ mini</span>
+                </div>
+
+                <div className="dashboard-chart-placeholder">
+                    Biểu đồ doanh thu sẽ hiển thị ở đây
+                </div>
+            </section>
+
+            <section>
+                <div className="dashboard-panel__header">
+                    <h3>Doanh thu gần đây</h3>
+                    <span>Biểu đồ mini</span>
+                </div>
+
+                <div className="order-status-grid">
+                    {orderStatusCards.map((item) => (
+                        <div className="dashboard-card" key={item.title}>
+                            <p>{item.title}</p>
+                            <h3>{item.value}</h3>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            <section className="dashboard-panel">
+                <div className="dashboard-panel__header">
+                    <h3>Ghi chú</h3>
+                </div>
+
+                <div className="recent-orders">
+                    <p>
+                        Dashboard hiện đang hiển thị dữ liệu tổng quan từ hệ thống.
+                        Phần thống kê doanh thu chi tiết sẽ nằm ở trang Thống kê riêng
+                    </p>
+                </div>
+            </section>
             
         </div>
 
