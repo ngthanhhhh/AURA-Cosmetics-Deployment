@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { fetchMyProfile, updateMyProfile } from "../../features/users/userService";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
-import "./CustomerDetailPage.css";
+import "./CustomerProfilePage.css";
 import LogoutButton from "../../components/common/LogoutButton";
 
 function CustomerProfilePage(){
