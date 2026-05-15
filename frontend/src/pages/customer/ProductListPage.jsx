@@ -1,31 +1,21 @@
 import { useEffect, useState } from "react";
-import { productService } from "../../features/products/productService";
 import { Link } from "react-router-dom";
+import { productService } from "../../features/products/productService";
 
 function ProductListPage() {
-  // Danh sách sản phẩm lấy từ backend
   const [products, setProducts] = useState([]);
-
-  // Từ khóa tìm kiếm
   const [keyword, setKeyword] = useState("");
-
-  // Trang hiện tại, backend đang dùng page bắt đầu từ 0
   const [page, setPage] = useState(0);
-
-  // Tổng số trang backend trả về
   const [totalPages, setTotalPages] = useState(0);
-
-  // Trạng thái loading khi đang gọi API
   const [loading, setLoading] = useState(false);
 
-  // Hàm gọi API lấy danh sách sản phẩm
   const loadProducts = async () => {
     try {
       setLoading(true);
 
       const data = await productService.getAllProducts({
         keyword: keyword || undefined,
-        page: page,
+        page,
         size: 8,
         sortBy: "productId",
         direction: "asc",
@@ -41,19 +31,13 @@ function ProductListPage() {
     }
   };
 
-  // Mỗi khi đổi trang thì gọi lại API
   useEffect(() => {
     loadProducts();
   }, [page]);
 
-  // Xử lý tìm kiếm
   const handleSearch = (e) => {
     e.preventDefault();
-
-    // Khi tìm kiếm thì quay về trang đầu
     setPage(0);
-
-    // Gọi lại API với keyword mới
     loadProducts();
   };
 
@@ -61,7 +45,6 @@ function ProductListPage() {
     <div style={{ padding: "30px" }}>
       <h2>Danh sách sản phẩm</h2>
 
-      {/* FORM TÌM KIẾM */}
       <form onSubmit={handleSearch} style={{ marginBottom: "20px" }}>
         <input
           type="text"
@@ -79,13 +62,10 @@ function ProductListPage() {
         </button>
       </form>
 
-      {/* HIỂN THỊ LOADING */}
       {loading && <p>Đang tải...</p>}
 
-      {/* KHI KHÔNG CÓ SẢN PHẨM */}
       {!loading && products.length === 0 && <p>Không có sản phẩm nào</p>}
 
-      {/* DANH SÁCH CARD SẢN PHẨM */}
       <div
         style={{
           display: "grid",
@@ -94,7 +74,6 @@ function ProductListPage() {
         }}
       >
         {products.map((product) => (
-          // Đây là 1 CARD SẢN PHẨM
           <div
             key={product.productId}
             style={{
@@ -104,7 +83,6 @@ function ProductListPage() {
               textAlign: "center",
             }}
           >
-            {/* ẢNH SẢN PHẨM */}
             <img
               src={product.image || "/favicon.svg"}
               alt={product.name}
@@ -116,22 +94,13 @@ function ProductListPage() {
               }}
             />
 
-            {/* TÊN SẢN PHẨM */}
             <h3>{product.name}</h3>
-
-            {/* TÊN DANH MỤC */}
             <p>{product.categoryName}</p>
-
-            {/* GIÁ */}
             <p>{Number(product.price).toLocaleString("vi-VN")} đ</p>
-
-            {/* TỒN KHO */}
             <p>Kho: {product.stock}</p>
 
-
-            {/* LINK XEM CHI TIẾT SẢN PHẨM */}
-            <a
-              href={`/products/${product.productId}`}
+            <Link
+              to={`/products/${product.productId}`}
               style={{
                 display: "inline-block",
                 marginTop: "10px",
@@ -143,12 +112,11 @@ function ProductListPage() {
               }}
             >
               Xem chi tiết
-            </a>
+            </Link>
           </div>
         ))}
       </div>
 
-      {/* PHÂN TRANG */}
       <div style={{ marginTop: "24px", textAlign: "center" }}>
         <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
           Trang trước

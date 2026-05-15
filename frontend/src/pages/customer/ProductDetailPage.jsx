@@ -12,7 +12,6 @@ function ProductDetailPage() {
     try {
       setLoading(true);
 
-      // productService đã return thẳng res.data
       const data = await productService.getProductById(productId);
 
       setProduct(data);
@@ -53,8 +52,6 @@ function ProductDetailPage() {
       <p>Tồn kho: {product.stock}</p>
       <p>{product.description}</p>
 
-      {/* KHU VỰC REVIEW SẢN PHẨM */}
-      {/* Nhóm trưởng sẽ gắn component review vào đây sau */}
       <div
         style={{
           marginTop: "40px",
@@ -63,11 +60,6 @@ function ProductDetailPage() {
         }}
       >
         <h2>Đánh giá sản phẩm</h2>
-
-        {/* TODO: Gắn component review ở đây */}
-        {/* Ví dụ sau này:
-            <ProductReviews productId={productId} />
-        */}
 
         <p style={{ color: "#666" }}>
           Khu vực đánh giá sản phẩm sẽ được cập nhật sau.

@@ -1,181 +1,174 @@
 import { useEffect, useState } from "react";
-import categoryApi from "../../features/categories/categoryApi";
+import { categoryService } from "../../features/categories/categoryService";
 
 function CategoryManagementPage() {
-  // danh sách category
   const [categories, setCategories] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  // loading
-  const [loading, setLoading] = useState(false);
-
-  // form thêm category
-  const [newCategory, setNewCategory] = useState({
+  const [form, setForm] = useState({
     name: "",
     description: "",
   });
 
-  // load danh sách category
+  const [editingId, setEditingId] = useState(null);
+
   const loadCategories = async () => {
     try {
-      setLoading(true);
-
-      const data = await categoryApi.getAllCategories({
-        page: 0,
-        size: 20,
+      const data = await categoryService.getAdminCategories({
+        page,
+        size: 10,
+        sortBy: "categoryId",
+        direction: "asc",
       });
 
-      // backend trả về Page<>
       setCategories(data.content || []);
+      setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Load categories error:", error);
-      alert("Không thể tải danh mục");
-    } finally {
-      setLoading(false);
+      alert("Không thể tải danh sách danh mục");
     }
   };
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [page]);
 
-  // thêm category
-  const handleCreate = async (e) => {
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      description: "",
+    });
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const data = {
+      name: form.name,
+      description: form.description,
+    };
+
     try {
-      await categoryApi.createCategory(newCategory);
+      if (editingId) {
+        await categoryService.updateCategory(editingId, data);
+        alert("Cập nhật danh mục thành công");
+      } else {
+        await categoryService.createCategory(data);
+        alert("Thêm danh mục thành công");
+      }
 
-      alert("Thêm danh mục thành công");
-
-      // reset form
-      setNewCategory({
-        name: "",
-        description: "",
-      });
-
+      resetForm();
       loadCategories();
     } catch (error) {
-      console.error("Create category error:", error);
-
-      alert("Không thể thêm danh mục");
+      console.error("Save category error:", error);
+      alert(error.response?.data?.message || "Thao tác thất bại");
     }
   };
 
-  // xóa category
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc muốn xóa danh mục này?"
-    );
+  const handleEdit = (category) => {
+    setEditingId(category.categoryId);
 
-    if (!confirmDelete) return;
+    setForm({
+      name: category.name || "",
+      description: category.description || "",
+    });
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
 
     try {
-      await categoryApi.deleteCategory(id);
-
+      await categoryService.deleteCategory(id);
       alert("Xóa danh mục thành công");
-
       loadCategories();
     } catch (error) {
       console.error("Delete category error:", error);
-
-      alert("Không thể xóa danh mục");
+      alert(error.response?.data?.message || "Không thể xóa danh mục");
     }
   };
 
   return (
-    <div style={{ padding: "24px" }}>
-      <h1>Quản lý danh mục</h1>
+    <div style={{ padding: "30px" }}>
+      <h2>Quản lý danh mục</h2>
 
-      {/* FORM THÊM CATEGORY */}
-      <form
-        onSubmit={handleCreate}
-        style={{
-          marginTop: "24px",
-          marginBottom: "32px",
-        }}
-      >
-        <h2>Thêm danh mục</h2>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "30px" }}>
+        <h3>{editingId ? "Cập nhật danh mục" : "Thêm danh mục"}</h3>
 
-        <div style={{ marginBottom: "12px" }}>
-          <input
-            type="text"
-            placeholder="Tên danh mục"
-            value={newCategory.name}
-            onChange={(e) =>
-              setNewCategory({
-                ...newCategory,
-                name: e.target.value,
-              })
-            }
-            required
-          />
-        </div>
+        <input
+          name="name"
+          placeholder="Tên danh mục"
+          value={form.name}
+          onChange={handleChange}
+        />
 
-        <div style={{ marginBottom: "12px" }}>
-          <textarea
-            placeholder="Mô tả"
-            value={newCategory.description}
-            onChange={(e) =>
-              setNewCategory({
-                ...newCategory,
-                description: e.target.value,
-              })
-            }
-            rows={4}
-          />
-        </div>
+        <input
+          name="description"
+          placeholder="Mô tả"
+          value={form.description}
+          onChange={handleChange}
+        />
 
-        <button type="submit">Thêm danh mục</button>
+        <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm}>
+            Hủy
+          </button>
+        )}
       </form>
 
-      {/* DANH SÁCH CATEGORY */}
-      <h2>Danh sách danh mục</h2>
+      <table border="1" cellPadding="10" width="100%">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên danh mục</th>
+            <th>Mô tả</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
 
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : categories.length === 0 ? (
-        <p>Không có danh mục nào</p>
-      ) : (
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            borderCollapse: "collapse",
-            width: "100%",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tên danh mục</th>
-              <th>Mô tả</th>
-              <th>Thao tác</th>
+        <tbody>
+          {categories.map((category) => (
+            <tr key={category.categoryId}>
+              <td>{category.categoryId}</td>
+              <td>{category.name}</td>
+              <td>{category.description}</td>
+              <td>
+                <button onClick={() => handleEdit(category)}>Sửa</button>
+                <button onClick={() => handleDelete(category.categoryId)}>
+                  Xóa
+                </button>
+              </td>
             </tr>
-          </thead>
+          ))}
+        </tbody>
+      </table>
 
-          <tbody>
-            {categories.map((category) => (
-              <tr key={category.categoryId}>
-                <td>{category.categoryId}</td>
+      <div style={{ marginTop: "20px" }}>
+        <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
+          Trang trước
+        </button>
 
-                <td>{category.name}</td>
+        <span style={{ margin: "0 12px" }}>
+          Trang {page + 1} / {totalPages || 1}
+        </span>
 
-                <td>{category.description}</td>
-
-                <td>
-                  <button
-                    onClick={() =>
-                      handleDelete(category.categoryId)
-                    }
-                  >
-                    Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        <button
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Trang sau
+        </button>
+      </div>
     </div>
   );
 }

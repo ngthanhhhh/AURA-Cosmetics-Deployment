@@ -1,267 +1,232 @@
 import { useEffect, useState } from "react";
-import productApi from "../../features/products/productApi";
+import { productService } from "../../features/products/productService";
 
 function ProductManagementPage() {
-  // danh sách sản phẩm
   const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  // loading
-  const [loading, setLoading] = useState(false);
-
-  // form thêm sản phẩm
-  const [newProduct, setNewProduct] = useState({
+  const [form, setForm] = useState({
     name: "",
     price: "",
     stock: "",
-    image: "",
     description: "",
+    image: "",
     categoryId: "",
     status: "ACTIVE",
   });
 
-  // load products
+  const [editingId, setEditingId] = useState(null);
+
   const loadProducts = async () => {
     try {
-      setLoading(true);
-
-      const data = await productApi.getAdminProducts({
-        page: 0,
-        size: 20,
+      const data = await productService.getAdminProducts({
+        page,
+        size: 10,
+        sortBy: "productId",
+        direction: "asc",
       });
 
       setProducts(data.content || []);
+      setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Load products error:", error);
-
       alert("Không thể tải sản phẩm");
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [page]);
 
-  // thêm sản phẩm
-  const handleCreate = async (e) => {
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      price: "",
+      stock: "",
+      description: "",
+      image: "",
+      categoryId: "",
+      status: "ACTIVE",
+    });
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const data = {
+      ...form,
+      price: Number(form.price),
+      stock: Number(form.stock),
+      categoryId: Number(form.categoryId),
+    };
+
     try {
-      await productApi.createProduct({
-        ...newProduct,
-        price: Number(newProduct.price),
-        stock: Number(newProduct.stock),
-        categoryId: Number(newProduct.categoryId),
-      });
+      if (editingId) {
+        await productService.updateProduct(editingId, data);
+        alert("Cập nhật sản phẩm thành công");
+      } else {
+        await productService.createProduct(data);
+        alert("Thêm sản phẩm thành công");
+      }
 
-      alert("Thêm sản phẩm thành công");
-
-      // reset form
-      setNewProduct({
-        name: "",
-        price: "",
-        stock: "",
-        image: "",
-        description: "",
-        categoryId: "",
-        status: "ACTIVE",
-      });
-
+      resetForm();
       loadProducts();
     } catch (error) {
-      console.error("Create product error:", error);
-
-      alert("Không thể thêm sản phẩm");
+      console.error("Save product error:", error);
+      alert(error.response?.data?.message || "Thao tác thất bại");
     }
   };
 
-  // xóa sản phẩm
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc muốn xóa sản phẩm này?"
-    );
+  const handleEdit = (product) => {
+    setEditingId(product.productId);
 
-    if (!confirmDelete) return;
+    setForm({
+      name: product.name || "",
+      price: product.price || "",
+      stock: product.stock || "",
+      description: product.description || "",
+      image: product.image || "",
+      categoryId: "",
+      status: product.status || "ACTIVE",
+    });
+
+    alert("Khi cập nhật, vui lòng nhập lại Category ID.");
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
 
     try {
-      await productApi.deleteProduct(id);
-
+      await productService.deleteProduct(id);
       alert("Xóa sản phẩm thành công");
-
       loadProducts();
     } catch (error) {
       console.error("Delete product error:", error);
-
-      alert("Không thể xóa sản phẩm");
+      alert(error.response?.data?.message || "Không thể xóa sản phẩm");
     }
   };
 
   return (
-    <div style={{ padding: "24px" }}>
-      <h1>Quản lý sản phẩm</h1>
+    <div style={{ padding: "30px" }}>
+      <h2>Quản lý sản phẩm</h2>
 
-      {/* FORM THÊM */}
-      <form
-        onSubmit={handleCreate}
-        style={{
-          marginTop: "24px",
-          marginBottom: "32px",
-        }}
-      >
-        <h2>Thêm sản phẩm</h2>
+      <form onSubmit={handleSubmit} style={{ marginBottom: "30px" }}>
+        <h3>{editingId ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}</h3>
 
         <input
-          type="text"
+          name="name"
           placeholder="Tên sản phẩm"
-          value={newProduct.name}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              name: e.target.value,
-            })
-          }
-          required
+          value={form.name}
+          onChange={handleChange}
         />
 
         <input
-          type="number"
+          name="price"
           placeholder="Giá"
-          value={newProduct.price}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              price: e.target.value,
-            })
-          }
-          required
+          value={form.price}
+          onChange={handleChange}
         />
 
         <input
-          type="number"
+          name="stock"
           placeholder="Số lượng"
-          value={newProduct.stock}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              stock: e.target.value,
-            })
-          }
-          required
+          value={form.stock}
+          onChange={handleChange}
         />
 
         <input
-          type="number"
+          name="categoryId"
           placeholder="Category ID"
-          value={newProduct.categoryId}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              categoryId: e.target.value,
-            })
-          }
-          required
+          value={form.categoryId}
+          onChange={handleChange}
         />
 
         <input
-          type="text"
+          name="image"
           placeholder="Ảnh"
-          value={newProduct.image}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              image: e.target.value,
-            })
-          }
+          value={form.image}
+          onChange={handleChange}
         />
 
         <input
-          type="text"
+          name="description"
           placeholder="Mô tả"
-          value={newProduct.description}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              description: e.target.value,
-            })
-          }
+          value={form.description}
+          onChange={handleChange}
         />
 
-        <select
-          value={newProduct.status}
-          onChange={(e) =>
-            setNewProduct({
-              ...newProduct,
-              status: e.target.value,
-            })
-          }
-        >
+        <select name="status" value={form.status} onChange={handleChange}>
           <option value="ACTIVE">ACTIVE</option>
           <option value="INACTIVE">INACTIVE</option>
         </select>
 
-        <button type="submit">Thêm</button>
+        <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm}>
+            Hủy
+          </button>
+        )}
       </form>
 
-      {/* DANH SÁCH SẢN PHẨM */}
-      <h2>Danh sách sản phẩm</h2>
+      <table border="1" cellPadding="10" width="100%">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Giá</th>
+            <th>Kho</th>
+            <th>Danh mục</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
 
-      {loading ? (
-        <p>Đang tải...</p>
-      ) : products.length === 0 ? (
-        <p>Không có sản phẩm nào</p>
-      ) : (
-        <table
-          border="1"
-          cellPadding="10"
-          style={{
-            borderCollapse: "collapse",
-            width: "100%",
-          }}
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tên</th>
-              <th>Giá</th>
-              <th>Kho</th>
-              <th>Danh mục</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.productId}>
+              <td>{product.productId}</td>
+              <td>{product.name}</td>
+              <td>{Number(product.price).toLocaleString("vi-VN")} đ</td>
+              <td>{product.stock}</td>
+              <td>{product.categoryName}</td>
+              <td>{product.status}</td>
+              <td>
+                <button onClick={() => handleEdit(product)}>Sửa</button>
+                <button onClick={() => handleDelete(product.productId)}>
+                  Xóa
+                </button>
+              </td>
             </tr>
-          </thead>
+          ))}
+        </tbody>
+      </table>
 
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.productId}>
-                <td>{product.productId}</td>
+      <div style={{ marginTop: "20px" }}>
+        <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
+          Trang trước
+        </button>
 
-                <td>{product.name}</td>
+        <span style={{ margin: "0 12px" }}>
+          Trang {page + 1} / {totalPages || 1}
+        </span>
 
-                <td>
-                  {Number(product.price).toLocaleString("vi-VN")} đ
-                </td>
-
-                <td>{product.stock}</td>
-
-                <td>{product.categoryName}</td>
-
-                <td>{product.status}</td>
-
-                <td>
-                  <button
-                    onClick={() =>
-                      handleDelete(product.productId)
-                    }
-                  >
-                    Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+        <button
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Trang sau
+        </button>
+      </div>
     </div>
   );
 }
