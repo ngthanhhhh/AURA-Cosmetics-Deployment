@@ -12,6 +12,7 @@ import OrderManagementPage from "../pages/admin/OrderManagementPage";
 import OrderDetailManagementPage from "../pages/admin/OrderDetailManagementPage";
 import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
 import ReviewReportPage from "../pages/admin/ReviewReportPage";
+import RevenueStatisticPage from "../pages/admin/RevenueStatisticPage";
 
 function ProtectedAdminPage({ children }) {
     return (
@@ -97,6 +98,15 @@ function AdminRoutes() {
                 element={
                     <ProtectedAdminPage>
                         <ReviewReportPage />
+                    </ProtectedAdminPage>
+                }
+            />
+
+            <Route 
+                path="revenue"
+                element={
+                    <ProtectedAdminPage>
+                        <RevenueStatisticPage/>
                     </ProtectedAdminPage>
                 }
             />
