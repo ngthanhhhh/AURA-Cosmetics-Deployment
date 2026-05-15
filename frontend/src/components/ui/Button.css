@@ -25,3 +25,14 @@
     background: #dc3545;
     color: white;
 }
+
+.btn-secondary {
+    background: #fff4ef;
+    color: #c45c40;
+    border: 1px solid #f3c9bc;
+}
+
+.btn-secondary:hover {
+    background: #ffe7de;
+    transform: translateY(-2px);
+}

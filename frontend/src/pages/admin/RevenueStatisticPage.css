@@ -55,6 +55,12 @@
     border-color: #e26d4f;
 }
 
+.filter-action {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 .revenue-summary {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

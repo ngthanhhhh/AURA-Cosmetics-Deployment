@@ -76,6 +76,15 @@ function RevenueStatisticPage() {
         loadRevenueStatistics(type, fromDate, toDate);
     };
 
+    const handleReset = () => {
+        setType("DAY");
+        setFromDate("");
+        setToDate("");
+        setError("");
+
+        loadRevenueStatistics("DAY", "", "");
+    };
+
     const chartData = statistics?.chartData || [];
 
     if (loading) {
@@ -127,6 +136,13 @@ function RevenueStatisticPage() {
 
                 <div className="filter-action">
                     <Button type="submit">Lọc dữ liệu</Button>
+
+                    <Button
+                        type="button"
+                       
+                        onClick={handleReset}>
+                            Đặt lại
+                    </Button>
                 </div>
             </form>
 
