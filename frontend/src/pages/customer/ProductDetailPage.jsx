@@ -1,12 +1,22 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { CartContext } from "../../context/CartContext";
 import { productService } from "../../features/products/productService";
+
+import "./ProductDetailPage.css";
 
 function ProductDetailPage() {
   const { productId } = useParams();
+  const navigate = useNavigate();
+
+  // Lấy hàm thêm vào giỏ từ CartContext của nhóm
+  const { addItemToCart } = useContext(CartContext);
 
   const [product, setProduct] = useState(null);
+  const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   const loadProduct = async () => {
     try {
@@ -27,43 +37,120 @@ function ProductDetailPage() {
     loadProduct();
   }, [productId]);
 
-  if (loading) return <p>Đang tải...</p>;
+  const handleQuantityChange = (e) => {
+    const value = Number(e.target.value);
 
-  if (!product) return <p>Không tìm thấy sản phẩm</p>;
+    if (value < 1) {
+      setQuantity(1);
+      return;
+    }
+
+    if (product?.stock && value > product.stock) {
+      setQuantity(product.stock);
+      return;
+    }
+
+    setQuantity(value);
+  };
+
+  const handleAddToCart = async () => {
+    try {
+      setAddingToCart(true);
+
+      await addItemToCart(Number(productId), Number(quantity));
+
+      alert("Đã thêm sản phẩm vào giỏ hàng");
+
+      navigate("/cart");
+    } catch (error) {
+      console.error("Add to cart error:", error);
+
+      alert(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Không thể thêm sản phẩm vào giỏ hàng"
+      );
+    } finally {
+      setAddingToCart(false);
+    }
+  };
+
+  if (loading) return <p className="product-detail__status">Đang tải...</p>;
+
+  if (!product) {
+    return <p className="product-detail__status">Không tìm thấy sản phẩm</p>;
+  }
+
+  const isOutOfStock = product.stock <= 0;
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>{product.name}</h1>
+    <div className="product-detail">
+      <div className="product-detail__main">
+        <div className="product-detail__image-box">
+          <img
+            src={product.image || "/favicon.svg"}
+            alt={product.name}
+            className="product-detail__image"
+          />
+        </div>
 
-      <img
-        src={product.image || "/favicon.svg"}
-        alt={product.name}
-        style={{
-          width: "300px",
-          height: "300px",
-          objectFit: "cover",
-          borderRadius: "12px",
-        }}
-      />
+        <div className="product-detail__info">
+          <h1 className="product-detail__name">{product.name}</h1>
 
-      <h2>{Number(product.price).toLocaleString("vi-VN")} đ</h2>
+          <h2 className="product-detail__price">
+            {Number(product.price).toLocaleString("vi-VN")} đ
+          </h2>
 
-      <p>Danh mục: {product.categoryName}</p>
-      <p>Tồn kho: {product.stock}</p>
-      <p>{product.description}</p>
+          <p>
+            <strong>Danh mục:</strong> {product.categoryName}
+          </p>
 
-      <div
-        style={{
-          marginTop: "40px",
-          paddingTop: "24px",
-          borderTop: "1px solid #ddd",
-        }}
-      >
+          <p>
+            <strong>Tồn kho:</strong> {product.stock}
+          </p>
+
+          <p className="product-detail__description">
+            {product.description}
+          </p>
+
+          <div className="product-detail__cart-box">
+            <label htmlFor="quantity">Số lượng:</label>
+
+            <input
+              id="quantity"
+              type="number"
+              min="1"
+              max={product.stock || 1}
+              value={quantity}
+              onChange={handleQuantityChange}
+              disabled={isOutOfStock}
+              className="product-detail__quantity-input"
+            />
+
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={addingToCart || isOutOfStock}
+              className="product-detail__add-btn"
+            >
+              {isOutOfStock
+                ? "Hết hàng"
+                : addingToCart
+                ? "Đang thêm..."
+                : "Thêm vào giỏ"}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* KHU VỰC REVIEW SẢN PHẨM */}
+      {/* Nhóm trưởng sẽ gắn component review vào đây sau */}
+      <div className="product-detail__reviews">
         <h2>Đánh giá sản phẩm</h2>
 
-        <p style={{ color: "#666" }}>
-          Khu vực đánh giá sản phẩm sẽ được cập nhật sau.
-        </p>
+        {/* TODO: Gắn component review ở đây */}
+
+        <p>Khu vực đánh giá sản phẩm sẽ được cập nhật sau.</p>
       </div>
     </div>
   );

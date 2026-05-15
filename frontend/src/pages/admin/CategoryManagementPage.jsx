@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { categoryService } from "../../features/categories/categoryService";
+import "./CategoryManagementPage.css";
 
 function CategoryManagementPage() {
   const [categories, setCategories] = useState([]);
@@ -97,36 +98,48 @@ function CategoryManagementPage() {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h2>Quản lý danh mục</h2>
+    <div className="category-management">
+      <h2 className="category-management__title">Quản lý danh mục</h2>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: "30px" }}>
-        <h3>{editingId ? "Cập nhật danh mục" : "Thêm danh mục"}</h3>
+      <form className="category-management__form" onSubmit={handleSubmit}>
+        <h3 className="category-management__form-title">
+          {editingId ? "Cập nhật danh mục" : "Thêm danh mục"}
+        </h3>
 
-        <input
-          name="name"
-          placeholder="Tên danh mục"
-          value={form.name}
-          onChange={handleChange}
-        />
+        <div className="category-management__form-row">
+          <input
+            className="category-management__input"
+            name="name"
+            placeholder="Tên danh mục"
+            value={form.name}
+            onChange={handleChange}
+          />
 
-        <input
-          name="description"
-          placeholder="Mô tả"
-          value={form.description}
-          onChange={handleChange}
-        />
+          <input
+            className="category-management__input"
+            name="description"
+            placeholder="Mô tả"
+            value={form.description}
+            onChange={handleChange}
+          />
 
-        <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
-
-        {editingId && (
-          <button type="button" onClick={resetForm}>
-            Hủy
+          <button className="category-management__btn" type="submit">
+            {editingId ? "Cập nhật" : "Thêm"}
           </button>
-        )}
+
+          {editingId && (
+            <button
+              className="category-management__btn category-management__btn--secondary"
+              type="button"
+              onClick={resetForm}
+            >
+              Hủy
+            </button>
+          )}
+        </div>
       </form>
 
-      <table border="1" cellPadding="10" width="100%">
+      <table className="category-management__table">
         <thead>
           <tr>
             <th>ID</th>
@@ -143,8 +156,17 @@ function CategoryManagementPage() {
               <td>{category.name}</td>
               <td>{category.description}</td>
               <td>
-                <button onClick={() => handleEdit(category)}>Sửa</button>
-                <button onClick={() => handleDelete(category.categoryId)}>
+                <button
+                  className="category-management__action-btn"
+                  onClick={() => handleEdit(category)}
+                >
+                  Sửa
+                </button>
+
+                <button
+                  className="category-management__action-btn category-management__action-btn--danger"
+                  onClick={() => handleDelete(category.categoryId)}
+                >
                   Xóa
                 </button>
               </td>
@@ -153,12 +175,12 @@ function CategoryManagementPage() {
         </tbody>
       </table>
 
-      <div style={{ marginTop: "20px" }}>
+      <div className="category-management__pagination">
         <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
           Trang trước
         </button>
 
-        <span style={{ margin: "0 12px" }}>
+        <span>
           Trang {page + 1} / {totalPages || 1}
         </span>
 
