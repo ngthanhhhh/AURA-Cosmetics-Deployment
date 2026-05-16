@@ -6,6 +6,9 @@ function CategoryManagementPage() {
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [keyword, setKeyword] = useState("");
+  const [sortBy, setSortBy] = useState("categoryId");
+  const [direction, setDirection] = useState("asc");
 
   const [form, setForm] = useState({
     name: "",
@@ -17,10 +20,11 @@ function CategoryManagementPage() {
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAdminCategories({
+        keyword: keyword || undefined,
         page,
         size: 10,
-        sortBy: "categoryId",
-        direction: "asc",
+        sortBy,
+        direction,
       });
 
       setCategories(data.content || []);
@@ -33,7 +37,20 @@ function CategoryManagementPage() {
 
   useEffect(() => {
     loadCategories();
-  }, [page]);
+  }, [page, sortBy, direction]);
+
+  const handleFilterSubmit = (e) => {
+    e.preventDefault();
+    setPage(0);
+    loadCategories();
+  };
+
+  const handleResetFilter = () => {
+    setKeyword("");
+    setSortBy("categoryId");
+    setDirection("asc");
+    setPage(0);
+  };
 
   const handleChange = (e) => {
     setForm({
@@ -100,6 +117,51 @@ function CategoryManagementPage() {
   return (
     <div className="category-management">
       <h2 className="category-management__title">Quản lý danh mục</h2>
+
+      <form className="category-management__filter" onSubmit={handleFilterSubmit}>
+      <h3 className="category-management__filter-title">
+        Lọc / tìm kiếm danh mục
+      </h3>
+
+      <div className="category-management__filter-row">
+        <input
+          className="category-management__input"
+          placeholder="Tìm theo tên danh mục"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
+
+        <select
+          className="category-management__input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="categoryId">Sắp xếp theo ID</option>
+          <option value="name">Sắp xếp theo tên</option>
+        </select>
+
+        <select
+          className="category-management__input"
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+        >
+          <option value="asc">Tăng dần</option>
+          <option value="desc">Giảm dần</option>
+        </select>
+
+        <button className="category-management__btn" type="submit">
+          Áp dụng
+        </button>
+
+        <button
+          className="category-management__btn category-management__btn--secondary"
+          type="button"
+          onClick={handleResetFilter}
+        >
+          Reset
+        </button>
+      </div>
+    </form>
 
       <form className="category-management__form" onSubmit={handleSubmit}>
         <h3 className="category-management__form-title">
