@@ -1,10 +1,18 @@
 import { useEffect, useState } from "react";
 import { productService } from "../../features/products/productService";
+import "./ProductManagementPage.css";
 
 function ProductManagementPage() {
   const [products, setProducts] = useState([]);
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [keyword, setKeyword] = useState("");
+  const [categoryIdFilter, setCategoryIdFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortBy, setSortBy] = useState("productId");
+  const [direction, setDirection] = useState("asc");
 
   const [form, setForm] = useState({
     name: "",
@@ -21,10 +29,13 @@ function ProductManagementPage() {
   const loadProducts = async () => {
     try {
       const data = await productService.getAdminProducts({
+        keyword: keyword || undefined,
+        categoryId: categoryIdFilter || undefined,
+        status: statusFilter || undefined,
         page,
         size: 10,
-        sortBy: "productId",
-        direction: "asc",
+        sortBy,
+        direction,
       });
 
       setProducts(data.content || []);
@@ -37,7 +48,34 @@ function ProductManagementPage() {
 
   useEffect(() => {
     loadProducts();
-  }, [page]);
+  }, [page, sortBy, direction]);
+
+  const handleFilterSubmit = (e) => {
+    e.preventDefault();
+    setPage(0);
+    loadProducts();
+  };
+
+  const handleResetFilter = () => {
+    setKeyword("");
+    setCategoryIdFilter("");
+    setStatusFilter("");
+    setSortBy("productId");
+    setDirection("asc");
+    setPage(0);
+  };
+
+  useEffect(() => {
+    if (
+      keyword === "" &&
+      categoryIdFilter === "" &&
+      statusFilter === "" &&
+      sortBy === "productId" &&
+      direction === "asc"
+    ) {
+      loadProducts();
+    }
+  }, [keyword, categoryIdFilter, statusFilter, sortBy, direction]);
 
   const handleChange = (e) => {
     setForm({
@@ -116,69 +154,118 @@ function ProductManagementPage() {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
-      <h2>Quản lý sản phẩm</h2>
+    <div className="product-management">
+      <h2 className="product-management__title">Quản lý sản phẩm</h2>
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: "30px" }}>
-        <h3>{editingId ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}</h3>
+      <form className="product-management__filter" onSubmit={handleFilterSubmit}>
+        <h3>Lọc / tìm kiếm sản phẩm</h3>
 
-        <input
-          name="name"
-          placeholder="Tên sản phẩm"
-          value={form.name}
-          onChange={handleChange}
-        />
+        <div className="product-management__filter-row">
+          <input
+            placeholder="Tìm theo tên sản phẩm"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
 
-        <input
-          name="price"
-          placeholder="Giá"
-          value={form.price}
-          onChange={handleChange}
-        />
+          <input
+            placeholder="Category ID"
+            value={categoryIdFilter}
+            onChange={(e) => setCategoryIdFilter(e.target.value)}
+          />
 
-        <input
-          name="stock"
-          placeholder="Số lượng"
-          value={form.stock}
-          onChange={handleChange}
-        />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">Tất cả trạng thái</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
 
-        <input
-          name="categoryId"
-          placeholder="Category ID"
-          value={form.categoryId}
-          onChange={handleChange}
-        />
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="productId">Sắp xếp theo ID</option>
+            <option value="name">Sắp xếp theo tên</option>
+            <option value="price">Sắp xếp theo giá</option>
+            <option value="stock">Sắp xếp theo tồn kho</option>
+          </select>
 
-        <input
-          name="image"
-          placeholder="Ảnh"
-          value={form.image}
-          onChange={handleChange}
-        />
+          <select
+            value={direction}
+            onChange={(e) => setDirection(e.target.value)}
+          >
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+          </select>
 
-        <input
-          name="description"
-          placeholder="Mô tả"
-          value={form.description}
-          onChange={handleChange}
-        />
-
-        <select name="status" value={form.status} onChange={handleChange}>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="INACTIVE">INACTIVE</option>
-        </select>
-
-        <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
-
-        {editingId && (
-          <button type="button" onClick={resetForm}>
-            Hủy
+          <button type="submit">Áp dụng</button>
+          <button type="button" onClick={handleResetFilter}>
+            Reset
           </button>
-        )}
+        </div>
       </form>
 
-      <table border="1" cellPadding="10" width="100%">
+      <form className="product-management__form" onSubmit={handleSubmit}>
+        <h3>{editingId ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}</h3>
+
+        <div className="product-management__form-row">
+          <input
+            name="name"
+            placeholder="Tên sản phẩm"
+            value={form.name}
+            onChange={handleChange}
+          />
+
+          <input
+            name="price"
+            placeholder="Giá"
+            value={form.price}
+            onChange={handleChange}
+          />
+
+          <input
+            name="stock"
+            placeholder="Số lượng"
+            value={form.stock}
+            onChange={handleChange}
+          />
+
+          <input
+            name="categoryId"
+            placeholder="Category ID"
+            value={form.categoryId}
+            onChange={handleChange}
+          />
+
+          <input
+            name="image"
+            placeholder="Ảnh"
+            value={form.image}
+            onChange={handleChange}
+          />
+
+          <input
+            name="description"
+            placeholder="Mô tả"
+            value={form.description}
+            onChange={handleChange}
+          />
+
+          <select name="status" value={form.status} onChange={handleChange}>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="INACTIVE">INACTIVE</option>
+          </select>
+
+          <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
+
+          {editingId && (
+            <button type="button" onClick={resetForm}>
+              Hủy
+            </button>
+          )}
+        </div>
+      </form>
+
+      <table className="product-management__table">
         <thead>
           <tr>
             <th>ID</th>
@@ -211,12 +298,12 @@ function ProductManagementPage() {
         </tbody>
       </table>
 
-      <div style={{ marginTop: "20px" }}>
+      <div className="product-management__pagination">
         <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
           Trang trước
         </button>
 
-        <span style={{ margin: "0 12px" }}>
+        <span>
           Trang {page + 1} / {totalPages || 1}
         </span>
 
