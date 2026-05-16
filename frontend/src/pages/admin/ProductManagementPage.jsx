@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { productService } from "../../features/products/productService";
 import "./ProductManagementPage.css";
+import { categoryService } from "../../features/categories/categoryService";
 
 function ProductManagementPage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -38,6 +40,7 @@ function ProductManagementPage() {
         direction,
       });
 
+  
       setProducts(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
@@ -46,8 +49,24 @@ function ProductManagementPage() {
     }
   };
 
+  const loadCategories = async () => {
+    try {
+      const data = await categoryService.getAdminCategories({
+        page: 0,
+        size: 100,
+        sortBy: "categoryId",
+        direction: "asc",
+      });
+
+      setCategories(data.content || []);
+    } catch (error) {
+      console.error("Load categories error:", error);
+    }
+  };
+
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, [page, sortBy, direction]);
 
   const handleFilterSubmit = (e) => {
@@ -133,11 +152,9 @@ function ProductManagementPage() {
       stock: product.stock || "",
       description: product.description || "",
       image: product.image || "",
-      categoryId: "",
+      categoryId: product.categoryId || "",
       status: product.status || "ACTIVE",
     });
-
-    alert("Khi cập nhật, vui lòng nhập lại Category ID.");
   };
 
   const handleDelete = async (id) => {
@@ -167,11 +184,21 @@ function ProductManagementPage() {
             onChange={(e) => setKeyword(e.target.value)}
           />
 
-          <input
-            placeholder="Category ID"
+          <select
             value={categoryIdFilter}
             onChange={(e) => setCategoryIdFilter(e.target.value)}
-          />
+          >
+            <option value="">Tất cả danh mục</option>
+
+            {categories.map((category) => (
+              <option
+                key={category.categoryId}
+                value={category.categoryId}
+              >
+                {category.name}
+              </option>
+            ))}
+          </select>
 
           <select
             value={statusFilter}
@@ -229,12 +256,22 @@ function ProductManagementPage() {
             onChange={handleChange}
           />
 
-          <input
+          <select
             name="categoryId"
-            placeholder="Category ID"
             value={form.categoryId}
             onChange={handleChange}
-          />
+          >
+            <option value="">Chọn danh mục</option>
+
+            {categories.map((category) => (
+              <option
+                key={category.categoryId}
+                value={category.categoryId}
+              >
+                {category.name}
+              </option>
+            ))}
+          </select>
 
           <input
             name="image"
