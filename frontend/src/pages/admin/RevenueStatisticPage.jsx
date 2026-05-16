@@ -139,7 +139,7 @@ function RevenueStatisticPage() {
 
                     <Button
                         type="button"
-                       
+                        variant="secondary"
                         onClick={handleReset}>
                             Đặt lại
                     </Button>
