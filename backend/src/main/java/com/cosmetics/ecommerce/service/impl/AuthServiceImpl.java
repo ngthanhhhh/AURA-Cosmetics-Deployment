@@ -97,7 +97,8 @@ public class AuthServiceImpl implements AuthService {
         return new LoginResponse(
                 token,
                 user.getRole().getRoleName(),
-                user.getName());
+                user.getName(),
+                user.getEmail());
     }
 
     //Validate cho đăng ký

@@ -9,15 +9,17 @@ import CategoryManagementPage from "../pages/admin/CategoryManagementPage";
 import AdminLoginPage from "../pages/admin/AdminLoginPage";
 import DashboardPage from "../pages/admin/DashboardPage";
 import CustomerManagementPage from "../pages/admin/CustomerManagementPage";
-
+import CustomerDetailPage from "../pages/admin/CustomerDetailPage";
+import AdminAccountManagementPage from "../pages/admin/AdminAccountManagementPage";
 import OrderManagementPage from "../pages/admin/OrderManagementPage";
 import OrderDetailManagementPage from "../pages/admin/OrderDetailManagementPage";
 import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
 import ReviewReportPage from "../pages/admin/ReviewReportPage";
+import RevenueStatisticPage from "../pages/admin/RevenueStatisticPage";
 
 function ProtectedAdminPage({ children }) {
   return (
-    <ProtectedRoute requiredRole="ROLE_ADMIN">
+    <ProtectedRoute requiredRole="ROLE_ADMIN" loginPath="/admin/login">
       <AdminLayout>{children}</AdminLayout>
     </ProtectedRoute>
   );
@@ -65,6 +67,24 @@ function AdminRoutes() {
       />
 
       <Route
+        path="customers/:customerId"
+        element={
+          <ProtectedAdminPage>
+            <CustomerDetailPage />
+          </ProtectedAdminPage>
+        }
+      />
+
+      <Route
+        path="accounts"
+        element={
+          <ProtectedAdminPage>
+            <AdminAccountManagementPage />
+          </ProtectedAdminPage>
+        }
+      />
+
+      <Route
         path="orders"
         element={
           <ProtectedAdminPage>
@@ -96,6 +116,15 @@ function AdminRoutes() {
         element={
           <ProtectedAdminPage>
             <ReviewReportPage />
+          </ProtectedAdminPage>
+        }
+      />
+
+      <Route
+        path="revenue"
+        element={
+          <ProtectedAdminPage>
+            <RevenueStatisticPage />
           </ProtectedAdminPage>
         }
       />

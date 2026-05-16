@@ -1,18 +1,25 @@
 package com.cosmetics.ecommerce.service;
 
-import com.cosmetics.ecommerce.dto.RevenueChartDTO;
+import com.cosmetics.ecommerce.dto.RevenueStatisticsResponse;
 import com.cosmetics.ecommerce.dto.StatisticsResponse;
 import com.cosmetics.ecommerce.enums.StatisticType;
 
 import java.time.LocalDate;
-import java.util.List;
+
+/*
+    Service xử lý logic thống kê
+ */
 
 public interface StatisticsService{
-    //Chức năng 1: Lấy số liệu tổng quát cho các thẻ bài Dashboard
+
+    // Dashboard tổng quan
     StatisticsResponse getAdminDashboard();
 
-    //Chức năng 2: Lấy dữ liệu danh sách để vẽ biểu đồ doanh thu
-    List<RevenueChartDTO> getRevenueChartData(
+    // Thống kê doanh thu theo
+    // - ngày
+    // - tuần
+    // - tháng
+    RevenueStatisticsResponse getRevenueStatistics(
             StatisticType type,
             LocalDate fromDate,
             LocalDate toDate);

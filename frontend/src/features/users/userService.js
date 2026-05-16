@@ -1,4 +1,23 @@
-import { changePasswordApi, getCustomersApi, getCustomersDetailApi, updateCustomersStatusApi } from "./userApi";
+import { 
+    changePasswordApi, 
+    getCustomersApi, 
+    getCustomersDetailApi, 
+    updateCustomersStatusApi,
+    getMyProfileApi,
+    updateMyProfileApi,
+} from "./userApi";
+
+// USER - TÀI KHOẢN ĐANG ĐĂNG NHẬP
+
+export const fetchMyProfile = async () => {
+    const res = await getMyProfileApi();
+    return res.data;
+};
+
+export const updateMyProfile = async (data) => {
+    const res = await updateMyProfileApi(data);
+    return res.data;
+};
 
 export const changePassword = async (data) => {
     const res = await changePasswordApi(data);
