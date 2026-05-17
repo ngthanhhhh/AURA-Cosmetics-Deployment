@@ -1,11 +1,15 @@
-
+/**
+ * Header của khu vực quản trị.
+ *
+ * Hiển thị tiêu đề dashboard, ô tìm kiếm giao diện
+ * và thông tin admin đang đăng nhập.
+ */
 function AdminHeader(){
     const user = JSON.parse(localStorage.getItem("user") || "null");
 
     return (
         <header className="admin-header">
             <div className="admin-header__title">
-                {/* <h1>AURA</h1> */}
                 <p>Dashboard quản trị cửa hàng mỹ phẩm</p>
             </div>
 

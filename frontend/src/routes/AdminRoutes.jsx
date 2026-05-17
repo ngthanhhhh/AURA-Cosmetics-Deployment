@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import AdminLayout from "../components/layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -36,6 +36,7 @@ function AdminRoutes() {
         <Routes>
             <Route path="login" element={<AdminLoginPage />} />
 
+            {/* Các route yêu cầu quyền quản trị viên */}
             <Route
                 path=""
                 element={
@@ -116,6 +117,8 @@ function AdminRoutes() {
                     </ProtectedAdminPage>
                 }
             />
+
+            <Route path="*" element={<Navigate to="/admin" replace/>} />
         </Routes>
     );
 }

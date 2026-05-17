@@ -3,22 +3,21 @@ import Button from "../ui/Button";
 import { logoutUser } from "../../features/auth/authService";
 
 /**
- * Xử lý đăng xuất customer.
+ * Button đăng xuất dùng chung cho customer và admin
  *
  * Sau khi đăng xuất:
  * - xóa thông tin đăng nhập
- * - điều hướng về trang login hoặc homepage
+ * - điều hướng về trang được truyền qua redirectPath
  */
 const LogoutButton = ({redirectPath = "/auth/login"}) =>{
     const navigate  = useNavigate();
 
+    /**
+     * Xử lý đăng xuất người dùng hiện tại.
+     */
     const handleLogout = () => {
-        //Xóa dữ liệu đăng nhập
         logoutUser();
-
-        //Chuyển về login
         navigate(redirectPath);
-
     };
 
     return (

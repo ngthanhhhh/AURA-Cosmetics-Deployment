@@ -15,9 +15,9 @@ function AdminLoginPage(){
     /**
      * Xử lý đăng nhập trang quản trị.
      *
-     * Sau khi đăng nhập thành công, frontend kiểm tra role.
-     * Chỉ tài khoản ROLE_ADMIN mới được truy cập dashboard admin.
-     * Nếu tài khoản không phải admin, hệ thống sẽ đăng xuất và hiển thị lỗi.
+     * Chỉ tài khoản ROLE_ADMIN được phép truy cập dashboard admin.
+     * Nếu tài khoản không phải admin, frontend sẽ đăng xuất ngay
+     * và chuyển về trang đăng nhập customer.
      *
      * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
      */
@@ -70,48 +70,44 @@ function AdminLoginPage(){
 
             {error && (
                 <p
-                    className="error-message"
-                    style={{ color: "red", marginBottom: "10px"}}
-                >
+                    className="admin-login-error">
                     {error}
                 </p>
             )}
 
             <form className="admin-login-form" onSubmit={handleLogin}>
 
-                <div className="form-group">
+                <div className="admin-login-form-group">
 
                     <label>Email</label>
 
                     <input
-                    type="email"
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required>
-
-                    </input>
+                        type="email"
+                        placeholder="admin@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
                 </div>
 
-                <div className="form-group">
+                <div className="admin-login-form-group">
 
                     <label>Mật khẩu</label>
 
                     <input
-                    type="password"
-                    placeholder="Nhập mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required>
-
-                    </input>
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
                 </div>
 
                 <button 
                     type="submit" 
-                    className="btn-submit"
+                    className="admin-login-submit"
                     disabled={loading}
                 >
                     {loading ? "Đang đăng nhập..." : "Đăng nhập Admin"}
