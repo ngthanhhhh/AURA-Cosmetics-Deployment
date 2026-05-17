@@ -4,6 +4,7 @@ import Table from "../../components/ui/Table";
 import { fetchCustomers, updateCustomersStatus } from "../../features/users/userService";
 import Loading from "../../components/common/Loading";
 import "./CustomerManagementPage.css";
+import { formatDate } from "../../utils/formatDate";
 
 const SORT_OPTIONS = [
     { label: "Mới nhất", value: "createdAt,desc"},
@@ -11,6 +12,7 @@ const SORT_OPTIONS = [
     { label: "Tên A-Z", value: "name,asc"},
     { label: "Tên Z-A", value: "name,desc"},
 ];
+const PAGE_SIZE = 10;
 
 
 function CustomerManagementPage() {
@@ -28,8 +30,18 @@ function CustomerManagementPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [error, setError] = useState("");
-    const PAGE_SIZE = 10;
-    
+
+    /**
+     * Tạo query params gửi tới API khách hàng.
+     *
+     * Bao gồm:
+     * - phân trang
+     * - tìm kiếm
+     * - lọc trạng thái
+     * - sắp xếp
+     *
+     * @returns {Object} Query params cho API.
+     */
     const buildParams = () => {
         const params = {
             page,
@@ -42,13 +54,15 @@ function CustomerManagementPage() {
         }
 
         if(isActive !== ""){
-            params.isActive = isActive.trim();
+            params.isActive = isActive;
         }
 
         return params;
     };
 
-    //Fetch danh sách khách hàng
+    /**
+     * Tải danh sách khách hàng từ backend.
+     */
     const loadCustomers = async () => {
         setLoading(true);
         setError("");
@@ -56,8 +70,6 @@ function CustomerManagementPage() {
         try{
             const params = buildParams();
             
-            console.log("customer params:", params);
-
             const data = await fetchCustomers(params);
 
             setCustomers(data.content || []);
@@ -65,7 +77,7 @@ function CustomerManagementPage() {
             setTotalElements(data.totalElements || 0);
 
         } catch (err){
-            console.error("Lỗi tải danh sách khách hàng:", err);
+            setError(err.response?.data?.message || "Không thể tải danh sách khách hàng");
             setCustomers([]);
             setTotalPages(0);
             setTotalElements(0);
@@ -80,30 +92,51 @@ function CustomerManagementPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, sort, keyword, isActive]);
 
-    // Tìm kiếm
+    /**
+     * Xử lý tìm kiếm khách hàng theo tên hoặc email.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSearch = (e) => {
         e.preventDefault();
         setPage(0);
         setKeyword(searchInput.trim());
     };
 
+    /**
+     * Xóa từ khóa tìm kiếm và tải lại danh sách khách hàng.
+     */
     const handleClearSearch = () => {
         setSearchInput("");
         setKeyword("");
         setPage(0);
     };
 
-    // Mở/khóa tài khoản
+    /**
+     * Khóa hoặc mở khóa tài khoản khách hàng.
+     *
+     * Sau khi cập nhật thành công, danh sách sẽ được tải lại
+     * để đồng bộ dữ liệu với backend.
+     *
+     * @param {number} id ID khách hàng.
+     * @param {boolean} currentStatus Trạng thái hiện tại.
+     */
     const handleToggleStatus = async (id, currentStatus) => {
+        
+        if(!id){
+            alert("Không xác định được khách hàng");
+            return;
+        }
+        
         const action = currentStatus ? "khóa" : "mở khóa";
 
         if(!window.confirm(`Bạn có chắc muốn ${action} tài khoản này không?`)) return;
+
         
         try{
             await updateCustomersStatus(id, !currentStatus);
-            loadCustomers();
-        } catch (err) {
-            console.error("Lỗi cập nhật trạng thái:", err);
+            await loadCustomers();
+        } catch {
             alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
         }
     };
@@ -118,15 +151,12 @@ function CustomerManagementPage() {
         "Thao tác"];
 
     const renderRow = (customer, index) => (
-        <tr key={customer.id}>
+        <tr key={customer.userId}>
             <td>{page * PAGE_SIZE + index + 1}</td>
             <td>{customer.name || "-"}</td>
             <td>{customer.email || "-"}</td>
             <td>{customer.phone || "-"}</td>
-            <td>
-                {customer.createdAt
-                    ? new Date(customer.createdAt).toLocaleDateString("vi-VN") : "-"}
-            </td>
+            <td>{formatDate(customer.createdAt)}</td>
 
             <td>
 
@@ -140,7 +170,7 @@ function CustomerManagementPage() {
                     type="button"
                     className="customer-btn customer-btn--detail"
                     onClick={() =>
-                        navigate(`/admin/customers/${customer.id}`)
+                        navigate(`/admin/customers/${customer.userId}`)
                     }>
                         Chi tiết
                     </button>
@@ -151,7 +181,7 @@ function CustomerManagementPage() {
                             customer.isActive 
                                 ? "customer-btn--lock" 
                                 : "customer-btn--unlock"}`}
-                        onClick={() => handleToggleStatus(customer.id, customer.isActive)}
+                        onClick={() => handleToggleStatus(customer.userId ?? customer.id ?? customer.customerId, customer.isActive)}
                     >
                         {customer.isActive ? "Khóa" : "Mở khóa"}
                     </button>
@@ -277,6 +307,7 @@ function CustomerManagementPage() {
                         </button>
                     ))}
                     <button 
+                        type="button"
                         disabled={page === totalPages - 1}
                         onClick={() => setPage(page + 1)}
                         className="btn-page"
