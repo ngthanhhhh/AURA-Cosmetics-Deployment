@@ -62,7 +62,7 @@ function ProductReviews({productId}) {
     }, [productId, page, rating, verified, sortBy, sortDir]);
 
     const handleSearchSubmit = (event) => {
-        event.prenventDefault();
+        event.preventDefault();
         setPage(0);
         fetchReviews();
     };
@@ -77,7 +77,7 @@ function ProductReviews({productId}) {
     };
 
     const handleSubmitReview = async (event) => {
-        event.prenventDefault();
+        event.preventDefault();
 
         try {
             setSubmitting(true);

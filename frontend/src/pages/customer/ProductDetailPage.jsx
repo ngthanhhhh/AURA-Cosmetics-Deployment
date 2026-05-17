@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { CartContext } from "../../context/CartContext";
 import { productService } from "../../features/products/productService";
+import ProductReviews from "./ProductReviews";
 
 import "./ProductDetailPage.css";
 
@@ -10,7 +11,6 @@ function ProductDetailPage() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  // Lấy hàm thêm vào giỏ từ CartContext của nhóm
   const { addItemToCart } = useContext(CartContext);
 
   const [product, setProduct] = useState(null);
@@ -144,13 +144,8 @@ function ProductDetailPage() {
       </div>
 
       {/* KHU VỰC REVIEW SẢN PHẨM */}
-      {/* Nhóm trưởng sẽ gắn component review vào đây sau */}
       <div className="product-detail__reviews">
-        <h2>Đánh giá sản phẩm</h2>
-
-        {/* TODO: Gắn component review ở đây */}
-
-        <p>Khu vực đánh giá sản phẩm sẽ được cập nhật sau.</p>
+        <ProductReviews productId={productId} />
       </div>
     </div>
   );
