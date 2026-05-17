@@ -1,5 +1,13 @@
 import { Navigate } from "react-router-dom";
 
+
+/**
+ * Component bảo vệ route theo trạng thái đăng nhập và role.
+ *
+ * Nếu chưa đăng nhập, user sẽ được chuyển về trang login.
+ * Nếu sai role, user sẽ được điều hướng về khu vực phù hợp.
+ */
+
 function ProtectedRoute({ 
     children, 
     requiredRole,

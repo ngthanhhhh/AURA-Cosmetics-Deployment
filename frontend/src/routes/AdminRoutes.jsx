@@ -14,6 +14,12 @@ import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
 import ReviewReportPage from "../pages/admin/ReviewReportPage";
 import RevenueStatisticPage from "../pages/admin/RevenueStatisticPage";
 
+/**
+ * Wrapper dùng chung cho các trang yêu cầu quyền ROLE_ADMIN.
+ *
+ * Nếu user chưa đăng nhập hoặc không có quyền admin,
+ * ProtectedRoute sẽ điều hướng về trang phù hợp.
+ */
 function ProtectedAdminPage({ children }) {
     return (
         <ProtectedRoute 

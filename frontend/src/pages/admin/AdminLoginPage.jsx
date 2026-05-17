@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
 import "./AdminLoginPage.css";
 
@@ -11,6 +11,16 @@ function AdminLoginPage(){
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+
+    /**
+     * Xử lý đăng nhập trang quản trị.
+     *
+     * Sau khi đăng nhập thành công, frontend kiểm tra role.
+     * Chỉ tài khoản ROLE_ADMIN mới được truy cập dashboard admin.
+     * Nếu tài khoản không phải admin, hệ thống sẽ đăng xuất và hiển thị lỗi.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -27,16 +37,20 @@ function AdminLoginPage(){
 
             // Kiểm tra ROLE
             if(data.role !== "ROLE_ADMIN"){
-
-                setError("Bạn không có quyền truy cập admin");
-
                 logoutUser();
 
+                navigate("/auth/login", {
+                    replace: true,
+                    state: {
+                        message: "Tài khoản không có quyền truy cập trang quản trị",
+                    },
+                });
+                
                 return;
 
             }
             // Chuyển hướng admin dashboard
-             navigate("/admin/customers");
+             navigate("/admin");
 
         } catch (err) {
             setError(
