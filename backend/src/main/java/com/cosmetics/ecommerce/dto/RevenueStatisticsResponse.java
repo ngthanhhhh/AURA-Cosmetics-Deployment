@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-/*
+/**
     DTO dùng cho chức năng thống kê doanh thu
     Bao gồm:
     - khoảng thời gian thống kê

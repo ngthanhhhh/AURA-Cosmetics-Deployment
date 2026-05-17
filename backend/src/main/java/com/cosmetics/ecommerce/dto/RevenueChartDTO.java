@@ -4,18 +4,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
-/*
-    DTO dùng để hiển thị dữ liệu biểu đồ doanh thu
-    Ví dụ:
-    label = "01/05/2025"
-    revenue = 250000
+/**
+ * DTO dùng để hiển thị một điểm dữ liệu trên biểu đồ doanh thu.
+ *
+ * Ví dụ:
+ * label = "01/05/2026"
+ * revenue = 250000
  */
 
 @Data
 @NoArgsConstructor
 public class RevenueChartDTO {
 
-    // Nhãn hiển thị trên biển đồ
+    // Nhãn hiển thị trên biểu đồ
     // Có thể là:
     // - ngày
     // - tuần

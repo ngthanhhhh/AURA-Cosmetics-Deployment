@@ -6,20 +6,23 @@ import com.cosmetics.ecommerce.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/*
-    Repository dùng cho module thống kê
-    Bao gồm:
-    - Dashboard tổng quan
-    - Biểu đồ doanh thu
-    - Tổng hợp doanh thu theo khoảng thời gian
+/**
+ * Repository dùng cho module thống kê.
+ *
+ * Bao gồm:
+ * - Dashboard tổng quan
+ * - Biểu đồ doanh thu
+ * - Tổng hợp doanh thu theo khoảng thời gian
  */
 
+@Repository
 public interface StatisticRepository extends JpaRepository<Order, Integer> {
 
     // Các hàm vẽ biểu đồ
