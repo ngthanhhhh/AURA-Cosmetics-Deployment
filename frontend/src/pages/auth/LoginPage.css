@@ -40,3 +40,8 @@
     margin-top: 16px;
     text-align: center;
 }
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+}

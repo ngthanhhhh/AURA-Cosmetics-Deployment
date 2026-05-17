@@ -1,17 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import Button from "../ui/Button";
 import { logoutUser } from "../../features/auth/authService";
-import { useAuth } from "../../hooks/useAuth";
 
+/**
+ * Xử lý đăng xuất customer.
+ *
+ * Sau khi đăng xuất:
+ * - xóa thông tin đăng nhập
+ * - điều hướng về trang login hoặc homepage
+ */
 const LogoutButton = ({redirectPath = "/auth/login"}) =>{
     const navigate  = useNavigate();
-    const {setUser} = useAuth();
 
     const handleLogout = () => {
         //Xóa dữ liệu đăng nhập
-        
         logoutUser();
-        setUser(null);
 
         //Chuyển về login
         navigate(redirectPath);
