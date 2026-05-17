@@ -10,10 +10,10 @@ import {
     
 } from "recharts";
 import { fetchRevenueStatistics } from "../../features/statistics/statisticService";
+import { formatCurrency } from "../../utils/formatCurrency";
 import Loading from "../../components/common/Loading";
 import Button from "../../components/ui/Button";
 import "./RevenueStatisticPage.css";
-
 
 function RevenueStatisticPage() {
 
@@ -28,14 +28,17 @@ function RevenueStatisticPage() {
         loadRevenueStatistics("DAY", "", "");
     }, []);
 
-    const formatCurrency = (value) => {
-        return Number(value || 0).toLocaleString("vi-VN") + "đ";
-    };
-
+    /**
+     * Tải dữ liệu thống kê doanh thu theo bộ lọc hiện tại.
+     *
+     * @param {string} filterType DAY | WEEK | MONTH
+     * @param {string} filterFromDate Ngày bắt đầu.
+     * @param {string} filterToDate Ngày kết thúc.
+     */
     const loadRevenueStatistics = async (
         filterType,
         filterFromDate,
-        filterToDate,
+        filterToDate
     ) => {
         try {
             setLoading(true);
@@ -65,6 +68,16 @@ function RevenueStatisticPage() {
         }
     };
 
+    /**
+     * Xử lý submit form lọc thống kê doanh thu.
+     *
+     * Trước khi gọi API, frontend sẽ kiểm tra:
+     * - ngày bắt đầu
+     * - ngày kết thúc
+     * - khoảng thời gian hợp lệ
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -76,6 +89,9 @@ function RevenueStatisticPage() {
         loadRevenueStatistics(type, fromDate, toDate);
     };
 
+    /**
+     * Đặt lại bộ lọc thống kê về mặc định.
+     */
     const handleReset = () => {
         setType("DAY");
         setFromDate("");
@@ -121,7 +137,10 @@ function RevenueStatisticPage() {
                     <input  
                         type="date"
                         value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
+                        onChange={(e) => {
+                            setError("");
+                            setFromDate(e.target.value);
+                        }}
                     />
                 </div>
 
@@ -130,7 +149,10 @@ function RevenueStatisticPage() {
                     <input  
                         type="date"
                         value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
+                        onChange={(e) => {
+                            setError("");
+                            setToDate(e.target.value);
+                        }}
                     />
                 </div>
 
@@ -151,7 +173,8 @@ function RevenueStatisticPage() {
                     <p>Tổng doanh thu trong kỳ</p>
                     <h3>{formatCurrency(statistics?.totalRevenue)}</h3>
                     <span>
-                        {statistics?.fromDate || "-"} đến {statistics?.toDate || "-"}
+                        {statistics?.fromDate || "-"} đến{" "} 
+                        {statistics?.toDate || "-"}
                     </span>
                 </div>
 

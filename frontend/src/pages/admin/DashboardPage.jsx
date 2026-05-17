@@ -2,7 +2,17 @@ import { useEffect, useState } from "react";
 import { fetchDashboardStatistics } from "../../features/statistics/statisticService";
 import Loading from "../../components/common/Loading";
 import "./DashboardPage.css";
+import { formatCurrency } from "../../utils/formatCurrency";
 
+/**
+ * Tải dữ liệu dashboard tổng quan từ backend.
+ *
+ * Bao gồm:
+ * - doanh thu
+ * - tổng đơn hàng
+ * - tổng khách hàng
+ * - trạng thái đơn hàng
+ */
 function DashboardPage() {
 
     const [dashboardData, setDashboardData] = useState(null);
@@ -12,10 +22,6 @@ function DashboardPage() {
     useEffect(() => {
         loadDashboardData();
     }, []);
-
-    const formatCurrency = (value) => {
-        return Number(value || 0).toLocaleString("vi-VN") + "đ";
-    };
 
     const loadDashboardData = async () => {
         try{
@@ -117,7 +123,7 @@ function DashboardPage() {
             <section>
                 <div className="dashboard-panel__header">
                     <h3>Doanh thu gần đây</h3>
-                    <span>Biểu đồ mini</span>
+                    <span>Theo trạng thái hiện tại</span>
                 </div>
 
                 <div className="order-status-grid">
