@@ -214,7 +214,9 @@ function OrderManagementPage() {
                                     <th>Người nhận</th>
                                     <th>Số điện thoại</th>
                                     <th>Tổng tiền</th>
-                                    <th>Trạng thái</th>
+                                    <th>Phương thức<br />thanh toán</th>
+                                    <th>Trạng thái<br />thanh toán</th>
+                                    <th>Trạng thái đơn</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -227,6 +229,31 @@ function OrderManagementPage() {
                                         <td>{order.recipientName}</td>
                                         <td>{order.recipientPhone}</td>
                                         <td>{formatCurrency(order.totalPrice)}</td>
+
+                                        <td>
+                                            <span className={`payment-method-badge payment-method-badge--${order.paymentMethod?.toLowerCase()}`}>
+                                                {order.paymentMethod === "COD"
+                                                    ? "COD"
+                                                    : order.paymentMethod === "VNPAY"
+                                                    ? "VNPay"
+                                                    : "-"
+                                                }
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <span className={`payment-status-badge payment-status-badge--${order.paymentStatus?.toLowerCase()}`}>
+                                                {order.paymentStatus === "PENDING"
+                                                    ? "Chờ thanh toán"
+                                                    : order.paymentStatus === "SUCCESS"
+                                                    ? "Thành công"
+                                                    : order.paymentStatus === "FAILED"
+                                                    ? "Thất bại"
+                                                    : "-"
+                                                }
+                                            </span>
+                                        </td>
+
                                         <td>
                                             <span className={`admin-orders-page__status status-${order.status}`}>
                                                 {getStatusLabel(order.status)}

@@ -1,0 +1,89 @@
+.product-list {
+  padding: 30px;
+}
+
+.product-list__title {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.product-list__filter {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.product-list__filter-input {
+  padding: 10px;
+  min-width: 150px;
+}
+
+.product-list__filter-btn {
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.product-list__filter-btn--secondary {
+  background-color: #f3f4f6;
+  border: 1px solid #ccc;
+}
+
+.product-list__message {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.product-list__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.product-list__card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+}
+
+.product-list__image {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.product-list__name {
+  margin-top: 12px;
+}
+
+.product-list__category,
+.product-list__stock {
+  margin: 6px 0;
+}
+
+.product-list__price {
+  font-weight: 600;
+  margin: 6px 0;
+}
+
+.product-list__detail-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #111827;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+}
+
+.product-list__pagination {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.product-list__pagination span {
+  margin: 0 12px;
+}

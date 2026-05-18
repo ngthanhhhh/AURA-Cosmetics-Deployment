@@ -125,6 +125,30 @@ function OrderDetailManagementPage() {
         }
     };
 
+    const handleConfirmCodPayment = async () => {
+        const confirmUpdate = window.confirm("Xác nhận đơn COD này đã thanh toán thành công?");
+
+        if (!confirmUpdate) return;
+        try {
+            setUpdating(true);
+            setError("");
+            setSuccessMessage("");
+
+            await orderService.confirmCodPayment(order.orderId);
+
+            setSuccessMessage("Xác nhận thanh toán COD thành công!");
+
+            const newDetail = await orderService.getAdminOrderDetail(order.orderId);
+            setOrder(newDetail);
+        } catch (err){
+            console.error("Confirm COD payment error: ", err);
+
+            setError(err?.response?.data?.message || "Không thể xác nhận thanh toán COD. Vui lòng thử lại sau!");
+        } finally {
+            setUpdating(false);
+        }
+    }
+
     if (loading) {
         return (
             <div className="admin-order-detail-page">
@@ -242,6 +266,17 @@ function OrderDetailManagementPage() {
                                     <span>Thời gian thanh toán:</span>{" "}
                                     <strong>{formatDate(order.paymentDate)}</strong>
                                 </p>
+                            )}
+
+                            {order.paymentMethod === "COD" && order.paymentStatus === "PENDING" && order.status === "DELIVERED" && (
+                                <button
+                                    type="button"
+                                    onClick={handleConfirmCodPayment}
+                                    disabled={updating}
+                                    className="admin-order-detail-page__cod-payment-btn"
+                                >
+                                    {updating ? "Đang xác nhận..." : "Xác nhận đã thanh toán COD"}
+                                </button>
                             )}
                         </>
                     ) : (

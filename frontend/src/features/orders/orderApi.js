@@ -25,5 +25,11 @@ export const orderApi = {
         return axiosClient.put(`/admin/orders/${orderId}/status`, {
             status
         });
+    },
+
+    confirmCodPayment(orderId) {
+        return axiosClient.put(
+            `/admin/orders/${orderId}/cod-payment-success`
+        );
     }
 };

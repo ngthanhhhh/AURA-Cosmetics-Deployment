@@ -1,6 +1,7 @@
 package com.cosmetics.ecommerce.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -287,15 +288,29 @@ public class OrderServiceImpl implements OrderService{
             pageable);
 
         //Chuyển đổi từ entity Order sang dto OrderListDTO để trả về
-        return orderPage.map(order -> OrderListDTO.builder()
+        return orderPage.map(order -> {
+            
+            Payment payment = paymentRepository
+                .findByOrder_OrderId(order.getOrderId())
+                .orElse(null);
+
+            return OrderListDTO.builder()
                 .orderId(order.getOrderId())
                 .recipientName(order.getRecipientName())
                 .recipientPhone(order.getRecipientPhone())
                 .totalPrice(order.getTotalPrice())
                 .status(order.getStatus().name())
+                .paymentMethod(
+                    payment != null && payment.getPaymentMethod() != null
+                        ? payment.getPaymentMethod().name() : null   
+                )
+                .paymentStatus(
+                    payment != null & payment.getStatus() != null
+                        ? payment.getStatus().name() : null
+                )
                 .createdAt(order.getCreatedAt())
-                .build()
-            );
+                .build();
+        });
     }
 
     /**
@@ -404,6 +419,34 @@ public class OrderServiceImpl implements OrderService{
 
         Optional<Payment> paymentOpt = paymentRepository.findByOrder_OrderId(orderId);
         return buildOrderDetailResponse(order, paymentOpt, items);
+    }
+
+    public void confirmCodPayment(Integer orderId) {
+        validateOrderId(orderId);
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Đơn hàng không tồn tại!"));
+
+        Payment payment = paymentRepository.findByOrder_OrderId(orderId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán!"));
+
+        if (payment.getPaymentMethod() != PaymentMethod.COD) {
+            throw new BadRequestException(
+                "Chỉ hỗ trợ xác nhận thanh toán cho đơn COD"
+            );
+        }
+
+        if (payment.getStatus() == PaymentStatus.SUCCESS) {
+            throw new BadRequestException("Đơn hàng này đã được xác nhận thanh toán!");
+        }
+
+        if (order.getStatus() != OrderStatus.DELIVERED && order.getStatus() != OrderStatus.COMPLETED) {
+            throw new BadRequestException("Chỉ có thể xác nhận thanh toán đơn khi đã giao");
+        }
+
+        payment.setStatus(PaymentStatus.SUCCESS);
+        payment.setPaymentDate(LocalDateTime.now());
+
+        paymentRepository.save(payment);
     }
 
     /**

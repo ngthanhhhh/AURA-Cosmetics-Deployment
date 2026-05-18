@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Integer> {
-    // Repository này dung de thao tac CRUD voi bang categories
+
     boolean existsByName(String name);
 }

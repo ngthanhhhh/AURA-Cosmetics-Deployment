@@ -29,5 +29,10 @@ export const orderService = {
     async updateAdminOrderStatus(orderId, status) {
         const response = await orderApi.updateAdminOrderStatus(orderId, status);
         return response.data;
+    },
+
+    async confirmCodPayment(orderId) {
+        const response = await orderApi.confirmCodPayment(orderId);
+        return response.data;
     }
 };

@@ -72,7 +72,7 @@ export function CartProvider({ children }) {
             throw new Error("Vui lòng đăng nhập bằng tài khoản khách hàng để thêm sản phẩm vào giỏ.");
         }
 
-        const data = await cartService.addItemToCart(productId, quantity);
+        const data = await cartService.addToCart(productId, quantity);
         applyCartData(data);
     };
 

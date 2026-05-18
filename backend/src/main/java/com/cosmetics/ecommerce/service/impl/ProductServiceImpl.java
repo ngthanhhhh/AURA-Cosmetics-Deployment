@@ -1,12 +1,20 @@
 package com.cosmetics.ecommerce.service.impl;
 
 import java.math.BigDecimal;
-import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.cosmetics.ecommerce.dto.ProductRequest;
+import com.cosmetics.ecommerce.dto.ProductResponse;
 import com.cosmetics.ecommerce.entity.Category;
 import com.cosmetics.ecommerce.entity.Product;
+import com.cosmetics.ecommerce.enums.ProductStatus;
+import com.cosmetics.ecommerce.exception.BadRequestException;
+import com.cosmetics.ecommerce.exception.ResourceNotFoundException;
 import com.cosmetics.ecommerce.repository.CategoryRepository;
 import com.cosmetics.ecommerce.repository.ProductRepository;
 import com.cosmetics.ecommerce.service.ProductService;
@@ -20,121 +28,214 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
 
-    // 1. GET ALL
-    @Override
-    public List<Product> getAll() {
-        return productRepository.findAll();
+    private Pageable buildPageable(int page, int size, String sortBy, String direction) {
+        if (page < 0) {
+            throw new BadRequestException("Số trang không hợp lệ");
+        }
+
+        if (size <= 0) {
+            throw new BadRequestException("Kích thước trang không hợp lệ");
+        }
+
+        if (sortBy == null || sortBy.trim().isEmpty()) {
+            sortBy = "productId";
+        }
+
+        Sort sort = "desc".equalsIgnoreCase(direction)
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        return PageRequest.of(page, size, sort);
     }
 
-    // 2. GET BY ID
+    private void validatePriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequestException("Giá thấp nhất không được âm");
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new BadRequestException("Giá cao nhất không được âm");
+        }
+
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+            throw new BadRequestException("Khoảng giá không hợp lệ");
+        }
+    }
+
+    private void validateCategoryExists(Integer categoryId) {
+        if (categoryId != null && !categoryRepository.existsById(categoryId)) {
+            throw new ResourceNotFoundException("Danh mục không tồn tại");
+        }
+    }
+
+    private void validateProductRequest(ProductRequest request) {
+        if (request == null) {
+            throw new BadRequestException("Dữ liệu sản phẩm không hợp lệ");
+        }
+
+        if (request.getName() == null || request.getName().trim().isEmpty()) {
+            throw new BadRequestException("Tên sản phẩm không được để trống");
+        }
+
+        if (request.getPrice() == null || request.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BadRequestException("Giá sản phẩm phải lớn hơn 0");
+        }
+
+        if (request.getStock() == null || request.getStock() < 0) {
+            throw new BadRequestException("Số lượng tồn kho không được âm");
+        }
+
+        if (request.getCategoryId() == null) {
+            throw new BadRequestException("Danh mục sản phẩm không được để trống");
+        }
+    }
+
+    private ProductResponse mapToResponse(Product product) {
+        ProductResponse response = new ProductResponse();
+
+        response.setProductId(product.getProductId());
+        response.setName(product.getName());
+        response.setPrice(product.getPrice());
+        response.setStock(product.getStock());
+        response.setDescription(product.getDescription());
+        response.setImage(product.getImage());
+
+        if (product.getCategory() != null) {
+            response.setCategoryName(product.getCategory().getName());
+        }
+
+        if (product.getStatus() != null) {
+            response.setStatus(product.getStatus().name());
+        }
+
+        return response;
+    }
+
+    private ProductStatus parseStatus(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return ProductStatus.ACTIVE;
+        }
+
+        try {
+            return ProductStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Trạng thái sản phẩm không hợp lệ");
+        }
+    }
+
+    @Override
+    public Page<ProductResponse> getPublicProducts(
+            String keyword,
+            Integer categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        validatePriceRange(minPrice, maxPrice);
+        validateCategoryExists(categoryId);
+
+        Pageable pageable = buildPageable(page, size, sortBy, direction);
+
+        return productRepository.searchPublicProducts(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice,
+                pageable
+        ).map(this::mapToResponse);
+    }
+
+    @Override
+    public ProductResponse getPublicProductDetail(Integer id) {
+        return mapToResponse(getById(id));
+    }
+
+    @Override
+    public Page<ProductResponse> getAdminProducts(
+            String keyword,
+            Integer categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            ProductStatus status,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
+        validatePriceRange(minPrice, maxPrice);
+        validateCategoryExists(categoryId);
+
+        Pageable pageable = buildPageable(page, size, sortBy, direction);
+
+        return productRepository.searchAdminProducts(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice,
+                status,
+                pageable
+        ).map(this::mapToResponse);
+    }
+
     @Override
     public Product getById(Integer id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product không tồn tại"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại"));
     }
 
-    // 3. CREATE
     @Override
-    public Product create(Product product) {
+    public ProductResponse create(ProductRequest request) {
+        validateProductRequest(request);
 
-        // 🔥 check category tồn tại
-        Integer categoryId = product.getCategory().getCategoryId();
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Danh mục không tồn tại"));
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Category không tồn tại"));
-
+        Product product = new Product();
+        product.setName(request.getName().trim());
+        product.setPrice(request.getPrice());
+        product.setStock(request.getStock());
+        product.setDescription(request.getDescription());
+        product.setImage(request.getImage());
         product.setCategory(category);
+        product.setStatus(parseStatus(request.getStatus()));
 
-        return productRepository.save(product);
+        Product saved = productRepository.save(product);
+
+        return mapToResponse(saved);
     }
 
-    // 4. UPDATE
     @Override
-    public Product update(Integer id, Product product) {
+    public ProductResponse update(Integer id, ProductRequest request) {
+        validateProductRequest(request);
 
         Product old = getById(id);
 
-        old.setName(product.getName());
-        old.setPrice(product.getPrice());
-        old.setStock(product.getStock());
-        old.setDescription(product.getDescription());
-        old.setImage(product.getImage());
+        Category category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Danh mục không tồn tại"));
 
-        // 🔥 xử lý category đúng cách
-        if (product.getCategory() != null) {
-            Integer categoryId = product.getCategory().getCategoryId();
+        old.setName(request.getName().trim());
+        old.setPrice(request.getPrice());
+        old.setStock(request.getStock());
+        old.setDescription(request.getDescription());
+        old.setImage(request.getImage());
+        old.setCategory(category);
 
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Category không tồn tại"));
-
-            old.setCategory(category);
+        if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
+            old.setStatus(parseStatus(request.getStatus()));
         }
 
-        return productRepository.save(old);
+        Product updated = productRepository.save(old);
+
+        return mapToResponse(updated);
     }
 
-    // 5. DELETE
     @Override
     public void delete(Integer id) {
-
         Product product = getById(id);
-        productRepository.delete(product);
-    }
-
-    // 6. SEARCH NÂNG CẤP (CHUẨN)
-    @Override
-    public List<Product> search(String name, BigDecimal min, BigDecimal max, Integer categoryId) {
-
-        List<Product> products = productRepository.findAll();
-
-        if (name != null) {
-            products = products.stream()
-                    .filter(p -> p.getName().toLowerCase().contains(name.toLowerCase()))
-                    .toList();
-        }
-
-        if (categoryId != null) {
-            products = products.stream()
-                    .filter(p -> p.getCategory().getCategoryId().equals(categoryId))
-                    .toList();
-        }
-
-        if (min != null && max != null) {
-            products = products.stream()
-                    .filter(p -> p.getPrice().compareTo(min) >= 0
-                            && p.getPrice().compareTo(max) <= 0)
-                    .toList();
-        }
-
-        return products;
-    }
-
-    @Override
-    public List<Product> searchAdvanced(String name, Integer categoryId, Double minPrice, Double maxPrice) {
-
-        // ưu tiên filter kết hợp
-        if (name != null && categoryId != null) {
-            return productRepository.findByNameContainingIgnoreCase(name)
-                    .stream()
-                    .filter(p -> p.getCategory().getCategoryId().equals(categoryId))
-                    .toList();
-        }
-
-        if (name != null) {
-            return productRepository.findByNameContainingIgnoreCase(name);
-        }
-
-        if (categoryId != null) {
-            return productRepository.findByCategory_CategoryId(categoryId);
-        }
-
-        if (minPrice != null && maxPrice != null) {
-            return productRepository.findByPriceBetween(
-                    BigDecimal.valueOf(minPrice),
-                    BigDecimal.valueOf(maxPrice)
-            );
-        }
-
-        return productRepository.findAll();
+        product.setStatus(ProductStatus.INACTIVE);
+        productRepository.save(product);
     }
 }
