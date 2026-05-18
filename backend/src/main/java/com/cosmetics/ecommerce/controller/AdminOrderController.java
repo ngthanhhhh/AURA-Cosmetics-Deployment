@@ -94,4 +94,13 @@ public class AdminOrderController {
         OrderStatusUpdateResponseDTO result = orderService.updateOrderStatus(id, request);
         return ResponseEntity.ok(result);
     }
+
+    @PutMapping("/{id}/cod-payment-success")
+    public ResponseEntity<String> confirmCodPayment(
+        @PathVariable Integer id
+    ) {
+        orderService.confirmCodPayment(id);
+        
+        return ResponseEntity.ok("Xác nhận thanh toán COD thành công!");
+    }
 }
