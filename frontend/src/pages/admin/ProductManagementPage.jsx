@@ -352,6 +352,7 @@ function ProductManagementPage() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Ảnh</th>
             <th>Tên</th>
             <th>Giá</th>
             <th>Kho</th>
@@ -365,6 +366,17 @@ function ProductManagementPage() {
           {products.map((product) => (
             <tr key={product.productId}>
               <td>{product.productId}</td>
+              <td>
+                <img
+                  className="product-management__table-image"
+                  src={
+                    product.image
+                      ? `http://localhost:8080${product.image}`
+                      : "/favicon.svg"
+                  }
+                  alt={product.name}
+                />
+              </td>
               <td>{product.name}</td>
               <td>{Number(product.price).toLocaleString("vi-VN")} đ</td>
               <td>{product.stock}</td>
