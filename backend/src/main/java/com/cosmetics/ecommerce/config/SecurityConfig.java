@@ -61,9 +61,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/payments/vnpay-return").permitAll()
 
-                        // TẠM MỞ ADMIN API ĐỂ TEST CRUD PRODUCT/CATEGORY
-                        .requestMatchers("/api/v1/admin/**").permitAll()
-
+                        .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
+                        
                         .requestMatchers("/api/v1/cart/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers("/api/v1/orders/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/payments/vnpay/**").hasAuthority("ROLE_CUSTOMER")
