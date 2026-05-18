@@ -1,9 +1,10 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
 import SearchBox from "../ui/SearchBox";
 import { logoutUser } from "../../features/auth/authService";
+import { categoryService } from "../../features/categories/categoryService";
 import { CartContext } from "../../context/CartContext";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -12,6 +13,7 @@ import "./Header.css";
 function Header() {
     const navigate = useNavigate();
     const { totalItems, clearCartState } = useContext(CartContext);
+    const [categories, setCategories] = useState([]);
 
     const { user, logout } = useContext(AuthContext);
     const role = user?.role;
@@ -25,6 +27,26 @@ function Header() {
         clearCartState();
         navigate("/");
     };
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await categoryService.getAllCategories({
+                    page: 0,
+                    size: 20,
+                    sortBy: "categoryId",
+                    direction: "asc",
+                });
+
+                setCategories(data?.content || [])
+            } catch (error) {
+                console.error("Fetch header categories error:", error);
+                setCategories([]);
+            }
+        };
+        
+        fetchCategories();
+    }, []);
 
     return (
         <header className="header">
@@ -40,9 +62,14 @@ function Header() {
 
                         <div className="dropdown-menu">
                             <Link to="/products">Tất cả sản phẩm</Link>
-                            <Link to="/products">Chăm sóc da</Link>
-                            <Link to="/products">Trang điểm</Link>
-                            <Link to="/products">Nước hoa</Link>
+                            {categories.map((category) => (
+                                <Link
+                                    key={category.categoryId}
+                                    to={`/products?categoryId=${category.categoryId}`}
+                                >
+                                    {category.name}
+                                </Link>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -86,6 +113,7 @@ function Header() {
                                 ) : (
                                     <>
                                         <Link to="/account">Thông tin cá nhân</Link>
+                                        <Link to="/my-orders">Đơn hàng của tôi</Link>
                                         <Link to="/change-password">Đổi mật khẩu</Link>
                                     </>
                                 )}

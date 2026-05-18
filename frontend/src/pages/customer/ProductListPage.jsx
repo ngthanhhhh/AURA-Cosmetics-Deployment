@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { productService } from "../../features/products/productService";
 import { categoryService } from "../../features/categories/categoryService";
@@ -9,6 +9,7 @@ import "./ProductListPage.css";
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -62,17 +63,33 @@ function ProductListPage() {
   };
 
   useEffect(() => {
+      const keywordParam = searchParams.get("keyword") || "";
+      const categoryIdParam = searchParams.get("categoryId") || "";
+
+      setKeyword(keywordParam);
+      setCategoryId(categoryIdParam);
+      setPage(0);
+  }, [searchParams]);
+
+  useEffect(() => {
     loadCategories();
   }, []);
 
   useEffect(() => {
     loadProducts();
-  }, [page, sortBy, direction]);
+  }, [page, sortBy, direction, keyword, categoryId, minPrice, maxPrice]);
 
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     setPage(0);
-    loadProducts();
+
+    const params = {};
+
+    if (keyword.trim()) params.keyword = keyword.trim();
+    if (categoryId) params.categoryId = categoryId;
+    if (minPrice) params.minPrice = minPrice;
+    if (maxPrice) params.maxPrice = maxPrice;
+    setSearchParams(params);
   };
 
   const handleResetFilter = () => {
@@ -83,20 +100,8 @@ function ProductListPage() {
     setSortBy("productId");
     setDirection("asc");
     setPage(0);
+    setSearchParams({});
   };
-
-  useEffect(() => {
-    if (
-      keyword === "" &&
-      categoryId === "" &&
-      minPrice === "" &&
-      maxPrice === "" &&
-      sortBy === "productId" &&
-      direction === "asc"
-    ) {
-      loadProducts();
-    }
-  }, [keyword, categoryId, minPrice, maxPrice, sortBy, direction]);
 
   return (
     <div className="product-list">
