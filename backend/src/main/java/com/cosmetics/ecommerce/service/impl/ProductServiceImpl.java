@@ -198,7 +198,7 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setDescription(request.getDescription());
-        product.setImage(request.getImage());
+        product.setImage(normalizeImagePath(request.getImage()));
         product.setCategory(category);
         product.setStatus(parseStatus(request.getStatus()));
 
@@ -220,7 +220,7 @@ public class ProductServiceImpl implements ProductService {
         old.setPrice(request.getPrice());
         old.setStock(request.getStock());
         old.setDescription(request.getDescription());
-        old.setImage(request.getImage());
+        old.setImage(normalizeImagePath(request.getImage()));
         old.setCategory(category);
 
         if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
@@ -237,5 +237,23 @@ public class ProductServiceImpl implements ProductService {
         Product product = getById(id);
         product.setStatus(ProductStatus.INACTIVE);
         productRepository.save(product);
+    }
+
+    private String normalizeImagePath(String image) {
+        if (image == null || image.trim().isEmpty()) {
+            return null;
+        }
+
+        String trimmed = image.trim();
+
+        if (trimmed.startsWith("http") || trimmed.startsWith("/uploads/")) {
+            return trimmed;
+        }
+
+        if (trimmed.startsWith("uploads/")) {
+            return "/" + trimmed;
+        }
+
+        return "/uploads/products/" + trimmed;
     }
 }

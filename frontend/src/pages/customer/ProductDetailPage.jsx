@@ -24,6 +24,8 @@ function ProductDetailPage() {
 
       const data = await productService.getProductById(productId);
 
+      console.log("PRODUCT DETAIL DATA:", data);
+
       setProduct(data);
     } catch (error) {
       console.error("Lỗi tải chi tiết sản phẩm:", error);
@@ -73,20 +75,47 @@ function ProductDetailPage() {
     }
   };
 
-  if (loading) return <p className="product-detail__status">Đang tải...</p>;
+  if (loading) {
+    return <p className="product-detail__status">Đang tải...</p>;
+  }
 
   if (!product) {
-    return <p className="product-detail__status">Không tìm thấy sản phẩm</p>;
+    return (
+      <p className="product-detail__status">
+        Không tìm thấy sản phẩm
+      </p>
+    );
   }
 
   const isOutOfStock = product.stock <= 0;
+
+  // hỗ trợ cả image và imageUrl
+  const imagePath = product.image || product.imageUrl;
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "/favicon.svg";
+
+    if (imagePath.startsWith("http")) return imagePath;
+
+    if (imagePath.startsWith("/uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}${imagePath}`;
+    }
+
+    if (imagePath.startsWith("uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}/${imagePath}`;
+    }
+
+    return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
+  };
 
   return (
     <div className="product-detail">
       <div className="product-detail__main">
         <div className="product-detail__image-box">
           <img
-            src={product.image || "/favicon.svg"}
+            src={getImageUrl(imagePath)}
             alt={product.name}
             className="product-detail__image"
           />
@@ -145,7 +174,6 @@ function ProductDetailPage() {
         </div>
       </div>
 
-      {/* KHU VỰC REVIEW SẢN PHẨM */}
       <div className="product-detail__reviews">
         <ProductReviews productId={productId} />
       </div>

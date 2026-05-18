@@ -37,6 +37,8 @@ function ProductListPage() {
         direction,
       });
 
+      console.log("PRODUCT LIST DATA:", data.content);
+
       setProducts(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
@@ -101,6 +103,24 @@ function ProductListPage() {
     setDirection("asc");
     setPage(0);
     setSearchParams({});
+  };
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "/favicon.svg";
+
+    if (imagePath.startsWith("http")) return imagePath;
+
+    if (imagePath.startsWith("/uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}${imagePath}`;
+    }
+
+    if (imagePath.startsWith("uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}/${imagePath}`;
+    }
+
+    return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
   };
 
   return (
@@ -186,29 +206,35 @@ function ProductListPage() {
       )}
 
       <div className="product-list__grid">
-        {products.map((product) => (
-          <div className="product-list__card" key={product.productId}>
-            <img
-              className="product-list__image"
-              src={product.image || "/favicon.svg"}
-              alt={product.name}
-            />
+        {products.map((product) => {
+          const imagePath = product.image || product.imageUrl;
 
-            <h3 className="product-list__name">{product.name}</h3>
-            <p className="product-list__category">{product.categoryName}</p>
-            <p className="product-list__price">
-              {Number(product.price).toLocaleString("vi-VN")} đ
-            </p>
-            <p className="product-list__stock">Kho: {product.stock}</p>
+          return (
+            <div className="product-list__card" key={product.productId}>
+              <img
+                className="product-list__image"
+                src={getImageUrl(imagePath)}
+                alt={product.name}
+              />
 
-            <Link
-              className="product-list__detail-link"
-              to={`/products/${product.productId}`}
-            >
-              Xem chi tiết
-            </Link>
-          </div>
-        ))}
+              <h3 className="product-list__name">{product.name}</h3>
+              <p className="product-list__category">{product.categoryName}</p>
+
+              <p className="product-list__price">
+                {Number(product.price).toLocaleString("vi-VN")} đ
+              </p>
+
+              <p className="product-list__stock">Kho: {product.stock}</p>
+
+              <Link
+                className="product-list__detail-link"
+                to={`/products/${product.productId}`}
+              >
+                Xem chi tiết
+              </Link>
+            </div>
+          );
+        })}
       </div>
 
       <div className="product-list__pagination">

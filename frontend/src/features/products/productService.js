@@ -5,6 +5,7 @@ import {
   createProductApi,
   updateProductApi,
   deleteProductApi,
+  uploadProductImageApi,
 } from "./productApi";
 
 export const productService = {
@@ -35,6 +36,13 @@ export const productService = {
 
   async deleteProduct(id) {
     const res = await deleteProductApi(id);
+    return res.data;
+  },
+  async uploadProductImage(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await uploadProductImageApi(formData);
     return res.data;
   },
 };

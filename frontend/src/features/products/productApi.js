@@ -23,3 +23,11 @@ export const updateProductApi = (id, data) => {
 export const deleteProductApi = (id) => {
   return axiosClient.delete(`/admin/products/${id}`);
 };
+
+export const uploadProductImageApi = (formData) => {
+  return axiosClient.post("/admin/products/upload-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};

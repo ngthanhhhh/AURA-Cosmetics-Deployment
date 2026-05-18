@@ -155,3 +155,30 @@
         white-space: nowrap;
     }
 }
+
+.product-management__file-label {
+  padding: 12px 18px;
+  border-radius: 10px;
+  background-color: #2b223d;
+  color: white;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+}
+
+.product-management__file-label input {
+  display: none;
+}
+
+.product-management__uploading {
+  font-size: 14px;
+  color: #6b5b95;
+}
+
+.product-management__preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
