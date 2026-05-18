@@ -117,6 +117,15 @@
   padding: 24px;
   box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
+.product-detail__reviews p {
+  color: #666;
+}
+
+.product-detail__success {
+  margin-top: 10px;
+  color: #0f5132;
+  font-weight: 600;
+}
 
 @media (max-width: 1024px) {
   .product-detail__main {

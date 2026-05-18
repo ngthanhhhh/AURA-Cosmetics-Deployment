@@ -22,6 +22,9 @@ function CustomerProfilePage(){
         loadProfile();
     }, []);
 
+    /**
+     * Tải thông tin tài khoản hiện tại từ backend.
+     */
     const loadProfile = async () => {
         try{
             setLoading(true);
@@ -51,6 +54,14 @@ function CustomerProfilePage(){
         }));
     };
 
+    /**
+     * Cập nhật thông tin cá nhân của customer.
+     *
+     * Sau khi cập nhật thành công,
+     * dữ liệu profile sẽ được tải lại để đồng bộ giao diện.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -86,6 +97,18 @@ function CustomerProfilePage(){
                 phone: updatedProfile.phone || "",
                 address: updatedProfile.address || "",
             });
+
+            const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+
+            if(currentUser){
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify({
+                        ...currentUser,
+                        name: updatedProfile.name,
+                    })
+                );
+            }
 
             setMessage("Cập nhật thông tin thành công.");
         } catch (err){

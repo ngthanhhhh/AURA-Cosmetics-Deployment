@@ -1,12 +1,9 @@
 import { useState } from "react";
-//import { useNavigate } from "react-router-dom";
 import { changePassword } from "../../features/users/userService";
 import "./ChangePasswordPage.css";
 
 
 function ChangePasswordPage() {
-
-    //const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         oldPassword: "",
@@ -31,21 +28,28 @@ function ChangePasswordPage() {
         setSuccess("");
     };
 
+    /**
+     * Xử lý đổi mật khẩu customer.
+     *
+     * Trước khi gửi request:
+     * - kiểm tra mật khẩu hiện tại
+     * - kiểm tra mật khẩu mới
+     * - kiểm tra xác nhận mật khẩu
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSubmit = async (e) =>{
         
         e.preventDefault();
 
-        // Validdate mật khẩu hiện tại rỗng
         if(!formData.oldPassword.trim()){
             setError("Vui lòng nhập mật khẩu hiện tại");
             return;
         }
 
-        //Validate mật khẩu mới
         if(formData.newPassword.length < 6){
 
             setError("Mật khẩu mới phải có ít nhất 6 ký tự");
-
             return;
         }
 
@@ -54,13 +58,11 @@ function ChangePasswordPage() {
             return;
         }
 
-        //Validate mật khẩu xác nhận
         if(
             formData.newPassword !==
             formData.confirmPassword
         ) {
             setError("Mật khẩu xác nhận không khớp");
-
             return;
         }
 
@@ -81,7 +83,6 @@ function ChangePasswordPage() {
                 confirmPassword: "",
             });
 
-            //navigate("profile");
         } catch(err){
 
             setError(
@@ -101,22 +102,14 @@ function ChangePasswordPage() {
 
             {error && (
                 <p
-                    style={{
-                        color: "red",
-                        marginBottom: "10px",
-                    }}
-                >
+                    className="change-pw-error">
                     {error}
                 </p>
             )}
 
             {success && (
                 <p
-                    style={{
-                        color: "green",
-                        marginBottom: "10px",
-                    }}
-                >
+                    className="change-pw-success">
                     {success}
                 </p>
             )}

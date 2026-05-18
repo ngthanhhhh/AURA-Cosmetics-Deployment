@@ -6,31 +6,45 @@ import com.cosmetics.ecommerce.dto.ChangePasswordRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
+/**
+ * Service xử lý nghiệp vụ quản lý tài khoản quản trị viên.
+ */
 public interface AdminAccountService {
 
-    //Lấy danh sách tất cả tài khoản Admin
+    /**
+     * Lấy danh sách tài khoản admin có phân trang, tìm kiếm và lọc trạng thái.
+     */
     Page<AdminAccountResponse> getAllAccounts(String keyword, Boolean isActive, Pageable pageable);
 
-    //Thêm tài khoản admin mới
-    //Kiểm tra email trùng trước khi tạo
+    /**
+     * Tạo tài khoản admin mới.
+     */
     AdminAccountResponse createAccount(AdminAccountRequest request);
 
-    //Sửa thông tin tài khoản (name, email, isActive)
-    //Không sửa pasword ở đây
-    AdminAccountResponse updateAccount(Integer id, AdminAccountRequest request);
+    /**
+     * Cập nhật thông tin tài khoản admin.
+     *
+     * @param currentUserEmail Email của admin đang đăng nhập.
+     */
+    AdminAccountResponse updateAccount(Integer id, AdminAccountRequest request, String currentUserEmail);
 
-    //xóa mềm tài khoản (set_is_active = false)
-    //không cho xóa tài khoản đang đăng nhập
-    //currentUserEmail: email của admin đang đăng nhập
+    /**
+     * Vô hiệu hóa tài khoản admin.
+     *
+     * Không cho phép admin tự vô hiệu hóa chính mình.
+     */
     void deleteAccount(Integer id, String currentUserEmail);
 
-    //đổi mật khẩu tài khoản
-    //mã hóa BCrypt trước khi lưu
+    /**
+     * Đổi mật khẩu tài khoản admin.
+     */
     void changePassword(Integer id, ChangePasswordRequest request);
 
-    // mở/ khóa tài khoản admin
-    void updateStatus(Integer id, Boolean isActive);
+    /**
+     * Khóa hoặc mở khóa tài khoản admin.
+     *
+     * @param currentUserEmail Email của admin đang đăng nhập.
+     */
+    void updateStatus(Integer id, Boolean isActive, String currentUserEmail);
 
 }

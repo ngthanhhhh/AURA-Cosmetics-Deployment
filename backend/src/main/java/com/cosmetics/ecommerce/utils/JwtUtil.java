@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
+import java.nio.charset.StandardCharsets;
 
 @Component
 
@@ -17,8 +18,17 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long EXPIRATION;
 
+    /**
+     * Tạo khóa ký JWT từ secret key trong cấu hình ứng dụng.
+     *
+     * Secret key cần đủ dài để đảm bảo an toàn khi ký token.
+     *
+     * @return SecretKey dùng để ký và xác thực JWT.
+     */
+
     private SecretKey getKey(){
-        return Keys.hmacShaKeyFor((SECRET.getBytes()));
+
+        return Keys.hmacShaKeyFor((SECRET.getBytes(StandardCharsets.UTF_8)));
     }
 
     //tao token sau khi login/register thanh cong

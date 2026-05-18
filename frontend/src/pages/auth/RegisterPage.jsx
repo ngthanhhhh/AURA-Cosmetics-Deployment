@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {Link, useNavigate} from 'react-router-dom';
 import { registerUser } from "../../features/auth/authService";
 import "./RegisterPage.css";
@@ -13,7 +13,8 @@ function RegisterPage() {
         password: "",
         confirmPassword:"",
     });
-    // State lưu thông báo lỗi nếu có
+    
+
     const [error, setError]= useState("");
 
     // State loading
@@ -24,9 +25,26 @@ function RegisterPage() {
         setFormData({...formData, [e.target.name]: e.target.value });
     };
 
-    // Hàm xử lý khi nhấn nút "Đăng ký"
+    /**
+     * Xử lý đăng ký tài khoản khách hàng.
+     *
+     * Trước khi gửi request:
+     * - validate mật khẩu
+     * - validate xác nhận mật khẩu
+     * - chuẩn hóa dữ liệu đầu vào
+     *
+     * Sau khi đăng ký thành công,
+     * user sẽ được chuyển sang trang đăng nhập.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if(!/^\d{10}$/.test(formData.phone.trim())){
+            setError("Số điện thoại phải gồm 10 chữ số");
+            return;
+        }
 
         if(formData.password.length < 6){
             setError("Mật khẩu có ít nhất 6 ký tự");
@@ -54,8 +72,12 @@ function RegisterPage() {
         try{
             setLoading(true);
             await registerUser(dataToSubmit);
-            alert("Dang ky thanh cong!");
-            navigate("/auth/login"); //Chuyen huong sau khi thanh cong
+            
+            navigate("/auth/login", {
+                state: {
+                    message: "Đăng ký thành công. Vui lòng đăng nhập.",
+                },
+            }); 
         } catch (err){
             setError(err.response?.data?.message || err.message || "Có lỗi xảy ra, vui lòng thử lại!");
         } finally{

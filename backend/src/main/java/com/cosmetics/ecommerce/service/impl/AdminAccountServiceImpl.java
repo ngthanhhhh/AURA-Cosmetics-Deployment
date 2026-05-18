@@ -13,11 +13,21 @@ import com.cosmetics.ecommerce.service.AdminAccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Cài đặt nghiệp vụ quản lý tài khoản quản trị viên.
+ *
+ * Class này xử lý:
+ * - Lấy danh sách tài khoản admin
+ * - Tạo tài khoản admin
+ * - Cập nhật thông tin admin
+ * - Vô hiệu hóa tài khoản admin
+ * - Đổi mật khẩu admin
+ * - Khóa/mở khóa tài khoản admin
+ */
 @Service
 @RequiredArgsConstructor
 
@@ -27,7 +37,17 @@ public class AdminAccountServiceImpl implements AdminAccountService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    //lấy danh sách tất cả tài khoản admin
+    /**
+     * Lấy danh sách tài khoản admin có hỗ trợ:
+     * - phân trang
+     * - tìm kiếm theo tên/email
+     * - lọc theo trạng thái hoạt động
+     *
+     * @param keyword Từ khóa tìm kiếm tên hoặc email.
+     * @param isActive Trạng thái hoạt động của tài khoản.
+     * @param pageable Thông tin phân trang và sắp xếp.
+     * @return Danh sách tài khoản admin.
+     */
     @Override
     public Page<AdminAccountResponse> getAllAccounts(String keyword, Boolean isActive, Pageable pageable){
 
@@ -39,7 +59,19 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
     }
 
-    //Tạo tài khoản admin mới
+    /**
+     * Tạo tài khoản quản trị viên mới.
+     *
+     * Flow xử lý:
+     * - Validate dữ liệu đầu vào
+     * - Kiểm tra email đã tồn tại chưa
+     * - Lấy ROLE_ADMIN từ database
+     * - Mã hóa mật khẩu bằng BCrypt
+     * - Lưu tài khoản mới vào database
+     *
+     * @param request Thông tin tài khoản admin cần tạo.
+     * @return Thông tin tài khoản admin sau khi tạo.
+     */
     @Override
     @Transactional
     public AdminAccountResponse createAccount(AdminAccountRequest request){
@@ -49,41 +81,52 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         String email = request.getEmail().trim().toLowerCase();
         String password = request.getPassword().trim();
 
-        //Kiểm tra email đã tồn tại chưa
+        // Kiểm tra email đã tồn tại chưa
         if(userRepository.existsByEmail(email)){
             throw new BadRequestException("Email đã tồn tại");
         }
 
 
-        //Lấy role ADMIN từ database
+        // Lấy role ADMIN từ database
         Role adminRole = roleRepository.findByRoleName("ROLE_ADMIN")
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy ROLE_ADMIN"));
 
 
-        //Tạo user mới với role ADMIN
+        // Tạo user mới với role ADMIN
         User user = new User();
         user.setName(request.getName().trim());
         user.setEmail(email);
-        //mã hóa mật khẩu trước khi lưu
         user.setPassword(passwordEncoder.encode(password));
         user.setRole(adminRole);
-        user.setIsActive(true);
+        user.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
 
-        //lưu vào database và trả về DTO
+        // Lưu vào database và trả về DTO
         return toResponse(userRepository.save(user));
     }
 
-    //Cập nhật thông tin tài khoản (name, email, isActive)
-    //Không sửa password ở đây
+    /**
+     * Cập nhật thông tin tài khoản admin.
+     *
+     * Không xử lý đổi mật khẩu tại API này.
+     * Không cho phép admin tự vô hiệu hóa chính mình.
+     *
+     * @param id ID tài khoản admin cần cập nhật.
+     * @param request Thông tin cần cập nhật.
+     * @param currentUserEmail Email của admin đang đăng nhập.
+     * @return Thông tin tài khoản sau khi cập nhật.
+     */
     @Override
     @Transactional
-    public AdminAccountResponse updateAccount(Integer id, AdminAccountRequest request){
+    public AdminAccountResponse updateAccount(
+            Integer id,
+            AdminAccountRequest request,
+            String currentUserEmail){
 
         validateAdminAccountRequest(request, false);
 
         String email = request.getEmail().trim().toLowerCase();
 
-        //Tìm user theo id, nếu không có thì báo lỗi
+        // Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
@@ -96,11 +139,17 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Email đã tồn tại");
         }
 
-        //Cập nhật thông tin
+        if(request.getIsActive() != null
+                && !request.getIsActive()
+                && user.getEmail().equalsIgnoreCase(currentUserEmail)){
+            throw new BadRequestException("Không thể tự vô hiệu hóa tài khoản của mình");
+        }
+
+        // Cập nhật thông tin
         user.setName(request.getName().trim());
         user.setEmail(email);
 
-        //Tránh lỗi null khi frontend không gửi isActive
+        // Tránh lỗi null khi frontend không gửi isActive
         if(request.getIsActive() != null){
             user.setIsActive(request.getIsActive());
         }
@@ -108,12 +157,22 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         return toResponse(userRepository.save(user));
     }
 
-    //Xóa mềm tài khoản (set isActive = false, không xóa khỏi database)
+    /**
+     * Vô hiệu hóa tài khoản admin.
+     *
+     * Hệ thống không xóa dữ liệu khỏi database,
+     * chỉ cập nhật isActive = false.
+     *
+     * Không cho phép admin tự vô hiệu hóa chính mình.
+     *
+     * @param id ID tài khoản admin cần vô hiệu hóa.
+     * @param currentUserEmail Email của admin đang đăng nhập.
+     */
     @Override
     @Transactional
 
     public void deleteAccount(Integer id, String currentUserEmail){
-        //Tìm user theo id, nếu không có thì báo lỗi
+        // Tìm user theo id, nếu không có thì báo lỗi
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
@@ -121,9 +180,9 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
         }
 
-        //Không cho xóa tài khoản đang đăng nhập
+        // Không cho xóa tài khoản đang đăng nhập
         if(user.getEmail().equalsIgnoreCase(currentUserEmail)){
-            throw new BadRequestException("Không thể xóa tài khoản đang đăng nhập");
+            throw new BadRequestException("Không thể vô hiệu hóa tài khoản của mình");
         }
 
         // Xóa mềm: chỉ set isActive = false
@@ -131,7 +190,19 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         userRepository.save(user);
     }
 
-    //Đổi mật khẩu tài khoản Admin
+    /**
+     * Đổi mật khẩu tài khoản admin.
+     *
+     * Flow xử lý:
+     * - Validate dữ liệu đổi mật khẩu
+     * - Kiểm tra tài khoản tồn tại
+     * - Kiểm tra role ADMIN
+     * - Kiểm tra mật khẩu mới không trùng mật khẩu cũ
+     * - Mã hóa và lưu mật khẩu mới
+     *
+     * @param id ID tài khoản admin cần đổi mật khẩu.
+     * @param request Thông tin đổi mật khẩu.
+     */
     @Override
     @Transactional
     public void changePassword(Integer id, ChangePasswordRequest request){
@@ -155,22 +226,37 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
-    // Chuyển đổi User entity sang AdminAccountResponse DTO
-    // Không trả password về frontend
+
+    /**
+     * Chuyển đổi User entity sang AdminAccountResponse DTO.
+     *
+     * Không trả password về frontend để đảm bảo an toàn dữ liệu.
+     *
+     * @param user User entity.
+     * @return DTO thông tin tài khoản admin.
+     */
     private AdminAccountResponse toResponse(User user){
         return AdminAccountResponse.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .isActive(user.getIsActive())
-                .createAt(user.getCreatedAt())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 
-    // Mở / khóa tài khoản admin
+    /**
+     * Khóa hoặc mở khóa tài khoản admin.
+     *
+     * Không cho phép admin tự vô hiệu hóa chính mình.
+     *
+     * @param id ID tài khoản admin cần cập nhật trạng thái.
+     * @param isActive Trạng thái mới của tài khoản.
+     * @param currentUserEmail Email của admin đang đăng nhập.
+     */
     @Override
     @Transactional
-    public void updateStatus(Integer id, Boolean isActive){
+    public void updateStatus(Integer id, Boolean isActive, String currentUserEmail){
 
         if(isActive == null){
             throw new BadRequestException("Trạng thái không hợp lệ");
@@ -184,10 +270,6 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
         }
 
-        // Lấy email hiện tại
-        String currentUserEmail = SecurityContextHolder.getContext()
-                .getAuthentication().getName();
-
         if(user.getEmail().equalsIgnoreCase(currentUserEmail) && !isActive){
             throw new BadRequestException("Không thể tự vô hiệu hóa tài khoản của mình");
         }
@@ -196,7 +278,11 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         userRepository.save(user);
     }
 
-    //Xác thực đổi mật khẩu admin
+    /**
+     * Kiểm tra dữ liệu đổi mật khẩu admin hợp lệ.
+     *
+     * @param request Dữ liệu đổi mật khẩu từ frontend.
+     */
     private void validateChangePassword(ChangePasswordRequest request){
         if(request == null ){
             throw new BadRequestException("Dữ liệu không hợp lệ");
@@ -223,7 +309,16 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         }
     }
 
-    //Xác thực dữ liệu admin (dùng chung cho create/update)
+    /**
+     * Kiểm tra dữ liệu tài khoản admin hợp lệ.
+     *
+     * Dùng chung cho:
+     * - tạo mới tài khoản admin
+     * - cập nhật tài khoản admin
+     *
+     * @param request Dữ liệu tài khoản admin.
+     * @param isCreate true nếu là tạo mới, false nếu là cập nhật.
+     */
     private void validateAdminAccountRequest(AdminAccountRequest request, boolean isCreate){
 
         if(request == null){
@@ -246,7 +341,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
             throw new BadRequestException("Email không hợp lệ");
         }
 
-        //chỉ check password khi tạo mới
+        // Chỉ check password khi tạo mới
         if(isCreate){
             if(password == null || password.length() < 6){
                 throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");

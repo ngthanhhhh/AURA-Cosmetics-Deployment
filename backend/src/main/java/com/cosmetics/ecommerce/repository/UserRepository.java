@@ -12,7 +12,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.query.Param;
 
 import com.cosmetics.ecommerce.entity.User;
-
+/**
+ * Repository thao tác dữ liệu tài khoản người dùng.
+ *
+ * Được sử dụng cho:
+ * - Auth
+ * - User profile
+ * - Admin account management
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
     //tim user theo email, dung khi dang nhap

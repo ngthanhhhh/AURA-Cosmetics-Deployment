@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
 
@@ -32,6 +33,19 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"Bạn chưa đăng nhập hoặc token không hợp lệ\"}");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"message\":\"Bạn không có quyền truy cập chức năng này\"}");
+                        })
+                )
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/v3/api-docs/**",
@@ -48,9 +62,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/api/v1/payments/vnpay-return").permitAll()
 
-                        // TẠM MỞ ADMIN API ĐỂ TEST CRUD PRODUCT/CATEGORY
-                        .requestMatchers("/api/v1/admin/**").permitAll()
-
+                        .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
+                        
                         .requestMatchers("/api/v1/cart/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers("/api/v1/orders/**").hasAuthority("ROLE_CUSTOMER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/payments/vnpay/**").hasAuthority("ROLE_CUSTOMER")

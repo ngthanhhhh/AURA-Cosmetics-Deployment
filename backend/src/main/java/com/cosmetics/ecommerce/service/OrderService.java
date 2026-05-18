@@ -104,4 +104,6 @@ public interface OrderService {
     OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, UpdateOrderStatusRequestDTO request);
 
     OrderDetailResponseDTO getOrderDetailForCustomer(Integer userId, Integer orderId);
+
+    void confirmCodPayment(Integer orderId);
 }

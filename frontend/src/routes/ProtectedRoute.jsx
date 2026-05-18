@@ -1,5 +1,13 @@
 import { Navigate } from "react-router-dom";
 
+
+/**
+ * Component bảo vệ route theo trạng thái đăng nhập và role.
+ *
+ * Nếu chưa đăng nhập, user sẽ được chuyển về trang login.
+ * Nếu sai role, user sẽ được điều hướng về khu vực phù hợp.
+ */
+
 function ProtectedRoute({ 
     children, 
     requiredRole,
@@ -7,9 +15,15 @@ function ProtectedRoute({
  }) {
     const token = localStorage.getItem("token");
 
-    const role =
-        localStorage.getItem("role") ||
-        JSON.parse(localStorage.getItem("user") || "null")?.role;
+    let role = localStorage.getItem("role");
+
+    try {
+        if (!role){
+            role = JSON.parse(localStorage.getItem("user") || "null")?.role;
+        }
+    } catch {
+        role = null;
+    }
 
     if (!token) {
         return <Navigate to={loginPath} replace />;

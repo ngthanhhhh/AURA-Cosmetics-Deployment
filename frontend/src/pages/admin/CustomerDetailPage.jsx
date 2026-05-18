@@ -6,6 +6,7 @@ import {
     updateCustomersStatus,
 } from "../../features/users/userService";
 import "./CustomerDetailPage.css";
+import { formatDate } from "../../utils/formatDate";
 
 function CustomerDetailPage() {
 
@@ -17,6 +18,9 @@ function CustomerDetailPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    /**
+     * Tải thông tin chi tiết khách hàng và lịch sử đơn hàng.
+     */
     const loadCustomerDetail = async () => {
         setLoading(true);
         setError("");
@@ -40,6 +44,9 @@ function CustomerDetailPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customerId]);
 
+    /**
+     * Khóa hoặc mở khóa tài khoản khách hàng.
+     */ 
     const handleToggleStatus = async () => {
         if (!customer) return;
 
@@ -48,18 +55,21 @@ function CustomerDetailPage() {
         if(!window.confirm(`Bạn có chắc muốn ${action} tài khoản này không?`)) {
             return;
         }
-
+       
         try{
-            await updateCustomersStatus(customer.id, !customer.isActive);
-            alert(
-                customer.isActive
-                    ? "Khóa tài khoản thành công"
-                    : "Mở khóa tài khoản thành công"
-            );
-            loadCustomerDetail();
+             
+            const customerIdValue = customer?.id;
+
+            if(!customerIdValue){
+                alert("Không xác định được ID khách hàng");
+                return;
+            }
+
+            await updateCustomersStatus(customerIdValue, !customer.isActive); 
+            await loadCustomerDetail();  
         } catch (err){
             console.error("Lỗi cập nhật trạng thái:", err);
-            alert("Cập nhật trạng thái thất bại, vui lòng thửu lại!");
+            alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
         }
     };
 
@@ -97,9 +107,7 @@ function CustomerDetailPage() {
         );
     }
 
-    const registeredDate = customer.createdAt
-        ? new Date(customer.createdAt).toLocaleDateString("vi-VN")
-        : "-";
+    const registeredDate = formatDate(customer.createdAt);
 
     const getOrderTotal = (order) => {
     return (
@@ -168,22 +176,22 @@ function CustomerDetailPage() {
                     </div>
 
                     <div className="customer-info-list">
-                        <div className="customer-info=item">
+                        <div className="customer-info-item">
                             <span>Email</span>
                             <strong>{customer.email || "-"}</strong>
                         </div>
 
-                        <div className="customer-info=item">
+                        <div className="customer-info-item">
                             <span>Số điện thoại</span>
                             <strong>{customer.phone || "-"}</strong>
                         </div>
 
-                        <div className="customer-info=item">
+                        <div className="customer-info-item">
                             <span>Địa chỉ</span>
                             <strong>{customer.address || "-"}</strong>
                         </div>
 
-                        <div className="customer-info=item">
+                        <div className="customer-info-item">
                             <span>Ngày đăng ký</span>
                             <strong>{registeredDate}
                             </strong>
@@ -225,19 +233,20 @@ function CustomerDetailPage() {
 
                                             <td>
                                                     {order.createdAt
-                                                    ? new Date(order.createdAt).toLocaleDateString("vi-VN")
-                                                    : "-"}
+                                                        ? formatDate(order.createdAt)
+                                                        : "-"
+                                                    }
                                             </td>
 
                                             <td>
-                                                <span className="order-status-bagde">
+                                                <span className="order-status-badge">
                                                     {order.status || "-"}
                                                 </span>
                                                 
                                             </td>
 
                                             <td className="order-total">
-                                                {getOrderTotal(order).toLocaleString("vi-VN")}đ
+                                                {Number(getOrderTotal(order) || 0).toLocaleString("vi-VN")}đ
                                             </td>
                                         </tr>
                                     ))}

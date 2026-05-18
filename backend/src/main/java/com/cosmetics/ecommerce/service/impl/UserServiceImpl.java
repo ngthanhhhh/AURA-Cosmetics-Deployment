@@ -12,7 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+/**
+ * Service xử lý nghiệp vụ tài khoản cá nhân của người dùng.
+ *
+ * Bao gồm:
+ * - Đổi mật khẩu
+ * - Xem profile cá nhân
+ * - Cập nhật profile cá nhân
+ */
 @Service
 @RequiredArgsConstructor
 
@@ -21,7 +28,20 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    //UC3.7 - Customer tự đổi mật khẩu của mình
+    /**
+     * Đổi mật khẩu cho user đang đăng nhập.
+     *
+     * Flow xử lý:
+     * - Validate dữ liệu đầu vào
+     * - Kiểm tra tài khoản tồn tại
+     * - Kiểm tra trạng thái tài khoản
+     * - Xác minh mật khẩu cũ
+     * - Kiểm tra mật khẩu mới
+     * - Mã hóa và lưu mật khẩu mới
+     *
+     * @param email Email của user hiện tại.
+     * @param request Thông tin đổi mật khẩu.
+     */
     @Override
     @Transactional
     public void changePassword(String email, ChangePasswordRequest request){
@@ -54,9 +74,14 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
+    /**
+     * Kiểm tra dữ liệu đổi mật khẩu hợp lệ.
+     *
+     * @param request Dữ liệu đổi mật khẩu từ frontend.
+     */
     private void validateChangePassword(ChangePasswordRequest request){
 
-        //Validate input
+        // Validate dữ liệu đầu vào
         if(request == null){
             throw new BadRequestException("Dữ liệu đổi mật khẩu không hợp lệ");
         }
@@ -71,22 +96,28 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin");
         }
 
-        //Check mật khẩu xác nhận
+        // Kiểm tra mật khẩu xác nhận
         if(!newPassword.equals(confirmPassword)){
             throw new BadRequestException("Mật khẩu mới và xác nhận mật khẩu không khớp");
         }
 
-        // Check độ dài
+        // Kiểm tra độ dài mật khẩu mới
         if (newPassword.length() < 6){
             throw new BadRequestException("Mật khẩu mới phải có ít nhất 6 ký tự");
         }
 
-        // Check chữ + số
+        // Kiểm tra mật khẩu phải chứa cả chữ và số
         if(!newPassword.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
             throw new BadRequestException("Mật khẩu phải chứa chữ và số");
         }
     }
 
+    /**
+     * Lấy thông tin profile cá nhân theo email.
+     *
+     * @param email Email của user hiện tại.
+     * @return Thông tin profile cá nhân.
+     */
     @Override
     public UserProfileResponse getProfileByEmail(String email){
 
@@ -105,6 +136,12 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    /**
+     * Cập nhật thông tin profile cá nhân của user đang đăng nhập.
+     *
+     * @param email Email của user hiện tại.
+     * @param request Thông tin profile cần cập nhật.
+     */
     @Override
     @Transactional
     public void updateProfile(String email, UpdateProfileRequest request){
@@ -129,11 +166,11 @@ public class UserServiceImpl implements UserService {
             if(!request.getPhone().matches("^\\d{10}$")){
                 throw new BadRequestException("SĐT phải là 10 số");
             }
-            user.setPhone(request.getPhone());
+            user.setPhone(request.getPhone().trim());
         }
 
         if(request.getAddress() != null){
-            user.setAddress(request.getAddress());
+            user.setAddress(request.getAddress().trim());
         }
 
         userRepository.save(user);

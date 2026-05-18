@@ -6,20 +6,23 @@ import com.cosmetics.ecommerce.dto.StatisticsResponse;
 import com.cosmetics.ecommerce.enums.OrderStatus;
 import com.cosmetics.ecommerce.enums.StatisticType;
 import com.cosmetics.ecommerce.exception.BadRequestException;
-import com.cosmetics.ecommerce.repository.OrderRepository;
 import com.cosmetics.ecommerce.repository.StatisticRepository;
-import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+/**
+ * Cài đặt nghiệp vụ thống kê dành cho quản trị viên.
+ *
+ * Bao gồm:
+ * - Dashboard tổng quan toàn hệ thống
+ * - Thống kê doanh thu theo ngày, tuần, tháng
+ */
 @Service
 @RequiredArgsConstructor
 public class StatisticsServiceImpl implements StatisticsService {
@@ -123,9 +126,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .type(type)
                 .fromDate(startDate)
                 .toDate(endDate)
-                .totalRevenue(totalRevenue)
-                .completedOrders(completedOrders)
-                .chartData(chartData)
+                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal .ZERO)
+                .completedOrders(completedOrders != null ? completedOrders : 0L)
+                .chartData(chartData != null ? chartData : List.of())
                 .build();
     }
 }

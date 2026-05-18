@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
+import { AuthContext } from "../../context/AuthContext";
 import "./LoginPage.css";
 
 function LoginPage(){
@@ -10,7 +11,16 @@ function LoginPage(){
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const { login, logout } = useContext(AuthContext);
 
+    /**
+     * Xử lý đăng nhập customer.
+     *
+     * Nếu tài khoản là admin, hệ thống sẽ đăng xuất ngay
+     * và hiển thị thông báo yêu cầu đăng nhập tại trang quản trị.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -26,9 +36,16 @@ function LoginPage(){
 
             if (data.role === "ROLE_ADMIN") {
                 logoutUser();
+                logout();
                 setError("Tài khoản quản trị vui lòng đăng nhập tại trang quản trị.");
                 return;
             }
+
+            login({
+                name: data.name,
+                role: data.role,
+                email: data.email,
+            });
 
             navigate("/");
         } catch (err) {
@@ -48,9 +65,7 @@ function LoginPage(){
 
             {error && (
                 <p
-                    className="error-message"
-                    style={{ color: "red", marginBottom: "10px"}}
-                >
+                    className="error-message">
                     {error}
                 </p>
             )}
@@ -62,13 +77,12 @@ function LoginPage(){
                     <label>Email</label>
 
                     <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required>
-
-                    </input>
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
                 </div>
 
@@ -77,13 +91,12 @@ function LoginPage(){
                     <label>Mật khẩu</label>
 
                     <input
-                    type="password"
-                    placeholder="Mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required>
-
-                    </input>
+                        type="password"
+                        placeholder="Mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
                 </div>
 

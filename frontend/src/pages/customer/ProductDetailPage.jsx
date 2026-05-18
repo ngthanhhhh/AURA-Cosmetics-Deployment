@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 import { CartContext } from "../../context/CartContext";
 import { productService } from "../../features/products/productService";
@@ -9,7 +9,6 @@ import "./ProductDetailPage.css";
 
 function ProductDetailPage() {
   const { productId } = useParams();
-  const navigate = useNavigate();
 
   const { addItemToCart } = useContext(CartContext);
 
@@ -17,6 +16,7 @@ function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const loadProduct = async () => {
     try {
@@ -59,9 +59,7 @@ function ProductDetailPage() {
 
       await addItemToCart(Number(productId), Number(quantity));
 
-      alert("Đã thêm sản phẩm vào giỏ hàng");
-
-      navigate("/cart");
+      setSuccessMessage("Đã thêm sản phẩm vào giỏ hàng.");
     } catch (error) {
       console.error("Add to cart error:", error);
 
@@ -92,16 +90,30 @@ function ProductDetailPage() {
   // hỗ trợ cả image và imageUrl
   const imagePath = product.image || product.imageUrl;
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "/favicon.svg";
+
+    if (imagePath.startsWith("http")) return imagePath;
+
+    if (imagePath.startsWith("/uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}${imagePath}`;
+    }
+
+    if (imagePath.startsWith("uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}/${imagePath}`;
+    }
+
+    return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
+  };
+
   return (
     <div className="product-detail">
       <div className="product-detail__main">
         <div className="product-detail__image-box">
           <img
-            src={
-              imagePath
-                ? `http://localhost:8080${imagePath}`
-                : "/favicon.svg"
-            }
+            src={getImageUrl(imagePath)}
             alt={product.name}
             className="product-detail__image"
           />
@@ -152,6 +164,10 @@ function ProductDetailPage() {
                 ? "Đang thêm..."
                 : "Thêm vào giỏ"}
             </button>
+
+            {successMessage && (
+              <p className="product-detail__success">{successMessage}</p>
+            )}
           </div>
         </div>
       </div>

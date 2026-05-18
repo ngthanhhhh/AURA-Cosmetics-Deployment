@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import { productService } from "../../features/products/productService";
 import { categoryService } from "../../features/categories/categoryService";
@@ -9,6 +9,7 @@ import "./ProductListPage.css";
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -64,17 +65,33 @@ function ProductListPage() {
   };
 
   useEffect(() => {
+      const keywordParam = searchParams.get("keyword") || "";
+      const categoryIdParam = searchParams.get("categoryId") || "";
+
+      setKeyword(keywordParam);
+      setCategoryId(categoryIdParam);
+      setPage(0);
+  }, [searchParams]);
+
+  useEffect(() => {
     loadCategories();
   }, []);
 
   useEffect(() => {
     loadProducts();
-  }, [page, sortBy, direction]);
+  }, [page, sortBy, direction, keyword, categoryId, minPrice, maxPrice]);
 
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     setPage(0);
-    loadProducts();
+
+    const params = {};
+
+    if (keyword.trim()) params.keyword = keyword.trim();
+    if (categoryId) params.categoryId = categoryId;
+    if (minPrice) params.minPrice = minPrice;
+    if (maxPrice) params.maxPrice = maxPrice;
+    setSearchParams(params);
   };
 
   const handleResetFilter = () => {
@@ -85,145 +102,159 @@ function ProductListPage() {
     setSortBy("productId");
     setDirection("asc");
     setPage(0);
+    setSearchParams({});
   };
 
-return (
-  <div className="product-list">
-    <h2 className="product-list__title">Danh sách sản phẩm</h2>
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
 
-    <form className="product-list__filter" onSubmit={handleFilterSubmit}>
-      <input
-        className="product-list__filter-input"
-        type="text"
-        placeholder="Tìm sản phẩm..."
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "/favicon.svg";
 
-      <select
-        className="product-list__filter-input"
-        value={categoryId}
-        onChange={(e) => setCategoryId(e.target.value)}
-      >
-        <option value="">Tất cả danh mục</option>
+    if (imagePath.startsWith("http")) return imagePath;
 
-        {categories.map((category) => (
-          <option key={category.categoryId} value={category.categoryId}>
-            {category.name}
-          </option>
-        ))}
-      </select>
+    if (imagePath.startsWith("/uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}${imagePath}`;
+    }
 
-      <input
-        className="product-list__filter-input"
-        type="number"
-        placeholder="Giá thấp nhất"
-        value={minPrice}
-        onChange={(e) => setMinPrice(e.target.value)}
-      />
+    if (imagePath.startsWith("uploads/")) {
+      return `${API_BASE_URL.replace("/api/v1", "")}/${imagePath}`;
+    }
 
-      <input
-        className="product-list__filter-input"
-        type="number"
-        placeholder="Giá cao nhất"
-        value={maxPrice}
-        onChange={(e) => setMaxPrice(e.target.value)}
-      />
+    return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
+  };
 
-      <select
-        className="product-list__filter-input"
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value)}
-      >
-        <option value="productId">Sắp xếp theo ID</option>
-        <option value="name">Sắp xếp theo tên</option>
-        <option value="price">Sắp xếp theo giá</option>
-        <option value="stock">Sắp xếp theo tồn kho</option>
-      </select>
+  return (
+    <div className="product-list">
+      <h2 className="product-list__title">Danh sách sản phẩm</h2>
 
-      <select
-        className="product-list__filter-input"
-        value={direction}
-        onChange={(e) => setDirection(e.target.value)}
-      >
-        <option value="asc">Tăng dần</option>
-        <option value="desc">Giảm dần</option>
-      </select>
+      <form className="product-list__filter" onSubmit={handleFilterSubmit}>
+        <input
+          className="product-list__filter-input"
+          type="text"
+          placeholder="Tìm sản phẩm..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+        />
 
-      <button className="product-list__filter-btn" type="submit">
-        Áp dụng
-      </button>
+        <select
+          className="product-list__filter-input"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+        >
+          <option value="">Tất cả danh mục</option>
 
-      <button
-        className="product-list__filter-btn product-list__filter-btn--secondary"
-        type="button"
-        onClick={handleResetFilter}
-      >
-        Reset
-      </button>
-    </form>
+          {categories.map((category) => (
+            <option key={category.categoryId} value={category.categoryId}>
+              {category.name}
+            </option>
+          ))}
+        </select>
 
-    {loading && <p className="product-list__message">Đang tải...</p>}
+        <input
+          className="product-list__filter-input"
+          type="number"
+          placeholder="Giá thấp nhất"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+        />
 
-    {!loading && products.length === 0 && (
-      <p className="product-list__message">Không có sản phẩm nào</p>
-    )}
+        <input
+          className="product-list__filter-input"
+          type="number"
+          placeholder="Giá cao nhất"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+        />
 
-    <div className="product-list__grid">
-      {products.map((product) => {
-        const imagePath = product.image || product.imageUrl;
+        <select
+          className="product-list__filter-input"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <option value="productId">Sắp xếp theo ID</option>
+          <option value="name">Sắp xếp theo tên</option>
+          <option value="price">Sắp xếp theo giá</option>
+          <option value="stock">Sắp xếp theo tồn kho</option>
+        </select>
 
-        return (
-          <div className="product-list__card" key={product.productId}>
-            <img
-              className="product-list__image"
-              src={
-                imagePath
-                  ? `http://localhost:8080${imagePath}`
-                  : "/favicon.svg"
-              }
-              alt={product.name}
-            />
+        <select
+          className="product-list__filter-input"
+          value={direction}
+          onChange={(e) => setDirection(e.target.value)}
+        >
+          <option value="asc">Tăng dần</option>
+          <option value="desc">Giảm dần</option>
+        </select>
 
-            <h3 className="product-list__name">{product.name}</h3>
+        <button className="product-list__filter-btn" type="submit">
+          Áp dụng
+        </button>
 
-            <p className="product-list__category">{product.categoryName}</p>
+        <button
+          className="product-list__filter-btn product-list__filter-btn--secondary"
+          type="button"
+          onClick={handleResetFilter}
+        >
+          Reset
+        </button>
+      </form>
 
-            <p className="product-list__price">
-              {Number(product.price).toLocaleString("vi-VN")} đ
-            </p>
+      {loading && <p className="product-list__message">Đang tải...</p>}
 
-            <p className="product-list__stock">Kho: {product.stock}</p>
+      {!loading && products.length === 0 && (
+        <p className="product-list__message">Không có sản phẩm nào</p>
+      )}
 
-            <Link
-              className="product-list__detail-link"
-              to={`/products/${product.productId}`}
-            >
-              Xem chi tiết
-            </Link>
-          </div>
-        );
-      })}
+      <div className="product-list__grid">
+        {products.map((product) => {
+          const imagePath = product.image || product.imageUrl;
+
+          return (
+            <div className="product-list__card" key={product.productId}>
+              <img
+                className="product-list__image"
+                src={getImageUrl(imagePath)}
+                alt={product.name}
+              />
+
+              <h3 className="product-list__name">{product.name}</h3>
+              <p className="product-list__category">{product.categoryName}</p>
+
+              <p className="product-list__price">
+                {Number(product.price).toLocaleString("vi-VN")} đ
+              </p>
+
+              <p className="product-list__stock">Kho: {product.stock}</p>
+
+              <Link
+                className="product-list__detail-link"
+                to={`/products/${product.productId}`}
+              >
+                Xem chi tiết
+              </Link>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="product-list__pagination">
+        <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
+          Trang trước
+        </button>
+
+        <span>
+          Trang {page + 1} / {totalPages || 1}
+        </span>
+
+        <button
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Trang sau
+        </button>
+      </div>
     </div>
-
-    <div className="product-list__pagination">
-      <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
-        Trang trước
-      </button>
-
-      <span>
-        Trang {page + 1} / {totalPages || 1}
-      </span>
-
-      <button
-        disabled={page + 1 >= totalPages}
-        onClick={() => setPage(page + 1)}
-      >
-        Trang sau
-      </button>
-    </div>
-  </div>
-);
+  );
 }
 
 export default ProductListPage;

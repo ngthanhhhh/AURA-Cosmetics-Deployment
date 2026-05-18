@@ -10,13 +10,22 @@ import com.cosmetics.ecommerce.repository.RoleRepository;
 import com.cosmetics.ecommerce.repository.UserRepository;
 import com.cosmetics.ecommerce.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.cosmetics.ecommerce.repository.CartRepository;
-import org.springframework.security.authentication.AuthenticationManager;
+
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Service xử lý nghiệp vụ xác thực và tài khoản người dùng.
+ *
+ * Chức năng chính:
+ * - Đăng ký tài khoản khách hàng
+ * - Đăng nhập hệ thống
+ * - Kiểm tra trạng thái tài khoản
+ * - Sinh JWT token sau khi đăng nhập thành công
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -28,9 +37,21 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
 
     private final CartRepository cartRepository;
-    private final AuthenticationManager authenticationManager;
 
-    // UC3.5 - Dang ky tai khoan (cho khach hang)
+    /**
+     * Đăng ký tài khoản khách hàng mới.
+     *
+     * Hệ thống sẽ:
+     * - Validate dữ liệu đăng ký
+     * - Kiểm tra email đã tồn tại chưa
+     * - Gán ROLE_CUSTOMER mặc định
+     * - Mã hóa mật khẩu bằng BCrypt
+     * - Tạo giỏ hàng trống cho user mới
+     *
+     * @param request Thông tin đăng ký.
+     * @return Kết quả đăng ký.
+     */
+
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest request){
@@ -61,7 +82,7 @@ public class AuthServiceImpl implements AuthService {
         //Lưu vào Database
         User savedUser = userRepository.save(user);
 
-        //Tạo giỏ hàng trống cho User mới
+        //Tạo giỏ hàng trống mặc đinh cho user mới
         Cart cart = new Cart();
         cart.setUser(savedUser);
         cartRepository.save(cart);
@@ -69,31 +90,47 @@ public class AuthServiceImpl implements AuthService {
         return new RegisterResponse("Đăng ký tài khoản thành công");
     }
 
+     /**
+     * Đăng nhập hệ thống cho customer hoặc admin.
+     *
+     * Flow xử lý:
+     * 1. Kiểm tra dữ liệu đăng nhập.
+     * 2. Tìm user theo email.
+     * 3. Kiểm tra mật khẩu.
+     * 4. Kiểm tra trạng thái tài khoản.
+     * 5. Tạo JWT token nếu đăng nhập thành công.
+     *
+     * @param request Thông tin đăng nhập từ frontend.
+     * @return Thông tin user và JWT token.
+     */
+
     @Override
-    // dang nhap Admin - dang nhap Customer
+
     public LoginResponse login(LoginRequest request){
 
         validateLoginRequest(request);
 
         String email = request.getEmail().trim().toLowerCase();
 
-        //b1: xác thực email + password
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, request.getPassword())
-        );
-        //b2: lấy user
+        // B1. Tìm user theo email
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BadRequestException("Không tìm thấy user"));
+                .orElseThrow(() ->
+                        new BadRequestException("Email hoặc mật khẩu không chính xác"));
 
-        //b3: kiểm tra tài khoản có bị khóa không
-        if(!user.getIsActive()){
-            throw new BadRequestException("Tài khoản đã bị khóa");
+        // B2. Kiểm tra mật khẩu
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new BadRequestException("Email hoặc mật khẩu không chính xác");
         }
 
-        // b4. Tạo token
+        // B3. Kiểm tra tài khoản có đang hoạt động không
+        if(!user.getIsActive()){
+            throw new BadRequestException("Tài khoản đã bị vô hiệu hóa");
+        }
+
+        // B4. Tạo JWT token
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().getRoleName());
 
-        // b5. Trả về thông tin cho Frontend
+        // B5. Trả thông tin đăng nhập cho Frontend
         return new LoginResponse(
                 token,
                 user.getRole().getRoleName(),
@@ -101,7 +138,19 @@ public class AuthServiceImpl implements AuthService {
                 user.getEmail());
     }
 
-    //Validate cho đăng ký
+    /**
+     * Kiểm tra dữ liệu đăng ký hợp lệ trước khi tạo tài khoản.
+     *
+     * Bao gồm:
+     * - Họ tên
+     * - Email
+     * - Số điện thoại
+     * - Mật khẩu
+     * - Xác nhận mật khẩu
+     *
+     * @param request Dữ liệu đăng ký từ frontend.
+     */
+
     private void validateRegisterRequest(RegisterRequest request){
         if (request == null){
             throw new BadRequestException("Dữ liệu đăng ký không hợp lệ");
@@ -145,12 +194,26 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
+    /**
+     * Kiểm tra dữ liệu đăng nhập hợp lệ.
+     *
+     * @param request Dữ liệu đăng nhập từ frontend.
+     */
+
     private void validateLoginRequest(LoginRequest request){
 
-        String email = request.getEmail() != null ? request.getEmail().trim() : null;
-        if (request == null ||
-                email == null || email.isBlank() ||
-                request.getPassword() == null || request.getPassword().isBlank()){
+        if(request == null){
+            throw new BadRequestException("Vui lòng nhập đầy đủ thông tin đăng nhập");
+        }
+
+        String email = request.getEmail() != null
+                ? request.getEmail().trim()
+                : null;
+        if (email == null
+                || email.isBlank()
+                || request.getPassword() == null
+                || request.getPassword().isBlank()){
+
             throw new BadRequestException("Vui lòng nhập đầy đủ thông tin đăng nhập");
         }
     }

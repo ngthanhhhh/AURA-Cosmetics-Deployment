@@ -17,5 +17,7 @@ public class OrderListDTO {
     private String recipientPhone;
     private BigDecimal totalPrice;
     private String status;
+    private String paymentMethod;
+    private String paymentStatus;
     private LocalDateTime createdAt;
 }

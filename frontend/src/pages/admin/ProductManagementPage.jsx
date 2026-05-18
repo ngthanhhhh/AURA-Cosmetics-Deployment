@@ -295,6 +295,27 @@ function ProductManagementPage() {
     }
   };
 
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "";
+
+    if (imagePath.startsWith("http")) return imagePath;
+
+    const serverUrl = API_BASE_URL.replace("/api/v1", "");
+
+    if (imagePath.startsWith("/uploads/")) {
+      return `${serverUrl}${imagePath}`;
+    }
+
+    if (imagePath.startsWith("uploads/")) {
+      return `${serverUrl}/${imagePath}`;
+    }
+
+    return `${serverUrl}/uploads/products/${imagePath}`;
+  };
+
   return (
     <div className="product-management">
       <h2 className="product-management__title">Quản lý sản phẩm</h2>
@@ -417,7 +438,7 @@ function ProductManagementPage() {
 
           {form.image && (
             <img
-              src={`http://localhost:8080${form.image}`}
+              src={getImageUrl(form.image)}
               alt="Preview"
               className="product-management__preview"
             />

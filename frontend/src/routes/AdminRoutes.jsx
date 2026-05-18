@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import AdminLayout from "../components/layout/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -128,6 +128,8 @@ function AdminRoutes() {
           </ProtectedAdminPage>
         }
       />
+
+      <Route path="*" element={<Navigate to="/admin" replace />} />
     </Routes>
   );
 }

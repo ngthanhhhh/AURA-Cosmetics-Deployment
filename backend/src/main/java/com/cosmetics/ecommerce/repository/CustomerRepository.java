@@ -8,10 +8,26 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Repository thao tác dữ liệu khách hàng.
+ *
+ * Thực chất khách hàng được lưu trong bảng users
+ * với role ROLE_CUSTOMER.
+ */
 @Repository
 public interface CustomerRepository extends JpaRepository<User, Integer> {
 
-    //Lọc user có role ROLE_CUSTOMER tìm kiếm theo tên/email, không phân biệt hoa thường
+    /**
+     * Lấy danh sách user có ROLE_CUSTOMER.
+     *
+     * Hỗ trợ tìm kiếm theo tên/email, lọc theo trạng thái
+     * và phân trang.
+     *
+     * @param keyword Từ khóa tìm kiếm.
+     * @param isActive Trạng thái hoạt động.
+     * @param pageable Thông tin phân trang.
+     * @return Danh sách khách hàng.
+     */
     @Query("""
     SELECT u FROM User u
     WHERE u.role.roleName = 'ROLE_CUSTOMER'

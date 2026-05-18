@@ -1,16 +1,17 @@
 import { NavLink } from 'react-router-dom';
 import LogoutButton from '../common/LogoutButton';
 
+/**
+ * Sidebar điều hướng trong trang quản trị.
+ *
+ * Chứa các liên kết tới những module admin chính
+ * và nút đăng xuất tài khoản quản trị.
+ */
 function AdminSidebar() {
     return (
         <aside className='admin-sidebar'>
             <div className='admin-sidebar__brand'>
                 <div className='admin-sidebar__logo'>AURA</div>
-
-                {/* <div>
-                    <h2>Cửa hàng mỹ phẩm</h2>
-                    <p>Admin Panel</p>
-                </div> */}
             </div>
 
             <nav className='admin-sidebar__nav'>
@@ -45,12 +46,11 @@ function AdminSidebar() {
                 <NavLink to="/admin/revenue" end>
                     Thống kê doanh thu
                 </NavLink>
-
-                <div className='admin-sidebar__logout'>
-                    <LogoutButton redirectPath='/admin/login' />
-                </div>
-                
             </nav>
+
+            <div className='admin-sidebar__footer'>
+                    <LogoutButton redirectPath='/admin/login' />
+            </div>
         </aside>
     );
 }

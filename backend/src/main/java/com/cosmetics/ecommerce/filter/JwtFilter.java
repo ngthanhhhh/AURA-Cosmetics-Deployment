@@ -48,7 +48,10 @@ public class JwtFilter extends OncePerRequestFilter{
 
         //4. Kiểm tra token hợp lệ không
         if(!jwtUtil.isTokenValid(token)){
+            SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"Token không hợp lệ hoặc đã hết hạn\"}");
             return;
         }
 

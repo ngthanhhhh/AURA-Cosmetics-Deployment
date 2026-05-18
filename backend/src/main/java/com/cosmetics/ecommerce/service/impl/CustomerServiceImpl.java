@@ -16,6 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Cài đặt nghiệp vụ quản lý khách hàng dành cho quản trị viên.
+ *
+ * Class này xử lý:
+ * - Lấy danh sách khách hàng
+ * - Xem chi tiết khách hàng
+ * - Lấy lịch sử đơn hàng của khách hàng
+ * - Khóa hoặc mở khóa tài khoản khách hàng
+ */
+
 @Service
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements  CustomerService{
@@ -23,6 +33,14 @@ public class CustomerServiceImpl implements  CustomerService{
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
 
+    /**
+     * Lấy danh sách khách hàng có tìm kiếm, lọc trạng thái và phân trang.
+     *
+     * @param keyword Từ khóa tìm kiếm theo tên hoặc email.
+     * @param isActive Trạng thái hoạt động của tài khoản.
+     * @param pageable Thông tin phân trang và sắp xếp.
+     * @return Danh sách khách hàng dạng phân trang.
+     */
     @Override
     public Page<CustomerResponse> getAllCustomers(String keyword, Boolean isActive, Pageable pageable){
 
@@ -35,13 +53,19 @@ public class CustomerServiceImpl implements  CustomerService{
                 ));
     }
 
+    /**
+     * Lấy thông tin chi tiết khách hàng và lịch sử đơn hàng.
+     *
+     * @param id ID khách hàng.
+     * @return Thông tin chi tiết khách hàng.
+     */
     @Override
     public CustomerDetailResponse getCustomerDetail(Integer id){
         User user = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
-            throw new BadRequestException("User không phải khách hàng");
+            throw new BadRequestException("Tài khoản không phải khách hàng");
         }
 
         // Lấy lịch sử đơn hàng từ OrderRepository
@@ -67,7 +91,15 @@ public class CustomerServiceImpl implements  CustomerService{
         );
     }
 
-    // Mở / khóa tài khoản khách hàng
+    /**
+     * Khóa hoặc mở khóa tài khoản khách hàng.
+     *
+     * Chỉ áp dụng cho tài khoản có ROLE_CUSTOMER.
+     *
+     * @param id ID khách hàng.
+     * @param isActive Trạng thái mới của tài khoản.
+     */
+
     @Override
     @Transactional
     public void updateStatus(Integer id, Boolean isActive){
@@ -81,6 +113,10 @@ public class CustomerServiceImpl implements  CustomerService{
 
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
             throw new BadRequestException("Chỉ áp dụng cho khách hàng");
+        }
+
+        if(Boolean.valueOf(isActive).equals(user.getIsActive())){
+            throw new BadRequestException("Trạng thái tài khoản không thay đổi");
         }
 
         user.setIsActive(isActive);

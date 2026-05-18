@@ -31,6 +31,7 @@ public class ApplicationConfig {
                     .username(user.getEmail())
                     .password(user.getPassword())
                     .authorities(user.getRole().getRoleName()) //roleName phải là ROLE_ADMIN hoặc ROLE_CUSTOMER
+                    .disabled(!user.getIsActive())
                     .build();
         };
 

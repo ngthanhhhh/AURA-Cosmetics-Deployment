@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
 import "./AdminLoginPage.css";
 
@@ -11,6 +11,16 @@ function AdminLoginPage(){
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+
+    /**
+     * Xử lý đăng nhập trang quản trị.
+     *
+     * Chỉ tài khoản ROLE_ADMIN được phép truy cập dashboard admin.
+     * Nếu tài khoản không phải admin, frontend sẽ đăng xuất ngay
+     * và chuyển về trang đăng nhập customer.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -27,16 +37,20 @@ function AdminLoginPage(){
 
             // Kiểm tra ROLE
             if(data.role !== "ROLE_ADMIN"){
-
-                setError("Bạn không có quyền truy cập admin");
-
                 logoutUser();
 
+                navigate("/auth/login", {
+                    replace: true,
+                    state: {
+                        message: "Tài khoản không có quyền truy cập trang quản trị",
+                    },
+                });
+                
                 return;
 
             }
             // Chuyển hướng admin dashboard
-             navigate("/admin/customers");
+             navigate("/admin");
 
         } catch (err) {
             setError(
@@ -56,48 +70,44 @@ function AdminLoginPage(){
 
             {error && (
                 <p
-                    className="error-message"
-                    style={{ color: "red", marginBottom: "10px"}}
-                >
+                    className="admin-login-error">
                     {error}
                 </p>
             )}
 
             <form className="admin-login-form" onSubmit={handleLogin}>
 
-                <div className="form-group">
+                <div className="admin-login-form-group">
 
                     <label>Email</label>
 
                     <input
-                    type="email"
-                    placeholder="admin@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required>
-
-                    </input>
+                        type="email"
+                        placeholder="admin@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
 
                 </div>
 
-                <div className="form-group">
+                <div className="admin-login-form-group">
 
                     <label>Mật khẩu</label>
 
                     <input
-                    type="password"
-                    placeholder="Nhập mật khẩu"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required>
-
-                    </input>
+                        type="password"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
 
                 </div>
 
                 <button 
                     type="submit" 
-                    className="btn-submit"
+                    className="admin-login-submit"
                     disabled={loading}
                 >
                     {loading ? "Đang đăng nhập..." : "Đăng nhập Admin"}
