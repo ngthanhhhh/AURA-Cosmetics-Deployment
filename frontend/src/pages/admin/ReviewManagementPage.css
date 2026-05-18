@@ -1,0 +1,210 @@
+.admin-reviews-page {
+    padding: 24px;
+}
+
+.admin-reviews-page__header {
+    margin-bottom: 16px;
+}
+
+.admin-reviews-page__header h2 {
+    margin: 0;
+}
+
+.admin-reviews-page__filters {
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) repeat(6, minmax(120px, 1fr)) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.admin-reviews-page__filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-reviews-page__filter-group label {
+    font-weight: 600;
+}
+
+.admin-reviews-page__filter-group input,
+.admin-reviews-page__filter-group select,
+.admin-reviews-page__table select {
+    padding: 9px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.admin-reviews-page__filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-reviews-page__filter-actions button,
+.admin-reviews-page__pagination button {
+    padding: 9px 12px;
+    border: 1px solid #6b4f3f;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b4f3f;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.admin-reviews-page__filter-actions button:first-child {
+    background: #6b4f3f;
+    color: #fff;
+}
+
+.admin-reviews-page__pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.admin-reviews-page__error,
+.admin-reviews-page__success {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+}
+
+.admin-reviews-page__error {
+    border: 1px solid #f5c2c7;
+    background: #f8d7da;
+    color: #842029;
+}
+
+.admin-reviews-page__success {
+    border: 1px solid #badbcc;
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.admin-reviews-page__empty,
+.admin-reviews-page__summary {
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.admin-reviews-page__table-wrapper {
+    overflow-x: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.admin-reviews-page__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-reviews-page__table th,
+.admin-reviews-page__table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.admin-reviews-page__table th {
+    background: #fafafa;
+    font-weight: 600;
+}
+
+.admin-reviews-page__product {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.admin-reviews-page__table span {
+    color: #666;
+    font-size: 13px;
+}
+
+.admin-reviews-page__stars {
+    color: #d28b00 !important;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.admin-reviews-page__comment {
+    max-width: 320px;
+    line-height: 1.5;
+}
+
+.admin-reviews-page__verified,
+.admin-reviews-page__not-verified,
+.admin-reviews-page__flag {
+    display: inline-block;
+    padding: 5px 8px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-reviews-page__verified {
+    background: #d1e7dd;
+    color: #0f5132 !important;
+}
+
+.admin-reviews-page__not-verified {
+    background: #e2e3e5;
+    color: #41464b !important;
+}
+
+.flag-NORMAL {
+    background: #e2e3e5;
+    color: #41464b !important;
+}
+
+.flag-NEGATIVE_FEEDBACK {
+    background: #f8d7da;
+    color: #842029 !important;
+}
+
+.flag-ATTENTION_NEEDED {
+    background: #fff3cd;
+    color: #664d03 !important;
+}
+
+.admin-reviews-page__pagination {
+    margin-top: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+@media (max-width: 1400px) {
+    .admin-reviews-page__filters {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .admin-reviews-page__filter-actions {
+        grid-column: span 3;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-reviews-page {
+        padding: 16px;
+    }
+
+    .admin-reviews-page__filters {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-reviews-page__filter-actions {
+        grid-column: auto;
+    }
+}

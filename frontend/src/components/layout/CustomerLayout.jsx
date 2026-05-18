@@ -3,11 +3,11 @@ import Footer from "../common/Footer";
 
 function CustomerLayout({ children }) {
     return (
-        <>
+        <div className="customer-layout">
             <Header />
-                <main>{children}</main>
+                <main className="customer-main">{children}</main>
             <Footer />
-        </>
+        </div>
     );
 }
 

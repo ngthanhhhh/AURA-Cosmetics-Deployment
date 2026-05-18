@@ -9,5 +9,14 @@ import com.cosmetics.ecommerce.entity.Role;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer>{
-    Optional<Role> findByRoleName(String roleName); //demo
+
+    /**
+     * Tìm role theo tên role.
+     *
+     * Dùng khi đăng ký user mới hoặc tạo tài khoản admin.
+     *
+     * @param roleName Tên role, ví dụ ROLE_CUSTOMER hoặc ROLE_ADMIN.
+     * @return Role tương ứng nếu tồn tại.
+     */
+    Optional<Role> findByRoleName(String roleName);
 }

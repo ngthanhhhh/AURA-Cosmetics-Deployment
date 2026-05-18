@@ -28,10 +28,16 @@ public class JwtFilter extends OncePerRequestFilter{
                                     FilterChain filterChain)
         throws ServletException, IOException{
 
-        //1. Doc header Authorization
+        // Bỏ qua kiểm tra JWT cho các yêu cầu OPTIONS
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())){
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        //1. Đọc header Authorization
         String authHeader = request.getHeader("Authorization");
 
-        //2. Neu khong co token thi cho di tiep (public route)
+        //2. Nếu không có token thì cho đi tiếp (public route)
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
             filterChain.doFilter(request, response);
             return;
@@ -40,9 +46,12 @@ public class JwtFilter extends OncePerRequestFilter{
         //3. Cắt bỏ "Bearer " lấy token thực sự
         String token = authHeader.substring(7);
 
-        //4 Kiểm tra token hợp lệ không
+        //4. Kiểm tra token hợp lệ không
         if(!jwtUtil.isTokenValid(token)){
+            SecurityContextHolder.clearContext();
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"message\":\"Token không hợp lệ hoặc đã hết hạn\"}");
             return;
         }
 
@@ -55,13 +64,16 @@ public class JwtFilter extends OncePerRequestFilter{
                 new UsernamePasswordAuthenticationToken(
                         email,
                         null,
-                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                        List.of(new SimpleGrantedAuthority(role))
                 );
 
         authentication.setDetails(
                 new WebAuthenticationDetailsSource().buildDetails(request)
         );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        if(SecurityContextHolder.getContext().getAuthentication() == null){
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
 
         //7. Cho request đi tiếp
         filterChain.doFilter(request, response);

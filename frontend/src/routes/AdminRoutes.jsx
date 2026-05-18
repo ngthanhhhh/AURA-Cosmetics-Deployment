@@ -1,17 +1,136 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import AdminLayout from "../components/layout/AdminLayout";
-import DashboardPage from "../pages/admin/DashboardPage";
 import ProtectedRoute from "./ProtectedRoute";
+
+import ProductManagementPage from "../pages/admin/ProductManagementPage";
+import CategoryManagementPage from "../pages/admin/CategoryManagementPage";
+
+import AdminLoginPage from "../pages/admin/AdminLoginPage";
+import DashboardPage from "../pages/admin/DashboardPage";
+import CustomerManagementPage from "../pages/admin/CustomerManagementPage";
+import CustomerDetailPage from "../pages/admin/CustomerDetailPage";
+import AdminAccountManagementPage from "../pages/admin/AdminAccountManagementPage";
+import OrderManagementPage from "../pages/admin/OrderManagementPage";
+import OrderDetailManagementPage from "../pages/admin/OrderDetailManagementPage";
+import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
+import ReviewReportPage from "../pages/admin/ReviewReportPage";
+import RevenueStatisticPage from "../pages/admin/RevenueStatisticPage";
+
+function ProtectedAdminPage({ children }) {
+    return (
+        <ProtectedRoute requiredRole="ROLE_ADMIN" loginPath="/admin/login">
+            <AdminLayout>{children}</AdminLayout>
+        </ProtectedRoute>
+    );
+}
 
 function AdminRoutes() {
     return (
-    <ProtectedRoute>
-        <AdminLayout>
         <Routes>
-            <Route path="/" element={<DashboardPage />} />
+            <Route path="login" element={<AdminLoginPage />} />
+
+            <Route
+            path=""
+            element={
+                <ProtectedAdminPage>
+                <DashboardPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="products"
+            element={
+                <ProtectedAdminPage>
+                <ProductManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="categories"
+            element={
+                <ProtectedAdminPage>
+                <CategoryManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="customers"
+            element={
+                <ProtectedAdminPage>
+                <CustomerManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="customers/:customerId"
+            element={
+                <ProtectedAdminPage>
+                <CustomerDetailPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="accounts"
+            element={
+                <ProtectedAdminPage>
+                <AdminAccountManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="orders"
+            element={
+                <ProtectedAdminPage>
+                <OrderManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="orders/:orderId"
+            element={
+                <ProtectedAdminPage>
+                <OrderDetailManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="reviews"
+            element={
+                <ProtectedAdminPage>
+                <ReviewManagementPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="reviews/report"
+            element={
+                <ProtectedAdminPage>
+                <ReviewReportPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route
+            path="revenue"
+            element={
+                <ProtectedAdminPage>
+                <RevenueStatisticPage />
+                </ProtectedAdminPage>
+            }
+            />
+
+            <Route path="*" element={<Navigate to="/admin" replace />} />
         </Routes>
-        </AdminLayout>
-    </ProtectedRoute>
     );
 }
 

@@ -1,3 +1,5 @@
 export const formatCurrency = (value) => {
-    return value.toLocaleString("vi-VN") + "đ";
+    const numberValue = Number(value || 0);
+
+    return numberValue.toLocaleString("vi-VN") + " đ";
 };
