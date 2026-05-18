@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
+import { AuthContext } from "../../context/AuthContext";
 import "./LoginPage.css";
 
 function LoginPage(){
@@ -10,6 +11,7 @@ function LoginPage(){
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const { login, logout } = useContext(AuthContext);
 
     /**
      * Xử lý đăng nhập customer.
@@ -34,9 +36,16 @@ function LoginPage(){
 
             if (data.role === "ROLE_ADMIN") {
                 logoutUser();
+                logout();
                 setError("Tài khoản quản trị vui lòng đăng nhập tại trang quản trị.");
                 return;
             }
+
+            login({
+                name: data.name,
+                role: data.role,
+                email: data.email,
+            });
 
             navigate("/");
         } catch (err) {

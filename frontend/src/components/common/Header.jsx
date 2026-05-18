@@ -1,24 +1,28 @@
-
-import { Link, useNavigate } from 'react-router-dom';
-import SearchBox from "../ui/SearchBox";
-import { logoutUser } from "../../features/auth/authService";
-
-import "./Header.css";
+import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 
+import SearchBox from "../ui/SearchBox";
+import { logoutUser } from "../../features/auth/authService";
+import { CartContext } from "../../context/CartContext";
+import { AuthContext } from "../../context/AuthContext";
+
+import "./Header.css";
 
 function Header() {
-    
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    const role = localStorage.getItem("role") || user?.role;
+    const navigate = useNavigate();
+    const { totalItems, clearCartState } = useContext(CartContext);
+
+    const { user, logout } = useContext(AuthContext);
+    const role = user?.role;
 
     const isCustomer = role === "ROLE_CUSTOMER";
     const isAdmin = role === "ROLE_ADMIN";
 
-    const navigate = useNavigate();
-
     const handleLogout = () => {
         logoutUser();
+        logout();
+        clearCartState();
         navigate("/");
     };
 
@@ -29,106 +33,72 @@ function Header() {
                     <Link to="/" className="header-logo">AURA</Link>
 
                     <div className="category-dropdown">
-                        <button 
-                            type="button" className="category-button">
-                                <span className="hamburger-icon">☰</span>
-                                <span>Danh mục</span>
+                        <button type="button" className="category-button">
+                            <span className="hamburger-icon">☰</span>
+                            <span>Danh mục</span>
                         </button>
 
                         <div className="dropdown-menu">
-                            <Link to="/category/skin-care">Chăm sóc da</Link>
-                            <Link to="/category/make-up">Trang điểm</Link>
-                            <Link to="/category/perfume">Nước hoa</Link>
+                            <Link to="/products">Tất cả sản phẩm</Link>
+                            <Link to="/products">Chăm sóc da</Link>
+                            <Link to="/products">Trang điểm</Link>
+                            <Link to="/products">Nước hoa</Link>
                         </div>
                     </div>
                 </div>
 
                 <div className="header-center">
-                    <SearchBox/>
-                   
+                    <SearchBox />
                 </div>
 
                 <div className="header-right">
                     {!isAdmin && (
                         <Link to="/cart" className="cart-link">
                             🛒
-                            <span className="cart-badge">0</span>
+                            {totalItems > 0 && (
+                                <span className="cart-badge">{totalItems}</span>
+                            )}
                         </Link>
                     )}
 
-                    {!user ? ( 
+                    {!user ? (
                         <Link to="/auth/login" className="login-link">
                             Đăng nhập
                         </Link>
-                        
-                    ) : isAdmin ? (
-                        <div className='profile-dropdown'>
-
-                            <button 
-                            type="button"className="profile-trigger">
+                    ) : (
+                        <div className="profile-dropdown">
+                            <button type="button" className="profile-trigger">
                                 <div className="profile-avatar">
-                                    {user.name?.charAt(0).toUpperCase()}
+                                    {user.name?.charAt(0).toUpperCase() || "U"}
                                 </div>
 
                                 <div className="profile-info">
                                     <strong>{user.name}</strong>
-                                    <span>Quản trị viên</span>
+                                    <span>{isAdmin ? "Quản trị viên" : "Khách hàng"}</span>
                                 </div>
 
-                                <ChevronDown size={16} className="dropdown-arrow"/>
+                                <ChevronDown size={16} className="dropdown-arrow" />
                             </button>
 
                             <div className="profile-menu">
-                                <Link to="/admin">
-                                    Trang quản trị
-                                </Link>
+                                {isAdmin ? (
+                                    <Link to="/admin">Trang quản trị</Link>
+                                ) : (
+                                    <>
+                                        <Link to="/account">Thông tin cá nhân</Link>
+                                        <Link to="/change-password">Đổi mật khẩu</Link>
+                                    </>
+                                )}
 
-                                <button type="button" onClick={handleLogout}>
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        </div>    
-                    ) : isCustomer ? (
-                        <div className='profile-dropdown'>
-
-                            <button 
-                            type="button"className="profile-trigger">
-                                <div className="profile-avatar">
-                                    {user.name?.charAt(0).toUpperCase()}
-                                </div>
-
-                                <div className="profile-info">
-                                    <strong>{user.name}</strong>
-                                    <span>Khách hàng</span>
-                                </div>
-
-                                <ChevronDown size={16} className="dropdown-arrow"/>
-                            </button>
-                       
-                            <div className="profile-menu">
-                                <Link to="/account">
-                                    Thông tin cá nhân
-                                </Link>
-
-                                <Link to="/change-password">
-                                    Đổi mật khẩu
-                                </Link>
-                    
                                 <button type="button" onClick={handleLogout}>
                                     Đăng xuất
                                 </button>
                             </div>
                         </div>
-                    ) : (
-                        <button type="button" className="login-link" onClick={handleLogout}>
-                            Đăng xuất
-                        </button>
-                    
                     )}
                 </div>
             </div>
         </header>
-    
     );
 }
 
