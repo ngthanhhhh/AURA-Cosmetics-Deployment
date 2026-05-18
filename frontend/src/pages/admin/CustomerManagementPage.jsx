@@ -151,7 +151,7 @@ function CustomerManagementPage() {
         "Thao tác"];
 
     const renderRow = (customer, index) => (
-        <tr key={customer.userId}>
+        <tr key={customer.id}>
             <td>{page * PAGE_SIZE + index + 1}</td>
             <td>{customer.name || "-"}</td>
             <td>{customer.email || "-"}</td>
@@ -160,7 +160,11 @@ function CustomerManagementPage() {
 
             <td>
 
-                <span className={`customer-badge ${customer.isActive ? "customer-badge--active" : "customer-badge--inactive"}`}>
+                <span className={`customer-badge ${
+                    customer.isActive 
+                    ? "customer-badge--active" 
+                    : "customer-badge--inactive"
+                }`}>
                     {customer.isActive ? "Hoạt động" : "Đã khóa"}
                 </span>
             </td>
@@ -169,11 +173,18 @@ function CustomerManagementPage() {
                 <button 
                     type="button"
                     className="customer-btn customer-btn--detail"
-                    onClick={() =>
-                        navigate(`/admin/customers/${customer.userId}`)
-                    }>
-                        Chi tiết
-                    </button>
+                    onClick={() => {
+                        
+                        if(!customer.id){
+                            alert("Không xác định được khách hàng");
+                            return;
+                        }
+
+                        navigate(`/admin/customers/${customer.id}`);
+                    }}
+                >
+                    Chi tiết
+                </button>
 
                     <button
                         type="button"
@@ -181,7 +192,10 @@ function CustomerManagementPage() {
                             customer.isActive 
                                 ? "customer-btn--lock" 
                                 : "customer-btn--unlock"}`}
-                        onClick={() => handleToggleStatus(customer.userId ?? customer.id ?? customer.customerId, customer.isActive)}
+                        onClick={() => 
+                            handleToggleStatus(
+                                customer.id, 
+                                customer.isActive)}
                     >
                         {customer.isActive ? "Khóa" : "Mở khóa"}
                     </button>
@@ -262,28 +276,29 @@ function CustomerManagementPage() {
             <div className="customer-table-card">
                 <div className="customer-table-header">
                     {/* Tổng số */}
-                    <p className="total-info">Tổng: <strong>{totalElements}</strong> khách hàng</p>
+                    <p className="total-info">
+                        Tổng: <strong>{totalElements}</strong> khách hàng
+                    </p>
                 </div>
+
+                {/* Bảng */}
+                {loading ? (
+                    <Loading/>
+
+                ) : error ? (
+                    <p className="customer-empty">{error}</p>
+                
+                ) : customers.length === 0 ? (
+                        <p className="customer-empty">Không có khách hàng phù hợp</p>  
+
+                ) : (
+                    <Table
+                        columns={columns}
+                        data={customers}
+                        renderRow={renderRow}
+                    />
+                )}
             </div>
-            
-
-            {/* Bảng */}
-            {loading ? (
-                <Loading/>
-
-            ) : error ? (
-                <p className="customer-empty">{error}</p>
-            
-            ) : customers.length === 0 ? (
-                    <p className="customer-empty">Không có khách hàng phù hợp</p>  
-
-            ) : (
-                <Table
-                    columns={columns}
-                    data={customers}
-                    renderRow={renderRow}
-                />
-            )}
 
             {/* Phân trang */}
             {totalPages > 1 && (

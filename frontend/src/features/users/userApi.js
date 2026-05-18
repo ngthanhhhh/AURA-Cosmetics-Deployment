@@ -57,7 +57,7 @@ export const getCustomersApi = (params) => {
  * - thông tin cá nhân
  * - lịch sử đơn hàng
  *
- * @param {number} customerId ID khách hàng.
+ * @param {number} id ID khách hàng.
  * @returns {Promise<Object>} Response chi tiết khách hàng.
  */
 export const getCustomersDetailApi = (id) => {
@@ -67,7 +67,7 @@ export const getCustomersDetailApi = (id) => {
 /**
  * Gọi API khóa hoặc mở khóa khách hàng.
  *
- * @param {number} customerId ID khách hàng.
+ * @param {number} id ID khách hàng.
  * @param {boolean} isActive Trạng thái mới.
  * @returns {Promise<Object>} Response thông báo cập nhật.
  */

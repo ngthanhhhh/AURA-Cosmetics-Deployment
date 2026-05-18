@@ -46,12 +46,11 @@ function AdminSidebar() {
                 <NavLink to="/admin/revenue" end>
                     Thống kê doanh thu
                 </NavLink>
-
-                <div className='admin-sidebar__logout'>
-                    <LogoutButton redirectPath='/admin/login' />
-                </div>
-                
             </nav>
+
+            <div className='admin-sidebar__footer'>
+                    <LogoutButton redirectPath='/admin/login' />
+            </div>
         </aside>
     );
 }

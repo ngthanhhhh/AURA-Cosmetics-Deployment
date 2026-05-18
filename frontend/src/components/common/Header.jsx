@@ -10,6 +10,10 @@ import { ChevronDown } from "lucide-react";
 function Header() {
     
     const user = JSON.parse(localStorage.getItem("user") || "null");
+    const role = localStorage.getItem("role") || user?.role;
+
+    const isCustomer = role === "ROLE_CUSTOMER";
+    const isAdmin = role === "ROLE_ADMIN";
 
     const navigate = useNavigate();
 
@@ -45,20 +49,50 @@ function Header() {
                 </div>
 
                 <div className="header-right">
-                    <Link to="/cart" className="cart-link">
-                        🛒
-                        <span className="cart-badge">0</span>
-                    </Link>
+                    {!isAdmin && (
+                        <Link to="/cart" className="cart-link">
+                            🛒
+                            <span className="cart-badge">0</span>
+                        </Link>
+                    )}
 
                     {!user ? ( 
                         <Link to="/auth/login" className="login-link">
                             Đăng nhập
                         </Link>
                         
-                    ) : (
+                    ) : isAdmin ? (
                         <div className='profile-dropdown'>
 
-                            <button type="button" className="profile-trigger">
+                            <button 
+                            type="button"className="profile-trigger">
+                                <div className="profile-avatar">
+                                    {user.name?.charAt(0).toUpperCase()}
+                                </div>
+
+                                <div className="profile-info">
+                                    <strong>{user.name}</strong>
+                                    <span>Quản trị viên</span>
+                                </div>
+
+                                <ChevronDown size={16} className="dropdown-arrow"/>
+                            </button>
+
+                            <div className="profile-menu">
+                                <Link to="/admin">
+                                    Trang quản trị
+                                </Link>
+
+                                <button type="button" onClick={handleLogout}>
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        </div>    
+                    ) : isCustomer ? (
+                        <div className='profile-dropdown'>
+
+                            <button 
+                            type="button"className="profile-trigger">
                                 <div className="profile-avatar">
                                     {user.name?.charAt(0).toUpperCase()}
                                 </div>
@@ -70,7 +104,7 @@ function Header() {
 
                                 <ChevronDown size={16} className="dropdown-arrow"/>
                             </button>
-
+                       
                             <div className="profile-menu">
                                 <Link to="/account">
                                     Thông tin cá nhân
@@ -79,12 +113,17 @@ function Header() {
                                 <Link to="/change-password">
                                     Đổi mật khẩu
                                 </Link>
-
+                    
                                 <button type="button" onClick={handleLogout}>
                                     Đăng xuất
                                 </button>
                             </div>
                         </div>
+                    ) : (
+                        <button type="button" className="login-link" onClick={handleLogout}>
+                            Đăng xuất
+                        </button>
+                    
                     )}
                 </div>
             </div>
