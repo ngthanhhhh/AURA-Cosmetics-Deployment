@@ -58,14 +58,15 @@ function CustomerDetailPage() {
        
         try{
              
-            const customerIdValue = customer?.id ?? customer.userId ?? customer.customerId;
+            const customerIdValue = customer?.id;
 
             if(!customerIdValue){
                 alert("Không xác định được ID khách hàng");
                 return;
             }
 
-            await updateCustomersStatus(customerIdValue, !customer.isActive);   
+            await updateCustomersStatus(customerIdValue, !customer.isActive); 
+            await loadCustomerDetail();  
         } catch (err){
             console.error("Lỗi cập nhật trạng thái:", err);
             alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
@@ -231,7 +232,10 @@ function CustomerDetailPage() {
                                             </td>
 
                                             <td>
-                                                    {formatDate(order.createdAt)}
+                                                    {order.createdAt
+                                                        ? formatDate(order.createdAt)
+                                                        : "-"
+                                                    }
                                             </td>
 
                                             <td>
@@ -242,7 +246,7 @@ function CustomerDetailPage() {
                                             </td>
 
                                             <td className="order-total">
-                                                {getOrderTotal(order).toLocaleString("vi-VN")}đ
+                                                {Number(getOrderTotal(order) || 0).toLocaleString("vi-VN")}đ
                                             </td>
                                         </tr>
                                     ))}
