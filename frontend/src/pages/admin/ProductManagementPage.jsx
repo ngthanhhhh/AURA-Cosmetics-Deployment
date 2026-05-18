@@ -16,6 +16,8 @@ function ProductManagementPage() {
   const [sortBy, setSortBy] = useState("productId");
   const [direction, setDirection] = useState("asc");
 
+  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -40,7 +42,6 @@ function ProductManagementPage() {
         direction,
       });
 
-  
       setProducts(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
@@ -113,7 +114,32 @@ function ProductManagementPage() {
       categoryId: "",
       status: "ACTIVE",
     });
+
     setEditingId(null);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+
+      const data = await productService.uploadProductImage(file);
+
+      setForm((prev) => ({
+        ...prev,
+        image: data.imageUrl,
+      }));
+
+      alert("Upload ảnh thành công");
+    } catch (error) {
+      console.error("Upload image error:", error);
+      alert(error.response?.data?.message || "Upload ảnh thất bại");
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -144,18 +170,22 @@ function ProductManagementPage() {
   };
 
   const handleEdit = (product) => {
-    setEditingId(product.productId);
+  setEditingId(product.productId);
 
-    setForm({
-      name: product.name || "",
-      price: product.price || "",
-      stock: product.stock || "",
-      description: product.description || "",
-      image: product.image || "",
-      categoryId: product.categoryId || "",
-      status: product.status || "ACTIVE",
-    });
-  };
+  const currentCategory = categories.find(
+    (category) => category.name === product.categoryName
+  );
+
+  setForm({
+    name: product.name || "",
+    price: product.price || "",
+    stock: product.stock || "",
+    description: product.description || "",
+    image: product.image || "",
+    categoryId: product.categoryId || currentCategory?.categoryId || "",
+    status: product.status || "ACTIVE",
+  });
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
@@ -191,10 +221,7 @@ function ProductManagementPage() {
             <option value="">Tất cả danh mục</option>
 
             {categories.map((category) => (
-              <option
-                key={category.categoryId}
-                value={category.categoryId}
-              >
+              <option key={category.categoryId} value={category.categoryId}>
                 {category.name}
               </option>
             ))}
@@ -225,6 +252,7 @@ function ProductManagementPage() {
           </select>
 
           <button type="submit">Áp dụng</button>
+
           <button type="button" onClick={handleResetFilter}>
             Reset
           </button>
@@ -264,21 +292,37 @@ function ProductManagementPage() {
             <option value="">Chọn danh mục</option>
 
             {categories.map((category) => (
-              <option
-                key={category.categoryId}
-                value={category.categoryId}
-              >
+              <option key={category.categoryId} value={category.categoryId}>
                 {category.name}
               </option>
             ))}
           </select>
 
+          <label className="product-management__file-label">
+            Chọn ảnh
+            <input type="file" accept="image/*" onChange={handleImageUpload} />
+          </label>
+
           <input
             name="image"
-            placeholder="Ảnh"
+            placeholder="Đường dẫn ảnh"
             value={form.image}
-            onChange={handleChange}
+            readOnly
           />
+
+          {uploadingImage && (
+            <span className="product-management__uploading">
+              Đang upload ảnh...
+            </span>
+          )}
+
+          {form.image && (
+            <img
+              src={`http://localhost:8080${form.image}`}
+              alt="Preview"
+              className="product-management__preview"
+            />
+          )}
 
           <input
             name="description"
@@ -292,7 +336,9 @@ function ProductManagementPage() {
             <option value="INACTIVE">INACTIVE</option>
           </select>
 
-          <button type="submit">{editingId ? "Cập nhật" : "Thêm"}</button>
+          <button type="submit" disabled={uploadingImage}>
+            {editingId ? "Cập nhật" : "Thêm"}
+          </button>
 
           {editingId && (
             <button type="button" onClick={resetForm}>
@@ -324,8 +370,10 @@ function ProductManagementPage() {
               <td>{product.stock}</td>
               <td>{product.categoryName}</td>
               <td>{product.status}</td>
+
               <td>
                 <button onClick={() => handleEdit(product)}>Sửa</button>
+
                 <button onClick={() => handleDelete(product.productId)}>
                   Xóa
                 </button>
