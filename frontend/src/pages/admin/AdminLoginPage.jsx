@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser, logoutUser } from "../../features/auth/authService";
 import "./AdminLoginPage.css";
 
@@ -35,9 +35,7 @@ function AdminLoginPage(){
                 return;
 
             }
-
             // Chuyển hướng admin dashboard
-
              navigate("/admin/customers");
 
         } catch (err) {

@@ -24,8 +24,6 @@ function ProductDetailPage() {
 
       const data = await productService.getProductById(productId);
 
-      console.log("PRODUCT DETAIL DATA:", data);
-
       setProduct(data);
     } catch (error) {
       console.error("Lỗi tải chi tiết sản phẩm:", error);

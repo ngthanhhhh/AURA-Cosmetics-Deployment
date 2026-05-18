@@ -32,13 +32,19 @@ public class AdminAccountController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Boolean isActive,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir
     ){
+
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortField).ascending()
+                : Sort.by(sortField).descending();
+
         Pageable pageable = PageRequest.of(
                 page,
                 size,
-                Sort.by("createdAt").descending()
-        );
+                sort);
 
         return ResponseEntity.ok(
                 adminAccountService.getAllAccounts(keyword, isActive, pageable)

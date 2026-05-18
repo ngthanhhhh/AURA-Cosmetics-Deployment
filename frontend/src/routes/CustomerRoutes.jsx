@@ -13,6 +13,7 @@ import RegisterPage from "../pages/auth/RegisterPage";
 import LoginPage from "../pages/auth/LoginPage";
 import ChangePasswordPage from "../pages/customer/ChangePasswordPage";
 import ProtectedRoute from "./ProtectedRoute";
+import CustomerProfilePage from "../pages/customer/CustomerProfilePage";
 
 function CustomerProtectedPage({ children }) {
     return (
@@ -66,8 +67,25 @@ function CustomerRoutes() {
 
             <Route path="/payments/vnpay-return" element={<VnpayReturnPage />} />
 
-            <Route path="/auth/register" element={<RegisterPage />} />
-            <Route path="/auth/login" element={<LoginPage />} />
+            <Route 
+                path="/auth/register" 
+                element={<RegisterPage />} 
+            />
+
+            <Route 
+                path="/auth/login" 
+                element={<LoginPage />} 
+            />
+
+            <Route
+                path="/account"
+                element={
+                    <CustomerProtectedPage>
+                        <CustomerProfilePage/>
+                    </CustomerProtectedPage>
+                }
+            />
+
             <Route 
                 path="/change-password" 
                 element={

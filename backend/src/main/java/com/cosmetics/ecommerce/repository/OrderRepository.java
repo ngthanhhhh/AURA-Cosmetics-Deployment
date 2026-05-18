@@ -1,5 +1,5 @@
 package com.cosmetics.ecommerce.repository;
-
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -68,15 +68,4 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
     //Lấy danh sách đơn hàng theo UserId để phục vụ CustomerService
     List<Order> findByUserUserId(Integer userId);
 
-    //Tính tổng doanh thu từ các đơn hàng đã giao hàng thành công (COMPLETED)
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = com.cosmetics.ecommerce.enums.OrderStatus.COMPLETED")
-    Double calculateTotalRevenue();
-
-    //Đếm tổng số đơn hàng strong hệ thống
-    @Query("SELECT COUNT(o) FROM Order o")
-    Long countTotalOrders();
-
-    //Đếm số đơn hàng theo trạng thái (ví dụ: PENDING, DELIVERD, CANCELLED)
-    //giúp admin biết có bao nhiêu đơn đang xử lý
-    Long countByStatus(OrderStatus status);
 }
