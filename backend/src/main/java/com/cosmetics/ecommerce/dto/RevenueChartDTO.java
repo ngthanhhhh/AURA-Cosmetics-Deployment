@@ -2,7 +2,6 @@ package com.cosmetics.ecommerce.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.math.BigDecimal;
 
 /**
  * DTO dùng để hiển thị một điểm dữ liệu trên biểu đồ doanh thu.

@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -78,8 +76,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
 
         // Thiết lập khoảng thời gian mặc định
-        // DAY   -> 30 ngày gần nhất
-        // WEEK  -> 12 tuần gần nhất
+        // DAY -> 30 ngày gần nhất
+        // WEEK -> 12 tuần gần nhất
         // MONTH -> 12 tháng gần nhất
 
         LocalDate defaultFromDate = switch (type) {
@@ -98,35 +96,30 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         LocalDate endDate = toDate != null ? toDate : LocalDate.now();
 
-        LocalDateTime start = startDate.atStartOfDay();
-
-        LocalDateTime end = endDate.atTime(LocalTime.MAX);
-
         // Validate ngày
-        if (start.isAfter(end)) {
+        if (startDate.isAfter(endDate)) {
             throw new BadRequestException("Ngày bắt đầu phải trước ngày kết thúc");
         }
 
-
         // Lấy dữ liệu biểu đồ
-        List<RevenueChartDTO> chartData = switch (type){
-            case DAY -> statisticRepository.getRevenueByDay(start, end);
-            case WEEK -> statisticRepository.getRevenueByWeek(start, end);
-            case MONTH -> statisticRepository.getRevenueByMonth(start, end);
+        List<RevenueChartDTO> chartData = switch (type) {
+            case DAY -> statisticRepository.getRevenueByDay(startDate, endDate);
+            case WEEK -> statisticRepository.getRevenueByWeek(startDate, endDate);
+            case MONTH -> statisticRepository.getRevenueByMonth(startDate, endDate);
             default -> throw new BadRequestException("Loại thống kê không được hỗ trợ");
         };
 
         // Tổng doanh thu trong kỳ
-        BigDecimal totalRevenue = statisticRepository.getRevenueBetween(start, end);
+        BigDecimal totalRevenue = statisticRepository.getRevenueBetween(startDate, endDate);
 
         // Tổng số đơn COMPLETED
-        Long completedOrders = statisticRepository.countCompletedOrdersBetween(start, end);
+        Long completedOrders = statisticRepository.countCompletedOrdersBetween(startDate, endDate);
 
         return RevenueStatisticsResponse.builder()
                 .type(type)
                 .fromDate(startDate)
                 .toDate(endDate)
-                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal .ZERO)
+                .totalRevenue(totalRevenue != null ? totalRevenue : BigDecimal.ZERO)
                 .completedOrders(completedOrders != null ? completedOrders : 0L)
                 .chartData(chartData != null ? chartData : List.of())
                 .build();
