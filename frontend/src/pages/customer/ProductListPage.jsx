@@ -9,8 +9,11 @@ import "./ProductListPage.css";
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+
+  // Dùng query params để giữ trạng thái lọc trên URL
   const [searchParams, setSearchParams] = useSearchParams();
 
+  // State cho form lọc
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -18,37 +21,35 @@ function ProductListPage() {
   const [sortBy, setSortBy] = useState("productId");
   const [direction, setDirection] = useState("asc");
 
+  // State phân trang
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
   const [loading, setLoading] = useState(false);
 
-  const loadProducts = async () => {
-    try {
-      setLoading(true);
+  const API_BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
 
-      const data = await productService.getAllProducts({
-        keyword: keyword || undefined,
-        categoryId: categoryId || undefined,
-        minPrice: minPrice || undefined,
-        maxPrice: maxPrice || undefined,
-        page,
-        size: 8,
-        sortBy,
-        direction,
-      });
+  const API_ORIGIN = API_BASE_URL.replace("/api/v1", "");
 
-      console.log("PRODUCT LIST DATA:", data.content);
+  // Xử lý ảnh: hỗ trợ ảnh upload /uploads, ảnh URL đầy đủ, hoặc fallback
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) return "/favicon.svg";
 
-      setProducts(data.content || []);
-      setTotalPages(data.totalPages || 0);
-    } catch (error) {
-      console.error("Lỗi tải sản phẩm:", error);
-      alert("Không thể tải danh sách sản phẩm");
-    } finally {
-      setLoading(false);
+    if (imagePath.startsWith("http")) return imagePath;
+
+    if (imagePath.startsWith("/uploads/")) {
+      return `${API_ORIGIN}${imagePath}`;
     }
+
+    if (imagePath.startsWith("uploads/")) {
+      return `${API_ORIGIN}/${imagePath}`;
+    }
+
+    return `${API_ORIGIN}/uploads/products/${imagePath}`;
   };
 
+  // Lấy danh mục để đổ vào combobox
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAllCategories({
@@ -64,63 +65,109 @@ function ProductListPage() {
     }
   };
 
-  useEffect(() => {
-      const keywordParam = searchParams.get("keyword") || "";
-      const categoryIdParam = searchParams.get("categoryId") || "";
+  // Lấy sản phẩm theo bộ lọc hiện tại
+  const loadProducts = async (filters) => {
+    try {
+      setLoading(true);
 
-      setKeyword(keywordParam);
-      setCategoryId(categoryIdParam);
-      setPage(0);
-  }, [searchParams]);
+      const data = await productService.getAllProducts({
+        keyword: filters.keyword || undefined,
+        categoryId: filters.categoryId || undefined,
+        minPrice: filters.minPrice || undefined,
+        maxPrice: filters.maxPrice || undefined,
+        page: filters.page,
+        size: 8,
+        sortBy: filters.sortBy,
+        direction: filters.direction,
+      });
 
+      setProducts(data.content || []);
+      setTotalPages(data.totalPages || 0);
+    } catch (error) {
+      console.error("Lỗi tải sản phẩm:", error);
+      alert("Không thể tải danh sách sản phẩm");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load danh mục 1 lần khi mở trang
   useEffect(() => {
     loadCategories();
   }, []);
 
+  // Mỗi khi URL query thay đổi thì đồng bộ state và gọi API
   useEffect(() => {
-    loadProducts();
-  }, [page, sortBy, direction, keyword, categoryId, minPrice, maxPrice]);
+    const currentFilters = {
+      keyword: searchParams.get("keyword") || "",
+      categoryId: searchParams.get("categoryId") || "",
+      minPrice: searchParams.get("minPrice") || "",
+      maxPrice: searchParams.get("maxPrice") || "",
+      sortBy: searchParams.get("sortBy") || "productId",
+      direction: searchParams.get("direction") || "asc",
+      page: Number(searchParams.get("page") || 0),
+    };
 
-  const handleFilterSubmit = (e) => {
-    e.preventDefault();
-    setPage(0);
+    setKeyword(currentFilters.keyword);
+    setCategoryId(currentFilters.categoryId);
+    setMinPrice(currentFilters.minPrice);
+    setMaxPrice(currentFilters.maxPrice);
+    setSortBy(currentFilters.sortBy);
+    setDirection(currentFilters.direction);
+    setPage(currentFilters.page);
 
+    loadProducts(currentFilters);
+  }, [searchParams]);
+
+  // Tạo query params mới từ form lọc
+  const buildSearchParams = (nextPage = 0) => {
     const params = {};
 
     if (keyword.trim()) params.keyword = keyword.trim();
     if (categoryId) params.categoryId = categoryId;
     if (minPrice) params.minPrice = minPrice;
     if (maxPrice) params.maxPrice = maxPrice;
-    setSearchParams(params);
+
+    params.sortBy = sortBy;
+    params.direction = direction;
+    params.page = String(nextPage);
+
+    return params;
   };
 
+  // Bấm Áp dụng mới gọi lọc, tránh việc đang nhập giá mà API gọi liên tục
+  const handleFilterSubmit = (e) => {
+    e.preventDefault();
+
+    const min = minPrice === "" ? null : Number(minPrice);
+    const max = maxPrice === "" ? null : Number(maxPrice);
+
+    if (min !== null && min < 0) {
+      alert("Giá thấp nhất không được âm");
+      return;
+    }
+
+    if (max !== null && max < 0) {
+      alert("Giá cao nhất không được âm");
+      return;
+    }
+
+    if (min !== null && max !== null && min > max) {
+      alert("Giá thấp nhất không được lớn hơn giá cao nhất");
+      return;
+    }
+
+    setSearchParams(buildSearchParams(0));
+  };
+
+  // Reset toàn bộ bộ lọc
   const handleResetFilter = () => {
-    setKeyword("");
-    setCategoryId("");
-    setMinPrice("");
-    setMaxPrice("");
-    setSortBy("productId");
-    setDirection("asc");
-    setPage(0);
     setSearchParams({});
   };
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
-
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "/favicon.svg";
-
-    if (imagePath.startsWith("http")) return imagePath;
-
-    if (imagePath.startsWith("/uploads/")) {
-      return `${API_BASE_URL.replace("/api/v1", "")}${imagePath}`;
-    }
-
-    if (imagePath.startsWith("uploads/")) {
-      return `${API_BASE_URL.replace("/api/v1", "")}/${imagePath}`;
-    }
-
-    return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
+  // Chuyển trang
+  const handleChangePage = (nextPage) => {
+    setSearchParams(buildSearchParams(nextPage));
   };
 
   return (
@@ -153,6 +200,7 @@ function ProductListPage() {
         <input
           className="product-list__filter-input"
           type="number"
+          min="0"
           placeholder="Giá thấp nhất"
           value={minPrice}
           onChange={(e) => setMinPrice(e.target.value)}
@@ -161,6 +209,7 @@ function ProductListPage() {
         <input
           className="product-list__filter-input"
           type="number"
+          min="0"
           placeholder="Giá cao nhất"
           value={maxPrice}
           onChange={(e) => setMaxPrice(e.target.value)}
@@ -218,6 +267,7 @@ function ProductListPage() {
               />
 
               <h3 className="product-list__name">{product.name}</h3>
+
               <p className="product-list__category">{product.categoryName}</p>
 
               <p className="product-list__price">
@@ -238,7 +288,11 @@ function ProductListPage() {
       </div>
 
       <div className="product-list__pagination">
-        <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
+        <button
+          type="button"
+          disabled={page <= 0}
+          onClick={() => handleChangePage(page - 1)}
+        >
           Trang trước
         </button>
 
@@ -247,8 +301,9 @@ function ProductListPage() {
         </span>
 
         <button
+          type="button"
           disabled={page + 1 >= totalPages}
-          onClick={() => setPage(page + 1)}
+          onClick={() => handleChangePage(page + 1)}
         >
           Trang sau
         </button>

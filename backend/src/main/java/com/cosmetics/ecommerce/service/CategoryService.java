@@ -7,6 +7,7 @@ import com.cosmetics.ecommerce.entity.Category;
 public interface CategoryService {
 
     Page<Category> getAll(
+            String keyword,
             int page,
             int size,
             String sortBy,

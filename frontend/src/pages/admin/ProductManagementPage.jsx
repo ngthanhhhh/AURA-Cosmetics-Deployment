@@ -295,26 +295,26 @@ function ProductManagementPage() {
     }
   };
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+  // const API_BASE_URL =
+  //   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "";
+  // const getImageUrl = (imagePath) => {
+  //   if (!imagePath) return "";
 
-    if (imagePath.startsWith("http")) return imagePath;
+  //   if (imagePath.startsWith("http")) return imagePath;
 
-    const serverUrl = API_BASE_URL.replace("/api/v1", "");
+  //   const serverUrl = API_BASE_URL.replace("/api/v1", "");
 
-    if (imagePath.startsWith("/uploads/")) {
-      return `${serverUrl}${imagePath}`;
-    }
+  //   if (imagePath.startsWith("/uploads/")) {
+  //     return `${serverUrl}${imagePath}`;
+  //   }
 
-    if (imagePath.startsWith("uploads/")) {
-      return `${serverUrl}/${imagePath}`;
-    }
+  //   if (imagePath.startsWith("uploads/")) {
+  //     return `${serverUrl}/${imagePath}`;
+  //   }
 
-    return `${serverUrl}/uploads/products/${imagePath}`;
-  };
+  //   return `${serverUrl}/uploads/products/${imagePath}`;
+  // };
 
   return (
     <div className="product-management">
@@ -438,7 +438,7 @@ function ProductManagementPage() {
 
           {form.image && (
             <img
-              src={getImageUrl(form.image)}
+              src={form.image}
               alt="Preview"
               className="product-management__preview"
             />
@@ -490,11 +490,7 @@ function ProductManagementPage() {
               <td>
                 <img
                   className="product-management__table-image"
-                  src={
-                    product.image
-                      ? `http://localhost:8080${product.image}`
-                      : "/favicon.svg"
-                  }
+                  src={product.image || "/favicon.svg"}
                   alt={product.name}
                 />
               </td>
