@@ -83,18 +83,29 @@ function RevenueStatisticPage() {
      *
      * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
      */
+
+    const getDaysBetween = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        return (end - start) / (1000 * 60 * 60 * 24);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const effectiveToDate =
+            toDate || new Date().toISOString().split("T")[0];
 
         if(fromDate && toDate && fromDate > toDate){
             setError("Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
             return;
         }
 
-        if(type === "DAY" && fromDate && toDate){
-            const diffDdays = getDaysBetween(fromDate, toDate);
+        if(type === "DAY" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
 
-            if(diffDdays > 365){
+            if(diffDays > 365){
                 setError(
                     "Khoảng thời gian quá lớn cho thống kê theo ngày. Vui lòng chọn tối đa 1 năm hoặc chuyển sang thống kê theo tuần/tháng."
                 );
@@ -102,10 +113,10 @@ function RevenueStatisticPage() {
             }
         }
 
-        if(type === "WEEK" && fromDate && toDate){
-            const diffDdays = getDaysBetween(fromDate, toDate);
+        if(type === "WEEK" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
 
-            if(diffDdays > 1095){
+            if(diffDays > 1095){
                 setError(
                     "Khoảng thời gian quá lớn cho thống kê theo tuần. Vui lòng chọn tối đa 3 năm hoặc chuyển sang thống kê theo tháng."
                 );
@@ -113,10 +124,10 @@ function RevenueStatisticPage() {
             }
         }
 
-        if(type === "MONTH" && fromDate && toDate){
-            const diffDdays = getDaysBetween(fromDate, toDate);
+        if(type === "MONTH" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
 
-            if(diffDdays > 1825){
+            if(diffDays > 1825){
                 setError(
                     "Khoảng thời gian quá lớn cho thống kê theo tháng. Vui lòng chọn tối đa 5 năm."
                 );
@@ -150,13 +161,6 @@ function RevenueStatisticPage() {
         (currentPage - 1) * PAGE_SIZE,
         currentPage * PAGE_SIZE
     );
-
-    const getDaysBetween = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        return (end - start) / (1000 * 60 * 60 * 24);
-    };
 
     const formatDateDisplay = (date) => {
         return date.toLocaleDateString("vi-VN", {
