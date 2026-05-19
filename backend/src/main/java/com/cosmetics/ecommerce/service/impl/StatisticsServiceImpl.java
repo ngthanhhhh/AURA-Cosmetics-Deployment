@@ -85,13 +85,13 @@ public class StatisticsServiceImpl implements StatisticsService {
         LocalDate defaultFromDate = switch (type) {
 
             case DAY ->
-                LocalDate.now().minusDays(30);
+                LocalDate.now().minusDays(29);
 
             case WEEK ->
-                LocalDate.now().minusWeeks(12);
+                LocalDate.now().minusWeeks(11);
 
             case MONTH ->
-                LocalDate.now().minusMonths(12);
+                LocalDate.now().minusMonths(11);
         };
 
         LocalDate startDate = fromDate != null ? fromDate : defaultFromDate;
