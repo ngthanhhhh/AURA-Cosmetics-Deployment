@@ -8,6 +8,8 @@ import {
 import "./CustomerDetailPage.css";
 import { formatDate } from "../../utils/formatDate";
 
+const ORDER_PAGE_SIZE = 5;
+
 function CustomerDetailPage() {
 
     const {customerId} = useParams();
@@ -17,6 +19,7 @@ function CustomerDetailPage() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [orderPage, setOrderPage] = useState(1);
 
     /**
      * Tải thông tin chi tiết khách hàng và lịch sử đơn hàng.
@@ -27,9 +30,11 @@ function CustomerDetailPage() {
 
         try{
             const data = await fetchCustomersDetail(customerId);
+            const orderList = data.orders || data.orderHistory || [];
 
             setCustomer(data);
-            setOrders(data.orders || data.orderHistory || []);
+            setOrders(orderList);
+            setOrderPage(1);
 
         } catch (err){
             console.error("Lỗi tải chi tiết khách hàng", err);
@@ -110,15 +115,41 @@ function CustomerDetailPage() {
     const registeredDate = formatDate(customer.createdAt);
 
     const getOrderTotal = (order) => {
-    return (
-        order.totalAmount ??
-        order.totalPrice ??
-        order.total ??
-        order.finalAmount ??
-        order.amount ??
-        0
+        return (
+            order.totalAmount ??
+            order.totalPrice ??
+            order.total ??
+            order.finalAmount ??
+            order.amount ??
+            0
+        );
+    };
+
+    const totalOrderPages = Math.ceil(orders.length / ORDER_PAGE_SIZE);
+
+    const paginatedOrders = orders.slice(
+        (orderPage - 1) * ORDER_PAGE_SIZE,
+        orderPage * ORDER_PAGE_SIZE
     );
-};
+
+    const formatOrderStatus = (status) => {
+        switch (status){
+            case "PENDING":
+                return "Chờ xử lý";
+            case "PREPARING":
+                return "Đang chuẩn bị"
+            case "SHIPPING":
+                return "Đang giao";
+            case "DELIVERED":
+                return "Đã giao";
+            case "COMPLETED":
+                return "Hoàn thành";
+            case "CANCELLED":
+                return "Đã hủy";
+            default:
+                return "-";
+        }
+    }
 
     return (
         <div className="customer-detail-page">
@@ -165,8 +196,8 @@ function CustomerDetailPage() {
                             <span
                                 className={`customer-status-badge ${
                                     customer.isActive
-                                    ? "customer-detail-badge--active"
-                                    : "customer-detail-badge--inactive"
+                                    ? "customer-status-badge--active"
+                                    : "customer-status-badge--inactive"
                                 }`}
                             >
                                 {customer.isActive ? "Hoạt động" : "Đã khóa"}
@@ -212,49 +243,76 @@ function CustomerDetailPage() {
                             Khách hàng chưa có đơn hàng nào.
                         </div>
                     ) : (
-                        <div className="customer-order-table-wrapper">
+                        <>
+                            <div className="customer-order-table-wrapper">
 
-                            <table className="customer-order-table">
-                                <thead>
-                                    <tr>
-                                        <th>Mã đơn</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Trạng thái</th>
-                                        <th>Tổng tiền</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {orders.map((order) => (
-                                        <tr key={order.id || order.orderId}>
-                                            <td>
-                                                <strong>#{order.id || order.orderId}</strong>
-                                            </td>
-
-                                            <td>
-                                                    {order.createdAt
-                                                        ? formatDate(order.createdAt)
-                                                        : "-"
-                                                    }
-                                            </td>
-
-                                            <td>
-                                                <span className="order-status-badge">
-                                                    {order.status || "-"}
-                                                </span>
-                                                
-                                            </td>
-
-                                            <td className="order-total">
-                                                {Number(getOrderTotal(order) || 0).toLocaleString("vi-VN")}đ
-                                            </td>
+                                <table className="customer-order-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đơn</th>
+                                            <th>Ngày đặt</th>
+                                            <th>Trạng thái</th>
+                                            <th>Tổng tiền</th>
                                         </tr>
-                                    ))}
+                                    </thead>
 
-                                </tbody>
-                            </table>
-                            
-                        </div>
+                                    <tbody>
+                                        {paginatedOrders.map((order) => (
+                                            <tr key={order.id || order.orderId}>
+                                                <td>
+                                                    <strong>#{order.id || order.orderId}</strong>
+                                                </td>
+
+                                                <td>
+                                                        {order.createdAt
+                                                            ? formatDate(order.createdAt)
+                                                            : "-"
+                                                        }
+                                                </td>
+
+                                                <td>
+                                                    <span className={`order-status-badge order-status-badge--${(
+                                                        order.status || "unknown").toLowerCase()}`}
+                                                    >
+                                                        {formatOrderStatus(order.status)}
+                                                    </span>
+                                                    
+                                                </td>
+
+                                                <td className="order-total">
+                                                    {Number(getOrderTotal(order) || 0).toLocaleString("vi-VN")}đ
+                                                </td>
+                                            </tr>
+                                        ))}
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {orders.length > ORDER_PAGE_SIZE && (
+                                <div className="customer-order-pagination">
+                                    <button 
+                                        type="button"
+                                        disabled={orderPage === 1}
+                                        onClick={() => setOrderPage(orderPage - 1)}
+                                    >
+                                        Trước
+                                    </button>
+
+                                    <span>
+                                        Trang {orderPage} / {totalOrderPages}
+                                    </span>
+
+                                    <button 
+                                        type="button"
+                                        disabled={orderPage === totalOrderPages}
+                                        onClick={() => setOrderPage(orderPage + 1)}
+                                    >
+                                        Sau
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
 
                 </section>
