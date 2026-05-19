@@ -42,11 +42,12 @@ public class StatisticsServiceImpl implements StatisticsService {
         Long pending = statisticRepository.countByOrderStatus(OrderStatus.PENDING);
         Long preparing = statisticRepository.countByOrderStatus(OrderStatus.PREPARING);
         Long shipping = statisticRepository.countByOrderStatus(OrderStatus.SHIPPING);
+        Long delivered = statisticRepository.countByOrderStatus(OrderStatus.DELIVERED);
         Long completed = statisticRepository.countByOrderStatus(OrderStatus.COMPLETED);
         Long cancelled = statisticRepository.countByOrderStatus(OrderStatus.CANCELLED);
 
         // Tổng tất cả đơn
-        Long totalOrders = pending + preparing + shipping + completed + cancelled;
+        Long totalOrders = pending + preparing + shipping + delivered + completed + cancelled;
 
         return StatisticsResponse.builder()
 
@@ -57,6 +58,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .pendingOrders(pending)
                 .preparingOrders(preparing)
                 .shippingOrders(shipping)
+                .deliveredOrders(delivered)
                 .completedOrders(completed)
                 .cancelledOrders(cancelled)
                 .build();

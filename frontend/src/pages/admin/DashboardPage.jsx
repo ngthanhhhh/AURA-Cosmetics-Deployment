@@ -138,6 +138,10 @@ function DashboardPage() {
             value: dashboardData?.shippingOrders || 0,
         },
         {
+            title: "Đã giao",
+            value: dashboardData?.deliveredOrders || 0,
+        },
+        {
             title: "Đã hủy",
             value: dashboardData?.cancelledOrders || 0,
         },
@@ -207,7 +211,9 @@ function DashboardPage() {
                 </div>
 
                 {chartLoading ? (
-                    <Loading/>
+                    <div className="dashboard-chart-loading">
+                        <Loading/>
+                    </div>
                 ) : chartData.length === 0 ? (
                     <div className="dashboard-chart-placeholder">
                         Không có dữ liệu doanh thu trong khoảng thời gian này.

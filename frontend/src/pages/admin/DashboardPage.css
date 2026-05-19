@@ -99,7 +99,7 @@
 
 .order-status-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 18px;
 }
 
@@ -170,6 +170,13 @@
 .dashboard-chart-wrapper {
     width: 100%;
     height: 280px;
+}
+
+.dashboard-chart-loading {
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dashboard-note-link {

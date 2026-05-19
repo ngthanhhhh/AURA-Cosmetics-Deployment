@@ -33,6 +33,7 @@ public class StatisticsResponse {
     private Long pendingOrders;
     private Long preparingOrders;
     private Long shippingOrders;
+    private Long deliveredOrders;
     private Long completedOrders;
     private Long cancelledOrders;
 }
