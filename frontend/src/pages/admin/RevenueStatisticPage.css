@@ -173,6 +173,19 @@
     border: 1px solid #ffd8bf;
 }
 
+.revenue-pagination {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.revenue-pagination span {
+    color: #7f7487;
+    font-size: 14px;
+}
+
 @media (max-width: 1024px) {
     .revenue-filter {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -187,4 +200,20 @@
     .revenue-filter {
         grid-template-columns: 1fr;
     }
+}
+
+.week-period {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.week-period strong {
+    color: #2b2235;
+    font-weight: 600;
+}
+
+.week-period span {
+    color: #8a8195;
+    font-size: 13px;
 }
