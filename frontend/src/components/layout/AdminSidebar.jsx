@@ -7,9 +7,9 @@ import LogoutButton from '../common/LogoutButton';
  * Chứa các liên kết tới những module admin chính
  * và nút đăng xuất tài khoản quản trị.
  */
-function AdminSidebar() {
+function AdminSidebar({ collapsed = false }) {
     return (
-        <aside className='admin-sidebar'>
+        <aside className={`admin-sidebar ${collapsed ? "admin-sidebar--collapsed" : ""}`}>
             <div className='admin-sidebar__brand'>
                 <div className='admin-sidebar__logo'>AURA</div>
             </div>
@@ -49,7 +49,7 @@ function AdminSidebar() {
             </nav>
 
             <div className='admin-sidebar__footer'>
-                    <LogoutButton redirectPath='/admin/login' />
+                <LogoutButton redirectPath='/admin/login' />
             </div>
         </aside>
     );

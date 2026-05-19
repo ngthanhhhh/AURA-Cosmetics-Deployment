@@ -1,3 +1,4 @@
+import { useState } from "react";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeader from "./AdminHeader";
 import "./AdminLayout.css";
@@ -11,12 +12,19 @@ import "./AdminLayout.css";
  * - Khu vực nội dung trang admin
  */
 function AdminLayout({ children }) {
+
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+    const toggleSidebar = () => {
+        setSidebarCollapsed((prev) => !prev);
+    };
+
     return (
-        <div className="admin-layout">
-            <AdminSidebar/>
+        <div className={`admin-layout ${sidebarCollapsed ? "admin-layout--collapsed" : ""}`}>
+            <AdminSidebar collapsed={sidebarCollapsed}/>
 
             <main className="admin-main">
-                <AdminHeader />
+                <AdminHeader onToggleSidebar={toggleSidebar} />
                 
                 <section className="admin-content">
                     {children}  
