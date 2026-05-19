@@ -11,7 +11,7 @@ import Loading from "../../components/common/Loading";
 import { formatDate } from "../../utils/formatDate";
 
 const COLUMNS = ["STT", "Họ tên", "Email", "Ngày tạo", "Trạng thái", "Hành động"];
-const SIZE = 5;
+const SIZE = 10;
 
 function AdminAccountManagementPage(){
     const [accounts, setAccounts] = useState([]);
@@ -164,32 +164,51 @@ function AdminAccountManagementPage(){
 
             {/* Header */}
             <div className="account-page__header">
-                <h2 className="account-page__title">Quản lý tài khoản Admin</h2>
+                <h2>Quản lý tài khoản Admin</h2>
                 <button
-                    className="btn-primary" 
+                    type="button"
+                    className="account-btn account-btn--primary" 
                     onClick={handleOpenAdd}> 
                     + Thêm tài khoản
                 </button>
             </div>
 
             {/* Filter bar */}
-            <div className="account-page__filters">
-                <div className="filter-group filter-group--search">
-                    <label>Tìm kiếm</label>
+            <div className="account-toolbar">
+                <form
+                    className="account-search-form"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSearch();
+                    }}
+                >
                     <input 
+                        className="account-search-input"
                         type="text"
-                        placeholder="Tên hoặc email...."
+                        placeholder="Tìm theo tên hoặc email..."
                         value={keyword}
                         onChange={(e) => {
                             setKeyword(e.target.value);
                             setPage(0);
                         }}
-                        
                     />
-                </div>
 
-                <div className="filter-group">
-                    <label>Trạng thái</label>
+                    <button 
+                    type="submit"
+                    className="account-btn account-btn--primary">
+                        Tìm
+                    </button>
+
+                    <button 
+                        type="button"
+                        className="account-btn account-btn--primary"
+                        onClick={handleReset}>
+                            Đặt lại
+                    </button>
+                </form>
+
+                <div className="account-filter-sort">
+                    
                     <select 
                         value={isActive}
                         onChange={(e) => {
@@ -201,24 +220,18 @@ function AdminAccountManagementPage(){
                         <option value="true">Hoạt động</option>
                         <option value="false">Đã khóa</option>
                     </select>
-                </div>
 
-                <div className="filter-group">
-                    <label>Sắp xếp theo</label>
                     <select 
-                        value={sortField}
-                        onChange={(e) => {
-                        setSortField(e.target.value);
-                        setPage(0);
-                        }}
+                    value={sortField}
+                    onChange={(e) => {
+                    setSortField(e.target.value);
+                    setPage(0);
+                    }}
                     >
                         <option value="createdAt">Ngày tạo</option>
                         <option value="name">Họ tên</option>    
                     </select>
-                </div>
-
-                <div className="filter-group">
-                    <label>Thứ tự</label>
+        
                     <select 
                         value={sortDir}
                         onChange={(e) => {
@@ -231,65 +244,67 @@ function AdminAccountManagementPage(){
                     </select>
                 </div>
 
-                <div className="filter-actions">
-                    <button type="button" className="btn-primary" onClick={handleSearch}>Tìm</button>
-                    <button type="button" className="btn-outline" onClick={handleReset}>Đặt lại</button>
-                </div>
-
             </div>
 
-            {error && <p className="account-page__error">{error}</p>}
-            {loading ? (
-                <Loading/>
-            ) : (
+            <div className="account-table-card">
+                {error && <p className="account-page__error">{error}</p>}
 
-                <div className="account-table-wrapper">
-                    <Table
-                        columns={COLUMNS}
-                        data={accounts}
-                        renderRow={(acc, index) => (
-                            <tr key={acc.userId}>
-                                <td>{page * SIZE + index + 1}</td>
-                                <td>{acc.name}</td>
-                                <td>{acc.email}</td>
-                                <td>{formatDate(acc.createdAt)}</td>
+                {loading ? (
+                    <div className="account-table-loading">
+                        <Loading/>
+                    </div>
+                
+                ) : (
+            
+                    <div className="account-table-scroll">
+                        <Table
+                            columns={COLUMNS}
+                            data={accounts}
+                            renderRow={(acc, index) => (
+                                <tr key={acc.userId}>
+                                    <td>{page * SIZE + index + 1}</td>
+                                    <td>{acc.name}</td>
+                                    <td>{acc.email}</td>
+                                    <td>{formatDate(acc.createdAt)}</td>
 
-                                <td>
-                                    <span className={`status-badge ${acc.isActive ? "status-badge--active" : "status-badge--inactive"}`}>
-                                        {acc.isActive ? "Hoạt động" : "Đã khóa"}
-                                    </span>    
-                                </td>
-                                <td> 
-                                    <div className="action-group">
-                                        <button
-                                            type="button"
-                                            className="btn-action btn-action--edit"
-                                            onClick={() => handleOpenEdit(acc)}
-                                        >
-                                            Sửa
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn-action btn-action--password"
-                                            onClick={() => handleOpenPassword(acc)}
-                                        >
-                                            Đổi mật khẩu
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn-action btn-action--danger"
-                                            onClick={() => handleDelete(acc.userId)}
-                                            disabled={acc.email === currentEmail}
-                                        >
-                                            Vô hiệu hóa
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
-                    />
-                </div>
-            )}
+                                    <td>
+                                        <span className={`status-badge ${acc.isActive ? "status-badge--active" : "status-badge--inactive"}`}>
+                                            {acc.isActive ? "Hoạt động" : "Đã khóa"}
+                                        </span>    
+                                    </td>
+                                    <td> 
+                                        <div className="action-group">
+                                            <button
+                                                type="button"
+                                                className="btn-action btn-action--edit"
+                                                onClick={() => handleOpenEdit(acc)}
+                                            >
+                                                Sửa
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn-action btn-action--password"
+                                                onClick={() => handleOpenPassword(acc)}
+                                            >
+                                                Đổi mật khẩu
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn-action btn-action--danger"
+                                                onClick={() => handleDelete(acc.userId)}
+                                                disabled={acc.email === currentEmail}
+                                            >
+                                                Vô hiệu hóa
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        />
+                    </div>
+                )}
+            </div>
+            
             {/* Pagination */}
             {totalPages > 1 && (
                 <div className="account-page__pagination">
