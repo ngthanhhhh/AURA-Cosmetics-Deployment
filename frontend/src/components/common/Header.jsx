@@ -17,9 +17,8 @@ function Header() {
 
     const { user, logout } = useContext(AuthContext);
     const role = user?.role;
-
-    const isCustomer = role === "ROLE_CUSTOMER";
-    const isAdmin = role === "ROLE_ADMIN";
+    
+   const isAdmin = role === "ROLE_ADMIN";
 
     const handleLogout = () => {
         logoutUser();

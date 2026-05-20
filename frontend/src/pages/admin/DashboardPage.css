@@ -99,7 +99,7 @@
 
 .order-status-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 18px;
 }
 
@@ -141,5 +141,70 @@
     .order-status-card,
     .dashboard-panel {
         padding: 20px;
+    }
+}
+
+.dashboard-chart-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.dashboard-chart-summary {
+    margin-bottom: 16px;
+}
+
+.dashboard-chart-summary p {
+    margin: 0 0 6px;
+    color: #8d8091;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.dashboard-chart-summary h3 {
+    margin: 0;
+    font-size: 24px;
+    color: #281e31;
+}
+
+.dashboard-chart-wrapper {
+    width: 100%;
+    height: 280px;
+}
+
+.dashboard-chart-loading {
+    min-height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-note-link {
+    color: #e26d4f;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.dashboard-note-link:hover {
+    text-decoration: underline;
+}
+
+.recent-orders p {
+    margin: 0;
+    color: #7f7487;
+    line-height: 1.7;
+    background: #fff7f3;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+@media (max-width: 640px) {
+    .dashboard-panel__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .dashboard-chart-filter {
+        width: 100%;
     }
 }

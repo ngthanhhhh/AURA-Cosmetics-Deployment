@@ -22,5 +22,5 @@ export const getDashboardStatisticApi = () => {
  * @returns {Promise<Object>} Dữ liệu thống kê doanh thu.
  */
 export const getRevenueStatisticsApi = (params) => {
-    return axiosClient.get("/admin/statistics/revenue", { params, });
+    return axiosClient.get("/admin/statistics/revenue", { params });
 };
