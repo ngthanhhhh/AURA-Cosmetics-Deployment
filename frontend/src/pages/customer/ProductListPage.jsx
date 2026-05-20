@@ -83,7 +83,7 @@ function ProductListPage() {
         minPrice: filters.minPrice || undefined,
         maxPrice: filters.maxPrice || undefined,
         page: filters.page,
-        size: 8,
+        size: 12,
         sortBy: filters.sortBy,
         direction: filters.direction,
       });

@@ -67,6 +67,31 @@
   font-size: 20px;                    /* Cỡ icon/chữ bên trong */
 }
 
+/* Nút đăng nhập trên header */
+.login-header-btn {
+  padding: 12px 22px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: #0e0e0e;
+  color: white;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+/* Hover */
+.login-header-btn:hover {
+  background: #ff5f82;
+
+  transform: translateY(-1px);
+}
+
 /* ==========================================================================
    HỘP TÀI KHOẢN NGƯỜI DÙNG (USER BOX)
    Đã sửa: Ngắn chiều cao lại, tăng chiều ngang ra.
@@ -89,7 +114,7 @@
   width: 38px;                        /* Chiều rộng avatar */
   height: 38px;                       /* Chiều cao avatar */
   background: #ead8c8;                /* Màu nền của vòng tròn avatar */
-  color: #ec3e04;                     /* Màu chữ viết tắt tên bên trong avatar */
+  color: #0c0c0c;                     /* Màu chữ viết tắt tên bên trong avatar */
   border-radius: 50%;                 /* Biến avatar thành hình tròn */
   display: flex;                      /* Dùng flexbox để căn chữ viết tắt nằm chính giữa */
   align-items: center;
@@ -108,6 +133,66 @@
   margin: 0;                          /* Loại bỏ margin mặc định của thẻ p để tránh phá vỡ chiều cao */
   color: #8c7c8d;
   font-size: 13px;
+}
+
+/* =========================
+   DROPDOWN MENU TÀI KHOẢN
+   THÊM NGAY DƯỚI ĐÂY
+   ========================= */
+
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-menu {
+  position: absolute;
+
+  /* Menu hiện phía dưới ô user */
+  top: calc(100% + 10px);
+  right: 0;
+
+  width: 240px;
+
+  background: #ffffff;
+
+  border: 1px solid #eadbd3;
+  border-radius: 18px;
+
+  box-shadow: 0 14px 35px rgba(47, 42, 58, 0.14);
+
+  overflow: hidden;
+
+  z-index: 1000;
+}
+
+/* Các nút trong menu */
+.profile-menu button {
+  width: 100%;
+
+  padding: 16px 20px;
+
+  border: none;
+  background: transparent;
+
+  text-align: left;
+
+  color: #302735;
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+/* Hover khi rê chuột */
+.profile-menu button:hover {
+  background: #f7efe5;
+}
+
+/* Hiệu ứng hover ô user */
+.user-box:hover {
+  background: #fff7f1;
+  cursor: pointer;
 }
 
 /* ==========================================================================

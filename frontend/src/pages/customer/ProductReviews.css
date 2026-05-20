@@ -1,3 +1,135 @@
+/* =========================================================
+   FILE CSS: PRODUCT REVIEWS
+   Mục đích:
+   - Thiết kế khu vực đánh giá sản phẩm
+   - Gồm khung tổng quan đánh giá, form viết đánh giá,
+     bộ lọc, danh sách đánh giá và phân trang
+   - Các comment được chia theo khu vực/cụm code,
+     không comment từng dòng để file dễ đọc hơn
+========================================================= */
+
+/* =========================
+   KHUNG TÓM TẮT ĐÁNH GIÁ
+   - Đây là phần hiển thị tổng quan ở đầu khu vực đánh giá
+   - Chia bố cục thành nhiều cột: điểm đánh giá, các nút lọc sao,
+     nút mở bộ lọc và nút viết đánh giá
+========================= */
+.product-reviews__summary {
+    margin-bottom: 24px;
+    padding: 18px 28px;
+    border-radius: 18px;
+    background: #ffffff;
+    display: grid;
+    grid-template-columns: 160px 1fr auto 230px;
+    align-items: center;
+    gap: 24px;
+}
+
+/* =========================
+   CỘT ĐIỂM ĐÁNH GIÁ BÊN TRÁI
+   - Hiển thị tiêu đề, điểm trung bình, sao và tổng số đánh giá
+========================= */
+.product-reviews__summary-left h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.product-reviews__score {
+    color: #ff5a1f;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.product-reviews__stars {
+    color: #ff5a1f;
+    font-size: 22px;
+    letter-spacing: 3px;
+}
+
+.product-reviews__summary-left p {
+    margin: 4px 0 0;
+    color: #666;
+    font-size: 13px;
+}
+
+/* =========================
+   NHÓM NÚT LỌC NHANH THEO SỐ SAO
+   - Các nút lọc được đặt ở giữa khung tổng quan
+   - Cho phép xuống dòng khi không đủ chiều ngang
+========================= */
+.product-reviews__summary-center {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 14px;
+}
+
+.product-reviews__summary-center button {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 18px;
+    background: #e5e5e5;
+    color: #555;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Nút đầu tiên đang được làm nổi bật như trạng thái lọc chính/mặc định */
+.product-reviews__summary-center button:first-child {
+    background: #ff5a1f;
+    color: #ffffff;
+}
+
+/* =========================
+   NÚT ICON MỞ/TẮT BỘ LỌC
+   - Nút dạng icon, nền trong suốt
+   - Dùng để bật/tắt khu vực lọc chi tiết
+========================= */
+.product-reviews__filter-toggle {
+    border: none;
+    background: transparent;
+    color: #ff5a1f;
+    cursor: pointer;
+
+    font-size: 60px;
+}
+
+.product-reviews__filter-toggle svg {
+    width: 40px;
+    height: 40px;
+}
+
+/* =========================
+   KHU VỰC NÚT VIẾT ĐÁNH GIÁ
+   - Gồm dòng mô tả và nút mở form viết đánh giá
+   - Đặt ở cột bên phải của khung tổng quan
+========================= */
+.product-reviews__write-box {
+    text-align: center;
+}
+
+.product-reviews__write-box p {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+}
+
+.product-reviews__write-box button {
+    border: 2px solid #ff5a1f;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #ff5a1f;
+    padding: 8px 28px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* =========================
+   KHUNG CHÍNH CỦA TOÀN BỘ PHẦN ĐÁNH GIÁ
+   - Bao ngoài header, thông báo, form, bộ lọc, danh sách và phân trang
+========================= */
 .product-reviews {
     margin-top: 32px;
     padding: 20px;
@@ -6,6 +138,10 @@
     background: #fff;
 }
 
+/* =========================
+   HEADER CỦA PHẦN ĐÁNH GIÁ
+   - Chứa tiêu đề và mô tả ngắn cho khu vực review
+========================= */
 .product-reviews__header {
     margin-bottom: 16px;
 }
@@ -16,9 +152,14 @@
 
 .product-reviews__header p {
     margin: 0;
-    color: #666;
+    color: #111111;
 }
 
+/* =========================
+   THÔNG BÁO LỖI VÀ THÀNH CÔNG
+   - Dùng chung padding, margin và bo góc
+   - Mỗi loại thông báo có màu nền/viền/chữ riêng
+========================= */
 .product-reviews__error,
 .product-reviews__success {
     padding: 12px;
@@ -38,24 +179,32 @@
     color: #0f5132;
 }
 
+/* =========================
+   FORM VIẾT ĐÁNH GIÁ
+   - Khung nhập đánh giá của người dùng
+   - Gồm tiêu đề form, các ô nhập và nút gửi
+========================= */
 .product-reviews__form {
     padding: 16px;
     margin-bottom: 16px;
-    border: 1px solid #eee;
+    border: 1px solid #fadada;
     border-radius: 10px;
-    background: #fafafa;
+    background: #fae6e6;
+    margin-top: 18px;
 }
 
 .product-reviews__form h4 {
     margin-top: 0;
 }
 
+/* Bố cục hàng trong form: nhãn/cột nhỏ bên trái và nội dung nhập bên phải */
 .product-reviews__form-row {
     display: grid;
     grid-template-columns: 160px 1fr;
     gap: 12px;
 }
 
+/* Nhóm từng trường nhập liệu trong form */
 .product-reviews__field {
     display: flex;
     flex-direction: column;
@@ -66,6 +215,7 @@
     font-weight: 600;
 }
 
+/* Style chung cho input, select và textarea để giao diện đồng bộ */
 .product-reviews__field input,
 .product-reviews__field select,
 .product-reviews__field textarea {
@@ -79,48 +229,78 @@
     resize: vertical;
 }
 
+/* =========================
+   STYLE CHUNG CHO CÁC NÚT HÀNH ĐỘNG
+   - Áp dụng cho nút trong form, nút lọc và nút phân trang
+========================= */
 .product-reviews__form button,
 .product-reviews__filter-actions button,
 .product-reviews__pagination button {
     padding: 9px 12px;
-    border: 1px solid #6b4f3f;
+    border: 1px solid #ff6912;
     border-radius: 8px;
     background: #fff;
-    color: #6b4f3f;
+    color: #ff711f;
     cursor: pointer;
     font-weight: 600;
 }
 
+/* Nút gửi đánh giá trong form được canh phải và tô nền đậm */
 .product-reviews__form button {
     margin-top: 12px;
-    background: #6b4f3f;
+    margin-left: auto;
+    display: block;
+    background: #ff6207;
     color: #fff;
 }
 
+/* Trạng thái không thể bấm của nút gửi/phân trang */
 .product-reviews__form button:disabled,
 .product-reviews__pagination button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
 
+/* =========================
+   THANH BỘ LỌC CHI TIẾT
+   - Chứa các ô lọc như từ khóa, số sao, trạng thái, sắp xếp...
+   - position: sticky giúp thanh lọc bám trên màn hình khi cuộn danh sách đánh giá
+========================= */
 .product-reviews__filters {
     display: grid;
     grid-template-columns: minmax(180px, 1.4fr) repeat(4, minmax(130px, 1fr)) auto;
     gap: 12px;
     align-items: end;
     margin-bottom: 16px;
+    position: sticky;
+    top: 80px;
+    z-index: 30;
+
+    background: #ffeae5;
+
+    padding: 18px 22px;
+
+    border-radius: 16px;
+
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
+/* Nhóm nút áp dụng lọc và xóa lọc */
 .product-reviews__filter-actions {
     display: flex;
     gap: 8px;
 }
 
+/* Nút hành động đầu tiên trong bộ lọc được làm nổi bật */
 .product-reviews__filter-actions button:first-child {
-    background: #6b4f3f;
+    background: #ff4d00;
     color: #fff;
 }
 
+/* =========================
+   TRẠNG THÁI KHÔNG CÓ ĐÁNH GIÁ
+   - Hiển thị khi danh sách đánh giá rỗng
+========================= */
 .product-reviews__empty {
     padding: 16px;
     border: 1px solid #eee;
@@ -128,6 +308,10 @@
     background: #fafafa;
 }
 
+/* =========================
+   DANH SÁCH ĐÁNH GIÁ
+   - Các review được xếp dọc, mỗi review là một item riêng
+========================= */
 .product-reviews__list {
     display: flex;
     flex-direction: column;
@@ -141,6 +325,7 @@
     background: #fff;
 }
 
+/* Phần đầu mỗi đánh giá: thông tin người đánh giá và thời gian/trạng thái */
 .product-reviews__item-header {
     display: flex;
     justify-content: space-between;
@@ -149,15 +334,17 @@
 }
 
 .product-reviews__item-header span {
-    color: #666;
+    color: #2e2a2a;
     font-size: 14px;
 }
 
+/* Ghi đè style sao ở phần item đánh giá để màu sao khác với phần tổng quan */
 .product-reviews__stars {
     color: #d28b00;
     letter-spacing: 1px;
 }
 
+/* Nhãn xác nhận đã mua hàng/đã xác thực */
 .product-reviews__verified {
     display: inline-block;
     padding: 4px 8px;
@@ -174,6 +361,10 @@
     line-height: 1.6;
 }
 
+/* =========================
+   PHÂN TRANG ĐÁNH GIÁ
+   - Căn giữa các nút chuyển trang và số trang hiện tại
+========================= */
 .product-reviews__pagination {
     margin-top: 16px;
     display: flex;
@@ -182,6 +373,11 @@
     gap: 12px;
 }
 
+/* =========================
+   RESPONSIVE CHO MÀN HÌNH VỪA
+   - Khi màn hình nhỏ hơn 1100px, các cột được thu lại
+   - Khung tổng quan chuyển từ 4 cột sang 2 cột
+========================= */
 @media (max-width: 1100px) {
     .product-reviews__filters {
         grid-template-columns: 1fr 1fr;
@@ -190,8 +386,20 @@
     .product-reviews__filter-actions {
         grid-column: span 2;
     }
+    .product-reviews__summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-reviews__write-box {
+        grid-column: span 2;
+    }
 }
 
+/* =========================
+   RESPONSIVE CHO MOBILE
+   - Các layout grid chuyển về 1 cột
+   - Header từng đánh giá chuyển sang dạng xếp dọc
+========================= */
 @media (max-width: 768px) {
     .product-reviews__form-row,
     .product-reviews__filters {
@@ -204,5 +412,13 @@
 
     .product-reviews__item-header {
         flex-direction: column;
+    }
+
+    .product-reviews__summary {
+        grid-template-columns: 1fr;
+    }
+
+    .product-reviews__write-box {
+        grid-column: auto;
     }
 }

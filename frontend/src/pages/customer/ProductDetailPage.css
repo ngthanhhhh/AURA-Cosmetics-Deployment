@@ -1,15 +1,26 @@
+/* =========================
+   TOÀN BỘ TRANG CHI TIẾT SẢN PHẨM
+========================= */
 .product-detail {
   padding: 34px;
   background: #faf8f6;
   min-height: 100vh;
 }
 
+/* =========================
+   THÔNG BÁO TRẠNG THÁI
+   Dùng cho trạng thái loading, lỗi hoặc không có dữ liệu
+========================= */
 .product-detail__status {
   padding: 40px;
   text-align: center;
   color: #6b6474;
 }
 
+/* =========================
+   KHUNG CHÍNH CHI TIẾT SẢN PHẨM
+   Chứa ảnh sản phẩm bên trái và thông tin sản phẩm bên phải
+========================= */
 .product-detail__main {
   background: #ffffff;
   border: 1px solid #eee8f3;
@@ -22,10 +33,14 @@
   align-items: center;
 }
 
+/* =========================
+   KHU VỰC ẢNH SẢN PHẨM
+========================= */
 .product-detail__image-box {
   width: 100%;
 }
 
+/* Ảnh sản phẩm */
 .product-detail__image {
   width: 100%;
   height: 420px;
@@ -34,10 +49,14 @@
   background: #f4efe9;
 }
 
+/* =========================
+   KHU VỰC THÔNG TIN SẢN PHẨM
+========================= */
 .product-detail__info {
   text-align: left;
 }
 
+/* Tên sản phẩm */
 .product-detail__name {
   margin: 0 0 10px;
   font-size: 42px;
@@ -45,24 +64,31 @@
   color: #171321;
 }
 
+/* Giá sản phẩm */
 .product-detail__price {
   color: #8a2f2f;
   margin: 0 0 18px;
   font-size: 28px;
 }
 
+/* Các dòng thông tin chung */
 .product-detail__info p {
   color: #2b2831;
   font-size: 17px;
   margin: 10px 0;
 }
 
+/* Mô tả sản phẩm */
 .product-detail__description {
   margin-top: 18px;
   line-height: 1.7;
   color: #6b6474;
 }
 
+/* =========================
+   KHU VỰC THÊM VÀO GIỎ HÀNG
+   Gồm label số lượng, ô nhập số lượng và nút thêm vào giỏ
+========================= */
 .product-detail__cart-box {
   margin-top: 26px;
   display: flex;
@@ -71,11 +97,13 @@
   flex-wrap: wrap;
 }
 
+/* Label số lượng */
 .product-detail__cart-box label {
   font-weight: 600;
   color: #2b2831;
 }
 
+/* Ô nhập số lượng */
 .product-detail__quantity-input {
   width: 90px;
   padding: 11px 14px;
@@ -85,11 +113,13 @@
   outline: none;
 }
 
+/* Focus ô nhập số lượng */
 .product-detail__quantity-input:focus {
   border-color: #8c7a6b;
   background: #ffffff;
 }
 
+/* Nút thêm vào giỏ hàng */
 .product-detail__add-btn {
   border: none;
   border-radius: 12px;
@@ -100,15 +130,20 @@
   font-weight: 600;
 }
 
+/* Hover nút thêm vào giỏ hàng */
 .product-detail__add-btn:hover {
   background: #171321;
 }
 
+/* Trạng thái không bấm được của nút thêm vào giỏ hàng */
 .product-detail__add-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* =========================
+   KHU VỰC ĐÁNH GIÁ SẢN PHẨM
+========================= */
 .product-detail__reviews {
   margin-top: 28px;
   background: #ffffff;
@@ -117,56 +152,77 @@
   padding: 24px;
   box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
+
+/* Nội dung chữ trong phần đánh giá */
 .product-detail__reviews p {
   color: #666;
 }
 
+/* Thông báo thêm vào giỏ hàng thành công */
 .product-detail__success {
   margin-top: 10px;
   color: #0f5132;
   font-weight: 600;
 }
 
+/* =========================
+   RESPONSIVE TABLET
+========================= */
 @media (max-width: 1024px) {
+
+  /* Chuyển bố cục chi tiết sản phẩm từ 2 cột sang 1 cột */
   .product-detail__main {
     grid-template-columns: 1fr;
   }
 
+  /* Giảm chiều cao ảnh sản phẩm */
   .product-detail__image {
     height: 360px;
   }
 
+  /* Giảm kích thước tên sản phẩm */
   .product-detail__name {
     font-size: 34px;
   }
 }
 
+/* =========================
+   RESPONSIVE MOBILE
+========================= */
 @media (max-width: 600px) {
+
+  /* Giảm padding toàn trang */
   .product-detail {
     padding: 20px;
   }
 
+  /* Giảm padding khung chính */
   .product-detail__main {
     padding: 18px;
   }
 
+  /* Giảm chiều cao ảnh trên mobile */
   .product-detail__image {
     height: 280px;
   }
 
+  /* Giảm kích thước tên sản phẩm */
   .product-detail__name {
     font-size: 28px;
   }
 
+  /* Giảm kích thước giá sản phẩm */
   .product-detail__price {
     font-size: 24px;
   }
 
+  /* Chuyển khu vực thêm giỏ hàng sang dạng dọc */
   .product-detail__cart-box {
     align-items: stretch;
     flex-direction: column;
   }
 
+  /* Cho input số lượng và nút thêm giỏ hàng chiếm hết chiều ngang */
   .product-detail__quantity-input,
   .product-detail__add-btn {
     width: 100%;

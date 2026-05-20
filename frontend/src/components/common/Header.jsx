@@ -1,10 +1,37 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
+import { ChevronDown } from "lucide-react";
 
 import "./Header.css";
+
+import { AuthContext } from "../../context/AuthContext";
+import { CartContext } from "../../context/CartContext";
+import { logoutUser } from "../../features/auth/authService";
 
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { user, logout } = useContext(AuthContext);
+  const { clearCartState } = useContext(CartContext);
+
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const isAdmin = user?.role === "ROLE_ADMIN";
+
+  // Điều hướng và tự đóng menu tài khoản
+  const handleMenuNavigate = (path) => {
+    setShowProfileMenu(false);
+    navigate(path);
+  };
+
+  const handleLogout = () => {
+    setShowProfileMenu(false);
+    logoutUser();
+    logout();
+    clearCartState();
+    navigate("/");
+  };
 
   const scrollToSection = (id) => {
     if (location.pathname !== "/") {
@@ -53,14 +80,74 @@ export default function Header() {
           🛒
         </button>
 
-        <div className="user-box">
-          <div className="avatar">N</div>
+        {!user ? (
+          <button
+            type="button"
+            className="login-header-btn"
+            onClick={() => navigate("/auth/login")}
+          >
+            Đăng nhập
+          </button>
+        ) : (
+          <div className="profile-dropdown">
+            <button
+              type="button"
+              className="user-box"
+              onClick={() => setShowProfileMenu((prev) => !prev)}
+            >
+              <div className="avatar">
+                {user.name?.charAt(0).toUpperCase() || "U"}
+              </div>
 
-          <div>
-            <strong>Nguyễn Văn A</strong>
-            <p>Khách hàng</p>
+              <div>
+                <strong>{user.name}</strong>
+                <p>{isAdmin ? "Quản trị viên" : "Khách hàng"}</p>
+              </div>
+
+              <ChevronDown size={16} />
+            </button>
+
+            {showProfileMenu && (
+              <div className="profile-menu">
+                {isAdmin ? (
+                  <button
+                    type="button"
+                    onClick={() => handleMenuNavigate("/admin")}
+                  >
+                    Trang quản trị
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/account")}
+                    >
+                      Thông tin cá nhân
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/my-orders")}
+                    >
+                      Đơn hàng của tôi
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/change-password")}
+                    >
+                      Đổi mật khẩu
+                    </button>
+                  </>
+                )}
+
+                <button type="button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

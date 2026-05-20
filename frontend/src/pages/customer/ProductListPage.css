@@ -8,7 +8,8 @@
 }
 
 /* =========================
-   TIÊU ĐỀ KHÁM PHÁ
+   KHU VỰC TIÊU ĐỀ KHÁM PHÁ
+   Gồm tiêu đề lớn và dòng mô tả
 ========================= */
 .discover-header {
   display: flex;
@@ -17,6 +18,7 @@
   gap: 18px;
 }
 
+/* Chữ KHÁM PHÁ */
 .discover-header h1 {
   font-size: 76px;
   margin: 5;
@@ -25,11 +27,13 @@
   font-family: serif;
 }
 
+/* Icon ✦ hai bên tiêu đề */
 .discover-header span {
   color: #ff6f01;
   font-size: 22px;
 }
 
+/* Dòng mô tả bên dưới tiêu đề */
 .discover-subtitle {
   text-align: center;
   color: #251e26;
@@ -38,25 +42,26 @@
 }
 
 /* =========================
-   KHUNG TÌM KIẾM / LỌC
+   KHUNG TÌM KIẾM / BỘ LỌC
 ========================= */
 .discover-filter {
   max-width: 1180px;
   margin: 0 auto;
   background: #f56e06;
   border-radius: 20px;
-  padding: 8px 16px; /* Đã thu nhỏ padding dọc */
+  padding: 8px 16px;
   border: 1px solid #ec510a;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
 }
 
+/* Thanh filter dính khi cuộn */
 .discover-filter {
   position: sticky;
   top: 70px;
   z-index: 50;
 }
 
-/* Hàng đầu tiên: danh mục, tìm kiếm, bộ lọc, sắp xếp */
+/* Hàng đầu tiên của thanh filter */
 .discover-topbar {
   display: flex;
   gap: 12px;
@@ -64,10 +69,10 @@
 }
 
 /* =========================
-   Ô DANH MỤC
+   Ô CHỌN DANH MỤC
 ========================= */
 .discover-category {
-  height: 36px; /* Đã thu nhỏ chiều cao */
+  height: 36px;
   min-width: 150px;
   display: flex;
   align-items: center;
@@ -78,6 +83,7 @@
   background: #f6d4c5;
 }
 
+/* Select chọn danh mục */
 .discover-category select {
   width: 100%;
   border: none;
@@ -90,11 +96,11 @@
 }
 
 /* =========================
-   Ô TÌM KIẾM
+   Ô TÌM KIẾM SẢN PHẨM
 ========================= */
 .discover-search {
   flex: 1;
-  height: 36px; /* Đã thu nhỏ chiều cao */
+  height: 36px;
   border-radius: 999px;
   border: 1px solid #eaded6;
   background: #f6d4c5;
@@ -104,6 +110,7 @@
   padding: 0 16px;
 }
 
+/* Input tìm kiếm */
 .discover-search input {
   flex: 1;
   border: none;
@@ -116,7 +123,7 @@
    NÚT BỘ LỌC / SẮP XẾP
 ========================= */
 .discover-action-btn {
-  height: 36px; /* Đã thu nhỏ chiều cao */
+  height: 36px;
   border-radius: 999px;
   border: 1px solid #eaded6;
   background: #f6d4c5;
@@ -138,9 +145,10 @@
   position: relative;
 }
 
+/* Khung menu sắp xếp xổ xuống */
 .discover-sort-dropdown {
   position: absolute;
-  top: 44px; /* Điều chỉnh vị trí thả xuống khớp với nút 36px mới */
+  top: 44px;
   right: 0;
   width: 220px;
   background: #f6d4c5;
@@ -151,6 +159,7 @@
   z-index: 20;
 }
 
+/* Các nút bên trong dropdown */
 .discover-sort-dropdown button {
   width: 100%;
   border: none;
@@ -162,16 +171,17 @@
   color: #020202;
 }
 
+/* Hover các nút sắp xếp */
 .discover-sort-dropdown button:hover {
   background: #fff5f0;
 }
 
 /* =========================
-   KHU VỰC KHOẢNG GIÁ
+   KHU VỰC LỌC KHOẢNG GIÁ
 ========================= */
 .discover-price-row {
-  margin-top: 8px; /* Giảm margin dọc */
-  padding-top: 8px; /* Giảm padding dọc */
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #f3ece7;
   display: flex;
   align-items: center;
@@ -179,13 +189,14 @@
   gap: 18px;
 }
 
-/* Chữ Khoảng giá */
+/* Khung chữ Khoảng giá */
 .discover-price-left {
   display: flex;
   align-items: center;
   flex-shrink: 0;
 }
 
+/* Chữ Khoảng giá */
 .discover-price-left p {
   margin: 0;
   font-size: 14px;
@@ -201,14 +212,15 @@
   gap: 12px;
 }
 
-/* Mỗi cụm: Giá từ + input hoặc Giá đến + input trên cùng 1 hàng */
+/* Cụm label + input */
 .discover-price-inputs div {
   display: flex;
-  flex-direction: row; /* Ép chữ và ô nhập cùng hàng */
+  flex-direction: row;
   align-items: center;
   gap: 8px;
 }
 
+/* Label Giá từ / Giá đến */
 .discover-price-inputs label {
   margin: 0;
   font-size: 13px;
@@ -217,10 +229,10 @@
   white-space: nowrap;
 }
 
-/* Ô nhập giá nhỏ gọn */
+/* Ô nhập giá */
 .discover-price-inputs input {
   width: 132px;
-  height: 32px; /* Thu nhỏ độ cao ô nhập */
+  height: 32px;
   border-radius: 8px;
   border: 1px solid #eaded6;
   padding: 0 10px;
@@ -229,6 +241,7 @@
   background: #ffffff;
 }
 
+/* Nút áp dụng lọc giá */
 .discover-price-apply-btn {
   height: 34px;
   border: none;
@@ -241,10 +254,12 @@
   cursor: pointer;
 }
 
+/* Hover nút lọc giá */
 .discover-price-apply-btn:hover {
   background: #060606;
 }
 
+/* Nút xóa lọc giá */
 .discover-price-reset-btn {
   height: 34px;
   border: 1px solid #ded6cf;
@@ -257,16 +272,18 @@
   cursor: pointer;
 }
 
+/* Hover nút xóa lọc */
 .discover-price-reset-btn:hover {
   background: #f5efea;
 }
 
+/* Focus ô nhập giá */
 .discover-price-inputs input:focus {
   border-color: #b99b8c;
 }
 
 /* =========================
-   THÔNG BÁO
+   THÔNG BÁO TRẠNG THÁI
 ========================= */
 .discover-message {
   margin-top: 28px;
@@ -276,7 +293,7 @@
 }
 
 /* =========================
-   GRID SẢN PHẨM
+   GRID HIỂN THỊ SẢN PHẨM
 ========================= */
 .discover-grid {
   margin-top: 32px;
@@ -285,6 +302,7 @@
   gap: 22px;
 }
 
+/* Card sản phẩm */
 .discover-card {
   background: #ffffff;
   border-radius: 24px;
@@ -293,11 +311,13 @@
   transition: 0.25s;
 }
 
+/* Hover card sản phẩm */
 .discover-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
+/* Ảnh sản phẩm */
 .discover-card img {
   width: 100%;
   height: 260px;
@@ -305,27 +325,40 @@
   background: #f6efe9;
 }
 
+/* Nội dung bên trong card */
 .discover-card-content {
   padding: 18px;
 }
 
+/* Tên sản phẩm */
 .discover-card-content h3 {
-  min-height: 76px;
+  height: 72px;
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
+  line-height: 1.2;
   color: #c8481e;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Tên danh mục sản phẩm */
 .discover-category-name {
   margin: 8px 0;
   color: #222020;
 }
 
+/* Giá sản phẩm */
 .discover-card-content strong {
   color: #601915;
   font-size: 22px;
 }
 
+/* Khu vực đánh giá sao */
 .discover-rating {
   display: flex;
   align-items: center;
@@ -333,16 +366,19 @@
   margin-top: 9px;
 }
 
+/* Chữ đánh giá */
 .discover-rating span {
   margin-left: 6px;
   color: #8a7c8d;
 }
 
+/* Thông tin tồn kho */
 .discover-stock {
   color: #6f6472;
   margin-top: 10px;
 }
 
+/* Nút xem chi tiết */
 .discover-card-content a {
   margin-top: 14px;
   display: inline-block;
@@ -364,6 +400,7 @@
   gap: 12px;
 }
 
+/* Nút và số trang */
 .discover-pagination button,
 .discover-pagination span {
   width: 42px;
@@ -376,22 +413,27 @@
   justify-content: center;
 }
 
+/* Nút chuyển trang */
 .discover-pagination button {
   cursor: pointer;
 }
 
+/* Trạng thái disable */
 .discover-pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Trang hiện tại */
 .discover-pagination span {
   background: #060606;
   color: #ffffff;
   font-weight: 700;
 }
 
-/* Nút reset bộ lọc */
+/* =========================
+   NÚT RESET BỘ LỌC
+========================= */
 .discover-reset-btn {
   margin: 24px auto 0;
   display: block;
@@ -403,27 +445,37 @@
 }
 
 /* =========================
-   RESPONSIVE
+   RESPONSIVE TABLET
 ========================= */
 @media (max-width: 1200px) {
+
+  /* Grid còn 3 cột */
   .discover-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 
+  /* Thanh filter tự xuống dòng */
   .discover-topbar {
     flex-wrap: wrap;
   }
 
+  /* Ô tìm kiếm tối thiểu */
   .discover-search {
     min-width: 360px;
   }
 }
 
+/* =========================
+   RESPONSIVE MOBILE
+========================= */
 @media (max-width: 900px) {
+
+  /* Grid còn 2 cột */
   .discover-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Các cụm filter chuyển dọc */
   .discover-topbar,
   .discover-price-row,
   .discover-price-inputs {
@@ -431,40 +483,51 @@
     align-items: stretch;
   }
 
+  /* Các ô filter full width */
   .discover-category,
   .discover-search,
   .discover-action-btn {
     width: 100%;
   }
 
+  /* Reset min width search */
   .discover-search {
     min-width: 0;
   }
 
+  /* Thu nhỏ tiêu đề */
   .discover-header h1 {
     font-size: 52px;
   }
 
-  /* Đảm bảo nhãn và ô nhập không bị vỡ bố cục trên mobile */
+  /* Cụm label + input trên mobile */
   .discover-price-inputs div {
     justify-content: space-between;
     flex-direction: row; 
   }
 
+  /* Input giá trên mobile */
   .discover-price-inputs input {
-    width: 70%; /* Chiếm phần lớn không gian, chừa chỗ cho chữ */
+    width: 70%;
   }
 }
 
+/* =========================
+   RESPONSIVE ĐIỆN THOẠI NHỎ
+========================= */
 @media (max-width: 600px) {
+
+  /* Grid còn 1 cột */
   .discover-grid {
     grid-template-columns: 1fr;
   }
 
+  /* Thu nhỏ padding trang */
   .discover-page {
     padding: 20px;
   }
 
+  /* Thu nhỏ tiêu đề */
   .discover-header h1 {
     font-size: 42px;
   }
