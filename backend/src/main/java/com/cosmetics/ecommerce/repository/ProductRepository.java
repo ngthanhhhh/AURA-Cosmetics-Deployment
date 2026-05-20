@@ -66,4 +66,35 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("status") ProductStatus status,
             Pageable pageable
     );
+
+    @Query(
+        value = """
+            SELECT p
+            FROM Product p
+            LEFT JOIN Review r ON r.product = p
+            WHERE p.status = com.cosmetics.ecommerce.enums.ProductStatus.ACTIVE
+            AND (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            AND (:categoryId IS NULL OR p.category.categoryId = :categoryId)
+            AND (:minPrice IS NULL OR p.price >= :minPrice)
+            AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+            GROUP BY p
+            ORDER BY AVG(r.rating) DESC NULLS LAST
+        """,
+        countQuery = """
+            SELECT COUNT(p)
+            FROM Product p
+            WHERE p.status = com.cosmetics.ecommerce.enums.ProductStatus.ACTIVE
+            AND (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+            AND (:categoryId IS NULL OR p.category.categoryId = :categoryId)
+            AND (:minPrice IS NULL OR p.price >= :minPrice)
+            AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+        """
+    )
+    Page<Product> searchPublicProductsOrderByRatingDesc(
+            @Param("keyword") String keyword,
+            @Param("categoryId") Integer categoryId,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            Pageable pageable
+    );
 }

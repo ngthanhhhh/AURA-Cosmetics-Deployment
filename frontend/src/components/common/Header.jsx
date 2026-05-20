@@ -1,133 +1,67 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
-
-import SearchBox from "../ui/SearchBox";
-import { logoutUser } from "../../features/auth/authService";
-import { categoryService } from "../../features/categories/categoryService";
-import { CartContext } from "../../context/CartContext";
-import { AuthContext } from "../../context/AuthContext";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import "./Header.css";
 
-function Header() {
-    const navigate = useNavigate();
-    const { totalItems, clearCartState } = useContext(CartContext);
-    const [categories, setCategories] = useState([]);
+export default function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const { user, logout } = useContext(AuthContext);
-    const role = user?.role;
+  const scrollToSection = (id) => {
+    if (location.pathname !== "/") {
+      navigate("/");
 
-    const isCustomer = role === "ROLE_CUSTOMER";
-    const isAdmin = role === "ROLE_ADMIN";
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100);
 
-    const handleLogout = () => {
-        logoutUser();
-        logout();
-        clearCartState();
-        navigate("/");
-    };
+      return;
+    }
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const data = await categoryService.getAllCategories({
-                    page: 0,
-                    size: 20,
-                    sortBy: "categoryId",
-                    direction: "asc",
-                });
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
-                setCategories(data?.content || [])
-            } catch (error) {
-                console.error("Fetch header categories error:", error);
-                setCategories([]);
-            }
-        };
-        
-        fetchCategories();
-    }, []);
+  return (
+    <header className="main-header">
+      <Link to="/" className="logo">
+        AURA
+      </Link>
 
-    return (
-        <header className="header">
-            <div className="header-container">
-                <div className="header-left">
-                    <Link to="/" className="header-logo">AURA</Link>
+      <nav className="nav-menu">
+        <button type="button" onClick={() => scrollToSection("about-us")}>
+          About Us
+        </button>
 
-                    <div className="category-dropdown">
-                        <button type="button" className="category-button">
-                            <span className="hamburger-icon">☰</span>
-                            <span>Danh mục</span>
-                        </button>
+        <button type="button" onClick={() => navigate("/products")}>
+          Products
+        </button>
 
-                        <div className="dropdown-menu">
-                            <Link to="/products">Tất cả sản phẩm</Link>
-                            {categories.map((category) => (
-                                <Link
-                                    key={category.categoryId}
-                                    to={`/products?categoryId=${category.categoryId}`}
-                                >
-                                    {category.name}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+        <button type="button" onClick={() => scrollToSection("categories")}>
+          Danh mục
+        </button>
+      </nav>
 
-                <div className="header-center">
-                    <SearchBox />
-                </div>
+      <div className="header-actions">
+        <button
+          type="button"
+          className="cart-btn"
+          onClick={() => navigate("/cart")}
+        >
+          🛒
+        </button>
 
-                <div className="header-right">
-                    {!isAdmin && (
-                        <Link to="/cart" className="cart-link">
-                            🛒
-                            {totalItems > 0 && (
-                                <span className="cart-badge">{totalItems}</span>
-                            )}
-                        </Link>
-                    )}
+        <div className="user-box">
+          <div className="avatar">N</div>
 
-                    {!user ? (
-                        <Link to="/auth/login" className="login-link">
-                            Đăng nhập
-                        </Link>
-                    ) : (
-                        <div className="profile-dropdown">
-                            <button type="button" className="profile-trigger">
-                                <div className="profile-avatar">
-                                    {user.name?.charAt(0).toUpperCase() || "U"}
-                                </div>
-
-                                <div className="profile-info">
-                                    <strong>{user.name}</strong>
-                                    <span>{isAdmin ? "Quản trị viên" : "Khách hàng"}</span>
-                                </div>
-
-                                <ChevronDown size={16} className="dropdown-arrow" />
-                            </button>
-
-                            <div className="profile-menu">
-                                {isAdmin ? (
-                                    <Link to="/admin">Trang quản trị</Link>
-                                ) : (
-                                    <>
-                                        <Link to="/account">Thông tin cá nhân</Link>
-                                        <Link to="/my-orders">Đơn hàng của tôi</Link>
-                                        <Link to="/change-password">Đổi mật khẩu</Link>
-                                    </>
-                                )}
-
-                                <button type="button" onClick={handleLogout}>
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </header>
-    );
+          <div>
+            <strong>Nguyễn Văn A</strong>
+            <p>Khách hàng</p>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
 }
-
-export default Header;

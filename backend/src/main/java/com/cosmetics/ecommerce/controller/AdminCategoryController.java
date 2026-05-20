@@ -38,18 +38,18 @@ public class AdminCategoryController {
          * @param direction Hướng sắp xếp: asc hoặc desc.
          * @return Danh sách danh mục dạng phân trang.
          */
-                @GetMapping
-                public ResponseEntity<Page<Category>> getAll(
-                        @RequestParam(required = false) String keyword,
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "10") int size,
-                        @RequestParam(defaultValue = "categoryId") String sortBy,
-                        @RequestParam(defaultValue = "asc") String direction
-                ) {
-                return ResponseEntity.ok(
-                        categoryService.getAll(keyword, page, size, sortBy, direction)
-                );
-                }
+        @GetMapping
+        public ResponseEntity<Page<Category>> getAll(
+                @RequestParam(required = false) String keyword,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "10") int size,
+                @RequestParam(defaultValue = "categoryId") String sortBy,
+                @RequestParam(defaultValue = "asc") String direction
+        ) {
+        return ResponseEntity.ok(
+                categoryService.getAll(keyword, page, size, sortBy, direction)
+        );
+        }
 
         /**
          * Tạo mới danh mục sản phẩm.

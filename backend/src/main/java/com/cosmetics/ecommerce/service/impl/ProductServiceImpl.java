@@ -19,6 +19,8 @@ import com.cosmetics.ecommerce.repository.CategoryRepository;
 import com.cosmetics.ecommerce.repository.ProductRepository;
 import com.cosmetics.ecommerce.service.ProductService;
 
+import com.cosmetics.ecommerce.repository.ReviewRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +29,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ReviewRepository reviewRepository;
 
     private Pageable buildPageable(int page, int size, String sortBy, String direction) {
         if (page < 0) {
@@ -108,6 +111,17 @@ public class ProductServiceImpl implements ProductService {
             response.setStatus(product.getStatus().name());
         }
 
+        Double averageRating = reviewRepository.calculateAverageRatingByProductId(
+        product.getProductId()
+        );
+
+        Long reviewCount = reviewRepository.countByProduct_ProductId(
+                product.getProductId()
+        );
+
+        response.setAverageRating(averageRating == null ? 0.0 : averageRating);
+        response.setReviewCount(reviewCount == null ? 0L : reviewCount);
+
         return response;
     }
 
@@ -136,6 +150,18 @@ public class ProductServiceImpl implements ProductService {
     ) {
         validatePriceRange(minPrice, maxPrice);
         validateCategoryExists(categoryId);
+
+        if ("averageRating".equalsIgnoreCase(sortBy)) {
+            Pageable pageable = PageRequest.of(page, size);
+
+            return productRepository.searchPublicProductsOrderByRatingDesc(
+                    keyword,
+                    categoryId,
+                    minPrice,
+                    maxPrice,
+                    pageable
+            ).map(this::mapToResponse);
+        }
 
         Pageable pageable = buildPageable(page, size, sortBy, direction);
 

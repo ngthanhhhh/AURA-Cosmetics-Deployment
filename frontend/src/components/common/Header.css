@@ -1,289 +1,131 @@
-.header {
-    height: 72px;
-    padding: 0 5%;
-    background: rgba(255, 253, 249, 0.96);
-    border-bottom: 1px solid #eee5db;
-    display: flex;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
+/* ==========================================================================
+   THANH ĐIỀU HƯỚNG CHÍNH (HEADER)
+   ========================================================================== */
+.main-header {
+  height: 70px;                       /* Chiều cao cố định của thanh header */
+  padding: 0 72px;                    /* Khoảng cách lề bên trong (trên/dưới: 0, trái/phải: 72px) */
+  display: flex;                      /* Sử dụng Flexbox để quản lý bố cục */
+  align-items: center;                /* Căn giữa các phần tử bên trong theo chiều dọc */
+  justify-content: space-between;     /* Đẩy Logo, Menu và Actions ra 3 góc xa nhau */
+  gap: 24px;                          /* Khoảng cách tối thiểu giữa các khối thành phần */
+  background: #ffd9bc;                /* Màu nền của header */
+  border-bottom: 1px solid #ecba9a;   /* Đường gạch chân ngăn cách phía dưới header */
+  position: sticky;                   /* Giữ thanh header cố định ở trên cùng khi cuộn trang */
+  top: 0;                             /* Vị trí ghim là sát mép trên màn hình */
+  z-index: 100;                       /* Đảm bảo header luôn nằm đè lên các nội dung khác của trang */
 }
 
-.header-container {
-    width: 100%;
-    display: grid;
-    grid-template-columns: auto minmax(260px, 1fr) auto;
-    align-items: center;
-    gap: 24px;
+/* Tên thương hiệu / Logo */
+.logo {
+  text-decoration: none;              /* Bỏ đường gạch chân mặc định của thẻ link */
+  font-size: 30px;                    /* Cỡ chữ logo */
+  font-weight: 800;                   /* Độ đậm chữ siêu dày */
+  letter-spacing: 8px;                /* Khoảng cách giữa các chữ cái rộng ra */
+  color: #060606;                     /* Màu sắc chữ */
+  white-space: nowrap;                /* Ép chữ luôn nằm trên một dòng, không tự động xuống hàng */
 }
 
-.header-left,
-.header-center,
-.header-right {
-    display: flex;
-    align-items: center;
+/* Khu vực menu chứa các nút chuyển trang */
+.nav-menu {
+  display: flex;                      /* Xếp các nút menu nằm ngang */
+  align-items: center;                /* Căn giữa các nút theo chiều ngang */
+  gap: 18px;                          /* Khoảng cách giữa các nút */
 }
 
-.header-left {
-    gap: 18px;
+/* Các nút bấm bên trong menu */
+.nav-menu button {
+  background: transparent;            /* Nền trong suốt */
+  border: none;                       /* Bỏ đường viền mặc định của button */
+  font-size: 16px;                    /* Cỡ chữ của nút */
+  font-weight: 700;                   /* Chữ đậm */
+  color: #060606;                     /* Màu chữ */
+  cursor: pointer;                    /* Biến con trỏ chuột thành hình bàn tay khi di chuột vào */
+  padding: 12px 18px;                 /* Khoảng cách lề trong của nút tạo độ rộng */
+  border-radius: 999px;               /* Bo tròn góc tạo hình viên thuốc */
 }
 
-.header-logo {
-    font-size: 25px;
-    font-weight: 800;
-    color: #4b3f35;
-    text-decoration: none;
-    letter-spacing: 3px;
-    white-space: nowrap;
+/* Hiệu ứng khi rê chuột vào nút menu */
+.nav-menu button:hover {
+  background: #d8c1af;                /* Đổi sang nền màu be nhạt */
 }
 
-.category-dropdown,
-.profile-dropdown {
-    position: relative;
+/* Khu vực chứa Giỏ hàng và Hộp tài khoản */
+.header-actions {
+  display: flex;                      /* Xếp giỏ hàng và ô tài khoản nằm ngang */
+  align-items: center;
+  gap: 18px;                          /* Khoảng cách giữa các phần tử hành động */
 }
 
-.category-button,
-.profile-trigger,
-.login-link {
-    min-height: 42px;
-    border: 1px solid #eadfd4;
-    background: #ffffff;
-    color: #4b3f35;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    transition: 0.2s ease;
+/* Nút giỏ hàng (Cart) hình tròn */
+.cart-btn {
+  width: 46px;                        /* Chiều rộng cố định */
+  height: 46px;                       /* Chiều cao bằng chiều rộng để tạo hình vuông */
+  border-radius: 50%;                 /* Bo tròn 50% biến thành hình tròn hoàn hảo */
+  border: 1px solid #ec5707;          /* Viền mảnh màu nhạt */
+  background: #ffffff;                /* Nền màu trắng */
+  cursor: pointer;                    /* Hiệu ứng con trỏ chuột bàn tay */
+  font-size: 20px;                    /* Cỡ icon/chữ bên trong */
 }
 
-.category-button {
-    gap: 8px;
-    padding: 0 15px;
-    font-weight: 600;
+/* ==========================================================================
+   HỘP TÀI KHOẢN NGƯỜI DÙNG (USER BOX)
+   Đã sửa: Ngắn chiều cao lại, tăng chiều ngang ra.
+   ========================================================================== */
+.user-box {
+  display: flex;                      /* Xếp avatar và tên người dùng theo hàng ngang */
+  align-items: center;
+  gap: 12px;                          /* Khoảng cách từ ảnh đại diện đến phần chữ */
+  
+  padding: 1px 30px;                  /* Giảm từ 10px xuống 6px để NGẮN DỌC, tăng từ 18px lên 28px để RỘNG NGANG */
+  min-width: 160px;                   /* Đặt độ rộng tối thiểu để hộp không bị quá bé khi tên người dùng ngắn */
+  
+  border: 1px solid #eadbd3;
+  border-radius: 999px;               /* Giữ nguyên bo tròn dạng viên thuốc */
+  background: #ffffff;
 }
 
-.category-button:hover,
-.profile-trigger:hover,
-.login-link:hover {
-    background: #f2a38a;
-    border-color: #f2a38a;
-    color: #ffffff;
+/* Ảnh đại diện (Avatar) hình tròn đại diện */
+.avatar {
+  width: 38px;                        /* Chiều rộng avatar */
+  height: 38px;                       /* Chiều cao avatar */
+  background: #ead8c8;                /* Màu nền của vòng tròn avatar */
+  color: #ec3e04;                     /* Màu chữ viết tắt tên bên trong avatar */
+  border-radius: 50%;                 /* Biến avatar thành hình tròn */
+  display: flex;                      /* Dùng flexbox để căn chữ viết tắt nằm chính giữa */
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;                   /* Chữ viết tắt siêu đậm */
 }
 
-.dropdown-menu,
-.profile-menu {
-    display: none;
-    position: absolute;
-    top: calc(100% + 10px);
-    background: #ffffff;
-    border: 1px solid #eadfd4;
-    border-radius: 16px;
-    box-shadow: 0 14px 35px rgba(47, 42, 58, 0.14);
-    overflow: hidden;
-    z-index: 1001;
+/* Tên hiển thị người dùng (Thẻ strong) */
+.user-box strong {
+  color: #302735;
+  font-size: 14px;
 }
 
-.dropdown-menu {
-    left: 0;
-    min-width: 190px;
+/* Vai trò hoặc email người dùng (Thẻ p) */
+.user-box p {
+  margin: 0;                          /* Loại bỏ margin mặc định của thẻ p để tránh phá vỡ chiều cao */
+  color: #8c7c8d;
+  font-size: 13px;
 }
 
-.dropdown-menu a,
-.profile-menu a,
-.profile-menu button {
-    display: block;
-    width: 100%;
-    padding: 13px 16px;
-    border: none;
-    background: transparent;
-    color: #4b3f35;
-    text-align: left;
-    text-decoration: none;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.dropdown-menu a:hover,
-.profile-menu a:hover,
-.profile-menu button:hover {
-    background: #f7efe5;
-    color: #2f2a3a;
-}
-
-.category-dropdown:hover .dropdown-menu,
-.profile-dropdown:hover .profile-menu {
-    display: block;
-}
-
-.category-dropdown::after,
-.profile-dropdown::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    height: 12px;
-    left: 0;
-    right: 0;
-}
-
-.header-center {
-    justify-content: center;
-    min-width: 0;
-}
-
-.search-box {
-    width: 100%;
-    max-width: 460px;
-    min-height: 42px;
-    display: flex;
-    align-items: center;
-    background: #faf8f6;
-    border: 1px solid #ded6cf;
-    border-radius: 999px;
-    padding: 4px 10px 4px 16px;
-}
-
-.header-right {
-    justify-content: flex-end;
-    gap: 14px;
-}
-
-.cart-link {
-    width: 42px;
-    height: 42px;
-    border: 1px solid #eadfd4;
-    border-radius: 50%;
-    background: #ffffff;
-    color: #2f2a3a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    font-size: 21px;
-    text-decoration: none;
-    transition: 0.2s ease;
-}
-
-.cart-link:hover {
-    background: #f7efe5;
-    transform: translateY(-1px);
-}
-
-.cart-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    border-radius: 999px;
-    background: #8c7a6b;
-    color: #ffffff;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.login-link {
-    padding: 0 18px;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.profile-trigger {
-    gap: 10px;
-    padding: 5px 10px 5px 6px;
-    border-radius: 999px;
-}
-
-.profile-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #eee5db;
-    color: #4b3f35;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-}
-
-.profile-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    min-width: 0;
-}
-
-.profile-info strong {
-    max-width: 120px;
-    font-size: 14px;
-    color: #2b2831;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.profile-info span {
-    font-size: 12px;
-    color: #8f8794;
-}
-
-.dropdown-arrow {
-    color: #7a7280;
-}
-
-.profile-menu {
-    right: 0;
-    width: 220px;
-}
-
+/* ==========================================================================
+   XỬ LÝ GIAO DIỆN PHẢN HỒI (RESPONSIVE) CHO MÀN HÌNH NHỎ
+   ========================================================================== */
 @media (max-width: 900px) {
-    .header {
-        height: auto;
-        padding: 12px 4%;
-    }
+  /* Khi màn hình thu nhỏ dưới 900px, chuyển header sang dạng dọc */
+  .main-header {
+    height: auto;                     /* Hủy chiều cao cố định, co giãn theo nội dung */
+    padding: 18px 24px;               /* Thu nhỏ khoảng cách lề cho gọn */
+    flex-direction: column;           /* Xếp dọc các khối: Logo -> Menu -> Actions */
+    align-items: flex-start;          /* Căn đều các phần tử xuất phát từ lề bên trái */
+  }
 
-    .header-container {
-        grid-template-columns: 1fr auto;
-        gap: 12px;
-    }
-
-    .header-center {
-        grid-column: 1 / -1;
-        order: 3;
-    }
-
-    .search-box {
-        max-width: none;
-    }
-
-    .profile-info {
-        display: none;
-    }
-}
-
-@media (max-width: 640px) {
-    .category-button span:last-child {
-        display: none;
-    }
-
-    .header-logo {
-        font-size: 22px;
-    }
-
-    .header-left {
-        gap: 10px;
-    }
-
-    .header-right {
-        gap: 10px;
-    }
-
-    .login-link {
-        padding: 0 14px;
-    }
+  /* Đảm bảo Menu và Actions chiếm hết chiều ngang để dễ bấm trên điện thoại */
+  .nav-menu,
+  .header-actions {
+    width: 100%;                      /* Kéo giãn tối đa chiều ngang */
+    flex-wrap: wrap;                  /* Cho phép tự động xuống hàng nếu các nút quá dài */
+  }
 }

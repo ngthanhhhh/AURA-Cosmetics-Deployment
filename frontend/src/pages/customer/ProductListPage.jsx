@@ -1,19 +1,26 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import {
+  Search,
+  SlidersHorizontal,
+  ArrowUpDown,
+  LayoutList,
+  ChevronDown,
+  Star,
+} from "lucide-react";
 
 import { productService } from "../../features/products/productService";
 import { categoryService } from "../../features/categories/categoryService";
 
+import ScrollTopButton from "../../components/common/ScrollTopButton";
 import "./ProductListPage.css";
 
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // Dùng query params để giữ trạng thái lọc trên URL
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // State cho form lọc
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [minPrice, setMinPrice] = useState("");
@@ -21,35 +28,36 @@ function ProductListPage() {
   const [sortBy, setSortBy] = useState("productId");
   const [direction, setDirection] = useState("asc");
 
-  // State phân trang
+  const [showSort, setShowSort] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
   const [loading, setLoading] = useState(false);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+  const applyFilters = (overrides = {}, nextPage = 0) => {
+    const nextKeyword = overrides.keyword ?? keyword;
+    const nextCategoryId = overrides.categoryId ?? categoryId;
+    const nextMinPrice = overrides.minPrice ?? minPrice;
+    const nextMaxPrice = overrides.maxPrice ?? maxPrice;
+    const nextSortBy = overrides.sortBy ?? sortBy;
+    const nextDirection = overrides.direction ?? direction;
 
-  const API_ORIGIN = API_BASE_URL.replace("/api/v1", "");
+    const params = {};
 
-  // Xử lý ảnh: hỗ trợ ảnh upload /uploads, ảnh URL đầy đủ, hoặc fallback
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "/favicon.svg";
+    if (nextKeyword.trim()) params.keyword = nextKeyword.trim();
+    if (nextCategoryId) params.categoryId = nextCategoryId;
+    if (nextMinPrice) params.minPrice = nextMinPrice;
+    if (nextMaxPrice) params.maxPrice = nextMaxPrice;
 
-    if (imagePath.startsWith("http")) return imagePath;
+    params.sortBy = nextSortBy;
+    params.direction = nextDirection;
+    params.page = String(nextPage);
 
-    if (imagePath.startsWith("/uploads/")) {
-      return `${API_ORIGIN}${imagePath}`;
-    }
-
-    if (imagePath.startsWith("uploads/")) {
-      return `${API_ORIGIN}/${imagePath}`;
-    }
-
-    return `${API_ORIGIN}/uploads/products/${imagePath}`;
+    setSearchParams(params);
   };
 
-  // Lấy danh mục để đổ vào combobox
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAllCategories({
@@ -65,7 +73,6 @@ function ProductListPage() {
     }
   };
 
-  // Lấy sản phẩm theo bộ lọc hiện tại
   const loadProducts = async (filters) => {
     try {
       setLoading(true);
@@ -85,18 +92,16 @@ function ProductListPage() {
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
-      alert("Không thể tải danh sách sản phẩm");
+      alert("Không thể tải sản phẩm");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load danh mục 1 lần khi mở trang
   useEffect(() => {
     loadCategories();
   }, []);
 
-  // Mỗi khi URL query thay đổi thì đồng bộ state và gọi API
   useEffect(() => {
     const currentFilters = {
       keyword: searchParams.get("keyword") || "",
@@ -119,197 +124,310 @@ function ProductListPage() {
     loadProducts(currentFilters);
   }, [searchParams]);
 
-  // Tạo query params mới từ form lọc
-  const buildSearchParams = (nextPage = 0) => {
-    const params = {};
-
-    if (keyword.trim()) params.keyword = keyword.trim();
-    if (categoryId) params.categoryId = categoryId;
-    if (minPrice) params.minPrice = minPrice;
-    if (maxPrice) params.maxPrice = maxPrice;
-
-    params.sortBy = sortBy;
-    params.direction = direction;
-    params.page = String(nextPage);
-
-    return params;
-  };
-
-  // Bấm Áp dụng mới gọi lọc, tránh việc đang nhập giá mà API gọi liên tục
-  const handleFilterSubmit = (e) => {
-    e.preventDefault();
-
+  const validatePrice = () => {
     const min = minPrice === "" ? null : Number(minPrice);
     const max = maxPrice === "" ? null : Number(maxPrice);
 
     if (min !== null && min < 0) {
-      alert("Giá thấp nhất không được âm");
-      return;
+      alert("Giá từ không hợp lệ");
+      return false;
     }
 
     if (max !== null && max < 0) {
-      alert("Giá cao nhất không được âm");
-      return;
+      alert("Giá đến không hợp lệ");
+      return false;
     }
 
     if (min !== null && max !== null && min > max) {
-      alert("Giá thấp nhất không được lớn hơn giá cao nhất");
-      return;
+      alert("Giá từ không được lớn hơn giá đến");
+      return false;
     }
 
-    setSearchParams(buildSearchParams(0));
+    return true;
   };
 
-  // Reset toàn bộ bộ lọc
-  const handleResetFilter = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!validatePrice()) return;
+
+    applyFilters({}, 0);
+  };
+
+  const handleReset = () => {
     setSearchParams({});
+    setShowFilters(false);
+    setShowSort(false);
   };
 
-  // Chuyển trang
-  const handleChangePage = (nextPage) => {
-    setSearchParams(buildSearchParams(nextPage));
+  const handlePageChange = (nextPage) => {
+    applyFilters({}, nextPage);
   };
+
+  const handleSort = (nextSortBy, nextDirection) => {
+    setSortBy(nextSortBy);
+    setDirection(nextDirection);
+    setShowSort(false);
+
+    applyFilters(
+      {
+        sortBy: nextSortBy,
+        direction: nextDirection,
+      },
+      0
+    );
+  };
+
+  <ScrollTopButton />
 
   return (
-    <div className="product-list">
-      <h2 className="product-list__title">Danh sách sản phẩm</h2>
+    <div className="discover-page">
+      <div className="discover-header">
+        <span>✦</span>
+        <h1>KHÁM PHÁ</h1>
+        <span>✦</span>
+      </div>
 
-      <form className="product-list__filter" onSubmit={handleFilterSubmit}>
-        <input
-          className="product-list__filter-input"
-          type="text"
-          placeholder="Tìm sản phẩm..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
+      <p className="discover-subtitle">
+        Khám phá những sản phẩm làm đẹp được yêu thích nhất
+      </p>
 
-        <select
-          className="product-list__filter-input"
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-        >
-          <option value="">Tất cả danh mục</option>
+      <form className="discover-filter" onSubmit={handleSubmit}>
+        <div className="discover-topbar">
+          <div className="discover-category">
+            <LayoutList size={19} />
 
-          {categories.map((category) => (
-            <option key={category.categoryId} value={category.categoryId}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+            <select
+              value={categoryId}
+              onChange={(e) => {
+                const selectedCategoryId = e.target.value;
 
-        <input
-          className="product-list__filter-input"
-          type="number"
-          min="0"
-          placeholder="Giá thấp nhất"
-          value={minPrice}
-          onChange={(e) => setMinPrice(e.target.value)}
-        />
+                setCategoryId(selectedCategoryId);
 
-        <input
-          className="product-list__filter-input"
-          type="number"
-          min="0"
-          placeholder="Giá cao nhất"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-        />
+                applyFilters(
+                  {
+                    categoryId: selectedCategoryId,
+                  },
+                  0
+                );
+              }}
+            >
+              <option value="">Danh mục</option>
 
-        <select
-          className="product-list__filter-input"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="productId">Sắp xếp theo ID</option>
-          <option value="name">Sắp xếp theo tên</option>
-          <option value="price">Sắp xếp theo giá</option>
-          <option value="stock">Sắp xếp theo tồn kho</option>
-        </select>
+              {categories.map((category) => (
+                <option key={category.categoryId} value={category.categoryId}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <select
-          className="product-list__filter-input"
-          value={direction}
-          onChange={(e) => setDirection(e.target.value)}
-        >
-          <option value="asc">Tăng dần</option>
-          <option value="desc">Giảm dần</option>
-        </select>
+          <div className="discover-search">
+            <Search size={20} />
 
-        <button className="product-list__filter-btn" type="submit">
-          Áp dụng
-        </button>
+            <input
+              type="text"
+              placeholder="Tìm kiếm sản phẩm..."
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+          </div>
 
-        <button
-          className="product-list__filter-btn product-list__filter-btn--secondary"
-          type="button"
-          onClick={handleResetFilter}
-        >
-          Reset
-        </button>
+          <button
+            type="button"
+            className="discover-action-btn"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <SlidersHorizontal size={19} />
+            Bộ lọc
+          </button>
+
+          <div className="discover-sort">
+            <button
+              type="button"
+              className="discover-action-btn"
+              onClick={() => setShowSort(!showSort)}
+            >
+              <ArrowUpDown size={19} />
+              Sắp xếp
+              <ChevronDown size={17} />
+            </button>
+
+            {showSort && (
+              <div className="discover-sort-dropdown">
+                <button type="button" onClick={() => handleSort("productId", "asc")}>
+                  Mới nhất
+                </button>
+
+                <button type="button" onClick={() => handleSort("price", "asc")}>
+                  Giá tăng dần
+                </button>
+
+                <button type="button" onClick={() => handleSort("price", "desc")}>
+                  Giá giảm dần
+                </button>
+
+                <button type="button" onClick={() => handleSort("stock", "desc")}>
+                  Tồn kho cao nhất
+                </button>
+
+                <button type="button" onClick={() => handleSort("averageRating", "desc")}>
+                  Số sao cao nhất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {showFilters && (
+          <div className="discover-price-row">
+            <div className="discover-price-left">
+              <p>Khoảng giá</p>
+            </div>
+
+            <div className="discover-price-inputs">
+              <div>
+                <label>Giá từ</label>
+
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0 đ"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+              </div>
+
+              <span>-</span>
+
+              <div>
+                <label>Giá đến</label>
+
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="10.000.000 đ"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+
+              <button
+                type="button"
+                className="discover-price-apply-btn"
+                onClick={() => {
+                  applyFilters(
+                    {
+                      minPrice: minPrice ? String(Number(minPrice) * 1000) : "",
+                      maxPrice: maxPrice ? String(Number(maxPrice) * 1000) : "",
+                    },
+                    0
+                  );
+                }}
+              >
+                Lọc giá
+              </button>
+              <button
+                type="button"
+                className="discover-price-reset-btn"
+                onClick={() => {
+                  setMinPrice("");
+                  setMaxPrice("");
+
+                  applyFilters(
+                    {
+                      minPrice: "",
+                      maxPrice: "",
+                    },
+                    0
+                  );
+                }}
+              >
+                Xóa lọc
+              </button>
+            </div>
+          </div>
+        )}
       </form>
 
-      {loading && <p className="product-list__message">Đang tải...</p>}
+      {loading && <p className="discover-message">Đang tải sản phẩm...</p>}
 
       {!loading && products.length === 0 && (
-        <p className="product-list__message">Không có sản phẩm nào</p>
+        <p className="discover-message">
+          {categoryId || keyword || minPrice || maxPrice
+            ? "Không tìm thấy sản phẩm phù hợp trong danh mục hoặc bộ lọc hiện tại"
+            : "Không có sản phẩm nào"}
+        </p>
       )}
 
-      <div className="product-list__grid">
-        {products.map((product) => {
-          const imagePath = product.image || product.imageUrl;
+      <div className="discover-grid">
+        {products.map((product) => (
+          <div className="discover-card" key={product.productId}>
+            <img
+              src={product.image || "/favicon.svg"}
+              alt={product.name}
+            />
 
-          return (
-            <div className="product-list__card" key={product.productId}>
-              <img
-                className="product-list__image"
-                src={getImageUrl(imagePath)}
-                alt={product.name}
-              />
+            <div className="discover-card-content">
+              <h3>{product.name}</h3>
 
-              <h3 className="product-list__name">{product.name}</h3>
+              <p className="discover-category-name">{product.categoryName}</p>
 
-              <p className="product-list__category">{product.categoryName}</p>
-
-              <p className="product-list__price">
+              <strong>
                 {Number(product.price).toLocaleString("vi-VN")} đ
-              </p>
+              </strong>
 
-              <p className="product-list__stock">Kho: {product.stock}</p>
+                <div className="discover-rating">
+                  <Star size={14} fill="#ff7b29" color="#ff7b29" />
+                  <span>
+                    {Number(product.averageRating || 0).toFixed(1)}
+                    {" "}
+                    ({product.reviewCount || 0} đánh giá)
+                  </span>
+                </div>
 
-              <Link
-                className="product-list__detail-link"
-                to={`/products/${product.productId}`}
-              >
+              <p className="discover-stock">Kho: {product.stock}</p>
+
+              <Link to={`/products/${product.productId}`}>
                 Xem chi tiết
               </Link>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      <div className="product-list__pagination">
+      <div className="discover-pagination">
         <button
           type="button"
           disabled={page <= 0}
-          onClick={() => handleChangePage(page - 1)}
+          onClick={() => handlePageChange(page - 1)}
         >
-          Trang trước
+          {"<"}
         </button>
 
-        <span>
-          Trang {page + 1} / {totalPages || 1}
-        </span>
+        <span>{page + 1}</span>
 
         <button
           type="button"
           disabled={page + 1 >= totalPages}
-          onClick={() => handleChangePage(page + 1)}
+          onClick={() => handlePageChange(page + 1)}
         >
-          Trang sau
+          {">"}
         </button>
       </div>
+
+      <button
+        type="button"
+        className="discover-reset-btn"
+        onClick={handleReset}
+      >
+        Reset bộ lọc
+      </button>
+      <ScrollTopButton />
     </div>
+  
   );
+
 }
 
 export default ProductListPage;
