@@ -29,21 +29,22 @@ function AdminLayout({ children }) {
 
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-
+``
     const toggleSidebar = () => {
         setSidebarCollapsed((prev) => !prev);
     };
 
     return (
         <div className={`admin-layout ${sidebarCollapsed ? "admin-layout--collapsed" : ""}`}>
-            <AdminSidebar collapsed={sidebarCollapsed}/>
-
+            
             {!sidebarCollapsed && (
                 <div    
                     className="admin-sidebar-overlay"
                     onClick={toggleSidebar}
                 />
             )}
+
+            <AdminSidebar collapsed={sidebarCollapsed}/>
 
             <main className="admin-main">
                 <AdminHeader onToggleSidebar={toggleSidebar} />
