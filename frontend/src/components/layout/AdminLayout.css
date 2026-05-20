@@ -148,21 +148,6 @@
     gap: 16px;
 }
 
-.admin-header__search input {
-    width: 260px;
-    padding: 11px 14px;
-    border: 1px solid #ded6cf;
-    border-radius: 999px;
-    outline: none;
-    font-size: 14px;
-    background: #faf8f6;
-}
-
-.admin-header__search input:focus {
-    border-color: #8c7a6b;
-    background: #ffffff;
-}
-
 .admin-profile-card {
     display: flex;
     align-items: center;
@@ -220,6 +205,22 @@
         left: 0;
         top: 0;
         z-index: 1000;
+        width: 250px;
+        transform: translateX(0);
+        transition: transform 0.2s ease;
+    }
+
+    .admin-sidebar--collapsed {
+        transform: translateX(-100%);
+        width: 250px;
+        padding: 22px 16px;
+    }
+
+    .admin-sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.25);
     }
 
     .admin-header {
@@ -232,16 +233,6 @@
 
     .admin-profile-card {
         max-width: 150px;
-    }
-
-    .admin-header__search input {
-        width: 180px;
-    }
-
-    .admin-sidebar--collapsed {
-        transform: translateX(-100%);
-        width: 250px;
-        padding: 22px 16px;
     }
 
     .admin-content {
