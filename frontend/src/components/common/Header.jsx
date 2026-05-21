@@ -13,7 +13,7 @@ export default function Header() {
   const location = useLocation();
 
   const { user, logout } = useContext(AuthContext);
-  const { clearCartState } = useContext(CartContext);
+  const { totalItems, clearCartState } = useContext(CartContext);
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
 
@@ -72,13 +72,18 @@ export default function Header() {
       </nav>
 
       <div className="header-actions">
-        <button
-          type="button"
-          className="cart-btn"
-          onClick={() => navigate("/cart")}
-        >
-          🛒
-        </button>
+        {!isAdmin && (
+          <button
+            type="button"
+            className="cart-btn"
+            onClick={() => navigate("/cart")}
+          >
+            <span>🛒</span>
+            {totalItems > 0 && (
+              <span className="cart-badge">{totalItems}</span>
+            )}
+          </button>
+        )}
 
         {!user ? (
           <button

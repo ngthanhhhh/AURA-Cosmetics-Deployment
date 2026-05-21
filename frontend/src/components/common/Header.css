@@ -58,6 +58,7 @@
 
 /* Nút giỏ hàng (Cart) hình tròn */
 .cart-btn {
+  position: relative;
   width: 46px;                        /* Chiều rộng cố định */
   height: 46px;                       /* Chiều cao bằng chiều rộng để tạo hình vuông */
   border-radius: 50%;                 /* Bo tròn 50% biến thành hình tròn hoàn hảo */
@@ -65,6 +66,26 @@
   background: #ffffff;                /* Nền màu trắng */
   cursor: pointer;                    /* Hiệu ứng con trỏ chuột bàn tay */
   font-size: 20px;                    /* Cỡ icon/chữ bên trong */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #b85c38;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
 }
 
 /* Nút đăng nhập trên header */
@@ -97,42 +118,77 @@
    Đã sửa: Ngắn chiều cao lại, tăng chiều ngang ra.
    ========================================================================== */
 .user-box {
-  display: flex;                      /* Xếp avatar và tên người dùng theo hàng ngang */
+  height: 54px;
+  min-width: 230px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid #eee6df;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2a3a;
+  cursor: pointer;
+
+  display: flex;
   align-items: center;
-  gap: 12px;                          /* Khoảng cách từ ảnh đại diện đến phần chữ */
-  
-  padding: 1px 30px;                  /* Giảm từ 10px xuống 6px để NGẮN DỌC, tăng từ 18px lên 28px để RỘNG NGANG */
-  min-width: 160px;                   /* Đặt độ rộng tối thiểu để hộp không bị quá bé khi tên người dùng ngắn */
-  
-  border: 1px solid #eadbd3;
-  border-radius: 999px;               /* Giữ nguyên bo tròn dạng viên thuốc */
-  background: #ffffff;
+  gap: 12px;
+
+  box-shadow: 0 6px 18px rgba(86, 63, 50, 0.08);
 }
 
 /* Ảnh đại diện (Avatar) hình tròn đại diện */
 .avatar {
-  width: 38px;                        /* Chiều rộng avatar */
-  height: 38px;                       /* Chiều cao avatar */
-  background: #ead8c8;                /* Màu nền của vòng tròn avatar */
-  color: #0c0c0c;                     /* Màu chữ viết tắt tên bên trong avatar */
-  border-radius: 50%;                 /* Biến avatar thành hình tròn */
-  display: flex;                      /* Dùng flexbox để căn chữ viết tắt nằm chính giữa */
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #eadccf;
+  color: #111;
+
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;                   /* Chữ viết tắt siêu đậm */
+
+  font-size: 22px;
+  font-weight: 800;            
+}
+
+.user-box > div:nth-child(2) {
+  min-width: 0;
+  flex: 1;
+  text-align: left;
 }
 
 /* Tên hiển thị người dùng (Thẻ strong) */
 .user-box strong {
-  color: #302735;
-  font-size: 14px;
+  display: block;
+  max-width: 115px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #111;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
 }
 
 /* Vai trò hoặc email người dùng (Thẻ p) */
 .user-box p {
-  margin: 0;                          /* Loại bỏ margin mặc định của thẻ p để tránh phá vỡ chiều cao */
-  color: #8c7c8d;
-  font-size: 13px;
+  margin: 3px 0 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  color: #8a828e;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.user-box svg {
+  flex-shrink: 0;
+  color: #111;
 }
 
 /* =========================
