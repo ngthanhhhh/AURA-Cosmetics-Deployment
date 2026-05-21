@@ -1,57 +1,125 @@
+import { useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+
 import "./Footer.css";
 
-function Footer() {
-    return(
-         <footer className="footer">
-            <div className="footer-container">
+import { AuthContext } from "../../context/AuthContext";
 
+function Footer() {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const { user } = useContext(AuthContext);
+
+    const isAdmin = user?.role === "ROLE_ADMIN";
+    const isCustomer = user?.role === "ROLE_CUSTOMER";
+
+    const scrollToSection = (id) => {
+        if (location.pathname !== "/") {
+            navigate("/");
+
+            setTimeout(() => {
+                document.getElementById(id)?.scrollIntoView({
+                    behavior: "smooth",
+                });
+            }, 100);
+
+            return;
+        }
+
+        document.getElementById(id)?.scrollIntoView({
+            behavior: "smooth",
+        });
+    };
+
+    return (
+        <footer className="footer">
+            <div className="footer-container">
                 <div className="footer-section">
                     <h2 className="footer-logo">AURA</h2>
 
                     <p>
-                        Mỹ phẩm và chăm sóc da chính hãng,
-                        mang đến trải nghiệm làm đẹp nhẹ nhàng
-                        và tinh tế mỗi ngày.
+                        Website bán mỹ phẩm trực tuyến, hỗ trợ khách hàng xem sản phẩm,
+                        thêm vào giỏ hàng, đặt hàng, thanh toán và theo dõi đơn hàng.
                     </p>
                 </div>
 
                 <div className="footer-section">
-                    <h3>Thông tin</h3>
+                    <h3>Điều hướng</h3>
 
                     <ul>
-                        <li>Về chúng tôi</li>
-                        <li>Sản phẩm</li>
-                        <li>Khuyến mãi</li>
+                        <li>
+                            <Link to="/">Trang chủ</Link>
+                        </li>
+
+                        <li>
+                            <button type="button" onClick={() => scrollToSection("about-us")}>
+                                Về chúng tôi
+                            </button>
+                        </li>
+
+                        <li>
+                            <Link to="/products">Sản phẩm</Link>
+                        </li>
+
+                        <li>
+                            <button type="button" onClick={() => scrollToSection("categories")}>
+                                Danh mục
+                            </button>
+                        </li>
                     </ul>
                 </div>
 
                 <div className="footer-section">
-                    <h3>Hỗ trợ</h3>
+                    <h3>Tài khoản</h3>
 
                     <ul>
-                        <li>Chính sách đổi trả</li>
-                        <li>Hướng dẫn mua hàng</li>
-                        <li>Câu hỏi thường gặp</li>
-                    </ul>
-                </div>
+                        {!user && (
+                            <>
+                                <li>
+                                    <Link to="/auth/login">Đăng nhập</Link>
+                                </li>
 
-                <div className="footer-section">
-                    <h3>Liên hệ</h3>
+                                <li>
+                                    <Link to="/auth/register">Đăng ký</Link>
+                                </li>
+                            </>
+                        )}
 
-                    <ul>
-                        <li>Email: aura@gmail.com</li>
-                        <li>Hotline: 0123 456 789</li>
-                        <li>TP. Hồ Chí Minh</li>
+                        {isCustomer && (
+                            <>
+                                <li>
+                                    <Link to="/cart">Giỏ hàng</Link>
+                                </li>
+
+                                <li>
+                                    <Link to="/my-orders">Đơn hàng của tôi</Link>
+                                </li>
+
+                                <li>
+                                    <Link to="/account">Thông tin cá nhân</Link>
+                                </li>
+
+                                <li>
+                                    <Link to="/change-password">Đổi mật khẩu</Link>
+                                </li>
+                            </>
+                        )}
+
+                        {isAdmin && (
+                            <li>
+                                <Link to="/admin">Trang quản trị</Link>
+                            </li>
+                        )}
                     </ul>
                 </div>
             </div>
 
             <div className="footer-bottom">
-                2026 AURA Cosmetics. All rights reserved.
+                2026 AURA Cosmetics. Final Project.
             </div>
-         </footer>
-
-    )
+        </footer>
+    );
 }
 
 export default Footer;
