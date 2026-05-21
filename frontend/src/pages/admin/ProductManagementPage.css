@@ -93,6 +93,13 @@
     background: #faf8f6;
     font-weight: 600;
 }
+.product-management__table-image {
+  width: 72px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #eee8f3;
+}
 
 .product-management__table tr:last-child td {
     border-bottom: none;

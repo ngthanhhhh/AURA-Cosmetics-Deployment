@@ -15,4 +15,6 @@ public class ProductResponse {
     private String image;
     private String categoryName; // Hiện tên
     private String status;
+    private Double averageRating;
+    private Long reviewCount;
 }

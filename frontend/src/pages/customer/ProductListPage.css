@@ -1,189 +1,534 @@
-.product-list {
-  padding: 34px;
-  background: #faf8f6;
+/* =========================
+   TOÀN BỘ TRANG SẢN PHẨM
+========================= */
+.discover-page {
+  padding: 24px 34px 40px;
+  background: #fff3eb31;
   min-height: 100vh;
 }
 
-.product-list__title {
-  text-align: center;
-  margin: 0 0 24px;
-  font-size: 30px;
-  color: #171321;
-}
-
-.product-list__filter {
-  background: #ffffff;
-  border: 1px solid #eee8f3;
-  border-radius: 20px;
-  padding: 18px;
-  margin-bottom: 26px;
-  box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
+/* =========================
+   KHU VỰC TIÊU ĐỀ KHÁM PHÁ
+   Gồm tiêu đề lớn và dòng mô tả
+========================= */
+.discover-header {
   display: flex;
+  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 18px;
 }
 
-.product-list__filter-input {
-  padding: 11px 14px;
-  min-width: 160px;
-  border: 1px solid #ded6cf;
-  border-radius: 12px;
-  background: #faf8f6;
-  color: #2b2831;
+/* Chữ KHÁM PHÁ */
+.discover-header h1 {
+  font-size: 76px;
+  margin: 5;
+  letter-spacing: 4px;
+  color: #0a0a0a;
+  font-family: serif;
+}
+
+/* Icon ✦ hai bên tiêu đề */
+.discover-header span {
+  color: #ff6f01;
+  font-size: 22px;
+}
+
+/* Dòng mô tả bên dưới tiêu đề */
+.discover-subtitle {
+  text-align: center;
+  color: #251e26;
+  margin: 0px 0 20px;
+  font-size: 18px;
+}
+
+/* =========================
+   KHUNG TÌM KIẾM / BỘ LỌC
+========================= */
+.discover-filter {
+  max-width: 1180px;
+  margin: 0 auto;
+  background: #f56e06;
+  border-radius: 20px;
+  padding: 8px 16px;
+  border: 1px solid #ec510a;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
+}
+
+/* Thanh filter dính khi cuộn */
+.discover-filter {
+  position: sticky;
+  top: 70px;
+  z-index: 50;
+}
+
+/* Hàng đầu tiên của thanh filter */
+.discover-topbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* =========================
+   Ô CHỌN DANH MỤC
+========================= */
+.discover-category {
+  height: 36px;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid #eaded6;
+  background: #f6d4c5;
+}
+
+/* Select chọn danh mục */
+.discover-category select {
+  width: 100%;
+  border: none;
+  background: transparent;
   outline: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f2435;
+  cursor: pointer;
+}
+
+/* =========================
+   Ô TÌM KIẾM SẢN PHẨM
+========================= */
+.discover-search {
+  flex: 1;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #eaded6;
+  background: #f6d4c5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+}
+
+/* Input tìm kiếm */
+.discover-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
   font-size: 14px;
 }
 
-.product-list__filter-input:focus {
-  border-color: #8c7a6b;
+/* =========================
+   NÚT BỘ LỌC / SẮP XẾP
+========================= */
+.discover-action-btn {
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid #eaded6;
+  background: #f6d4c5;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2f2435;
+  white-space: nowrap;
+}
+
+/* =========================
+   DROPDOWN SẮP XẾP
+========================= */
+.discover-sort {
+  position: relative;
+}
+
+/* Khung menu sắp xếp xổ xuống */
+.discover-sort-dropdown {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 220px;
+  background: #f6d4c5;
+  border-radius: 16px;
+  border: 1px solid #eaded6;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  z-index: 20;
+}
+
+/* Các nút bên trong dropdown */
+.discover-sort-dropdown button {
+  width: 100%;
+  border: none;
+  background: #ffffff;
+  padding: 10px 16px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #020202;
+}
+
+/* Hover các nút sắp xếp */
+.discover-sort-dropdown button:hover {
+  background: #fff5f0;
+}
+
+/* =========================
+   KHU VỰC LỌC KHOẢNG GIÁ
+========================= */
+.discover-price-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f3ece7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+/* Khung chữ Khoảng giá */
+.discover-price-left {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* Chữ Khoảng giá */
+.discover-price-left p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: #0b0b0b;
+  white-space: nowrap;
+}
+
+/* Nhóm giá từ - giá đến */
+.discover-price-inputs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Cụm label + input */
+.discover-price-inputs div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Label Giá từ / Giá đến */
+.discover-price-inputs label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #070707;
+  white-space: nowrap;
+}
+
+/* Ô nhập giá */
+.discover-price-inputs input {
+  width: 132px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #eaded6;
+  padding: 0 10px;
+  font-size: 13px;
+  outline: none;
   background: #ffffff;
 }
 
-.product-list__filter-btn {
+/* Nút áp dụng lọc giá */
+.discover-price-apply-btn {
+  height: 34px;
   border: none;
-  border-radius: 12px;
-  padding: 10px 16px;
-  cursor: pointer;
-  font-weight: 600;
-  background: #2f2a3a;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #020202;
   color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.product-list__filter-btn--secondary {
-  background: #eee5db;
-  color: #4b3f35;
+/* Hover nút lọc giá */
+.discover-price-apply-btn:hover {
+  background: #060606;
 }
 
-.product-list__message {
+/* Nút xóa lọc giá */
+.discover-price-reset-btn {
+  height: 34px;
+  border: 1px solid #ded6cf;
+  border-radius: 10px;
+  padding: 0 14px;
+  background: #ffffff;
+  color: #0e0e0e;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Hover nút xóa lọc */
+.discover-price-reset-btn:hover {
+  background: #f5efea;
+}
+
+/* Focus ô nhập giá */
+.discover-price-inputs input:focus {
+  border-color: #b99b8c;
+}
+
+/* =========================
+   THÔNG BÁO TRẠNG THÁI
+========================= */
+.discover-message {
+  margin-top: 28px;
   text-align: center;
-  margin: 24px 0;
-  color: #6b6474;
+  color: #7c7080;
+  font-size: 16px;
 }
 
-.product-list__grid {
+/* =========================
+   GRID HIỂN THỊ SẢN PHẨM
+========================= */
+.discover-grid {
+  margin-top: 32px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 22px;
 }
 
-.product-list__card {
+/* Card sản phẩm */
+.discover-card {
   background: #ffffff;
-  border: 1px solid #eee8f3;
-  border-radius: 20px;
-  padding: 16px;
-  text-align: center;
-  box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 24px;
+  overflow: hidden;
+  border: 1px solid #f0e6df;
+  transition: 0.25s;
 }
 
-.product-list__card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(25, 18, 38, 0.08);
+/* Hover card sản phẩm */
+.discover-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
-.product-list__image {
+/* Ảnh sản phẩm */
+.discover-card img {
   width: 100%;
-  height: 210px;
+  height: 260px;
   object-fit: cover;
-  border-radius: 16px;
-  background: #f4efe9;
+  background: #f6efe9;
 }
 
-.product-list__name {
-  min-height: 56px;
-  margin: 14px 0 8px;
-  color: #171321;
+/* Nội dung bên trong card */
+.discover-card-content {
+  padding: 18px;
+}
+
+/* Tên sản phẩm */
+.discover-card-content h3 {
+  height: 72px;
+  margin: 0;
   font-size: 20px;
+  line-height: 1.2;
+  color: #c8481e;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.product-list__category,
-.product-list__stock {
-  margin: 6px 0;
-  color: #6b6474;
-}
-
-.product-list__price {
-  font-weight: 700;
+/* Tên danh mục sản phẩm */
+.discover-category-name {
   margin: 8px 0;
-  color: #8a2f2f;
-  font-size: 18px;
+  color: #222020;
 }
 
-.product-list__detail-link {
+/* Giá sản phẩm */
+.discover-card-content strong {
+  color: #601915;
+  font-size: 22px;
+}
+
+/* Khu vực đánh giá sao */
+.discover-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 9px;
+}
+
+/* Chữ đánh giá */
+.discover-rating span {
+  margin-left: 6px;
+  color: #8a7c8d;
+}
+
+/* Thông tin tồn kho */
+.discover-stock {
+  color: #6f6472;
+  margin-top: 10px;
+}
+
+/* Nút xem chi tiết */
+.discover-card-content a {
+  margin-top: 14px;
   display: inline-block;
-  margin-top: 12px;
-  padding: 10px 16px;
-  background-color: #2f2a3a;
+  background: #e17b28;
   color: #ffffff;
+  padding: 11px 16px;
+  border-radius: 14px;
   text-decoration: none;
-  border-radius: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
-.product-list__detail-link:hover {
-  background-color: #171321;
-}
-
-.product-list__pagination {
-  margin-top: 28px;
+/* =========================
+   PHÂN TRANG
+========================= */
+.discover-pagination {
+  margin-top: 32px;
   display: flex;
   justify-content: center;
-  align-items: center;
   gap: 12px;
 }
 
-.product-list__pagination button {
-  min-height: 38px;
-  border: 1px solid #ded6cf;
-  border-radius: 12px;
-  padding: 8px 14px;
+/* Nút và số trang */
+.discover-pagination button,
+.discover-pagination span {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid #eaded6;
   background: #ffffff;
-  color: #2b2831;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Nút chuyển trang */
+.discover-pagination button {
   cursor: pointer;
 }
 
-.product-list__pagination button:disabled {
+/* Trạng thái disable */
+.discover-pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.product-list__pagination span {
-  font-weight: 600;
-  color: #2b2831;
+/* Trang hiện tại */
+.discover-pagination span {
+  background: #060606;
+  color: #ffffff;
+  font-weight: 700;
 }
 
-@media (max-width: 1100px) {
-  .product-list__grid {
+/* =========================
+   NÚT RESET BỘ LỌC
+========================= */
+.discover-reset-btn {
+  margin: 24px auto 0;
+  display: block;
+  border: none;
+  background: transparent;
+  color: #131314;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+/* =========================
+   RESPONSIVE TABLET
+========================= */
+@media (max-width: 1200px) {
+
+  /* Grid còn 3 cột */
+  .discover-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-}
 
-@media (max-width: 768px) {
-  .product-list {
-    padding: 20px;
+  /* Thanh filter tự xuống dòng */
+  .discover-topbar {
+    flex-wrap: wrap;
   }
 
-  .product-list__grid {
+  /* Ô tìm kiếm tối thiểu */
+  .discover-search {
+    min-width: 360px;
+  }
+}
+
+/* =========================
+   RESPONSIVE MOBILE
+========================= */
+@media (max-width: 900px) {
+
+  /* Grid còn 2 cột */
+  .discover-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .product-list__filter-input,
-  .product-list__filter-btn {
+  /* Các cụm filter chuyển dọc */
+  .discover-topbar,
+  .discover-price-row,
+  .discover-price-inputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Các ô filter full width */
+  .discover-category,
+  .discover-search,
+  .discover-action-btn {
     width: 100%;
   }
-}
 
-@media (max-width: 520px) {
-  .product-list__grid {
-    grid-template-columns: 1fr;
+  /* Reset min width search */
+  .discover-search {
+    min-width: 0;
+  }
+
+  /* Thu nhỏ tiêu đề */
+  .discover-header h1 {
+    font-size: 52px;
+  }
+
+  /* Cụm label + input trên mobile */
+  .discover-price-inputs div {
+    justify-content: space-between;
+    flex-direction: row; 
+  }
+
+  /* Input giá trên mobile */
+  .discover-price-inputs input {
+    width: 70%;
   }
 }
 
-.product-list__pagination {
-  margin-top: 28px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
+/* =========================
+   RESPONSIVE ĐIỆN THOẠI NHỎ
+========================= */
+@media (max-width: 600px) {
+
+  /* Grid còn 1 cột */
+  .discover-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Thu nhỏ padding trang */
+  .discover-page {
+    padding: 20px;
+  }
+
+  /* Thu nhỏ tiêu đề */
+  .discover-header h1 {
+    font-size: 42px;
+  }
 }

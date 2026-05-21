@@ -1,8 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { productService } from "../../features/products/productService";
 import "./ProductManagementPage.css";
 import { categoryService } from "../../features/categories/categoryService";
 
+/**
+ * Trang quản lý sản phẩm dành cho quản trị viên.
+ *
+ * Chức năng chính:
+ * - Hiển thị danh sách sản phẩm.
+ * - Tìm kiếm, lọc và sắp xếp sản phẩm.
+ * - Thêm sản phẩm mới.
+ * - Cập nhật thông tin sản phẩm.
+ * - Xóa sản phẩm.
+ * - Upload và xem trước ảnh sản phẩm.
+ */
 function ProductManagementPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -18,6 +29,13 @@ function ProductManagementPage() {
 
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  /**
+   * Ref trỏ tới form thêm/cập nhật sản phẩm.
+   *
+   * Dùng để tự động cuộn lên form khi admin bấm nút "Sửa".
+   */
+  const formRef = useRef(null);
+
   const [form, setForm] = useState({
     name: "",
     price: "",
@@ -28,8 +46,25 @@ function ProductManagementPage() {
     status: "ACTIVE",
   });
 
+  /**
+   * ID của sản phẩm đang được chỉnh sửa.
+   *
+   * Nếu editingId là null thì form đang ở chế độ thêm mới.
+   * Nếu editingId có giá trị thì form đang ở chế độ cập nhật.
+   */
   const [editingId, setEditingId] = useState(null);
 
+  /**
+   * Tải danh sách sản phẩm dành cho admin.
+   *
+   * Dữ liệu được tải theo các điều kiện:
+   * - từ khóa tìm kiếm
+   * - danh mục
+   * - trạng thái
+   * - trang hiện tại
+   * - tiêu chí sắp xếp
+   * - hướng sắp xếp
+   */
   const loadProducts = async () => {
     try {
       const data = await productService.getAdminProducts({
@@ -50,6 +85,13 @@ function ProductManagementPage() {
     }
   };
 
+  /**
+   * Tải danh sách danh mục.
+   *
+   * Danh mục được dùng cho:
+   * - bộ lọc sản phẩm
+   * - form thêm/cập nhật sản phẩm
+   */
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAdminCategories({
@@ -65,17 +107,29 @@ function ProductManagementPage() {
     }
   };
 
+  /**
+   * Load sản phẩm và danh mục khi trang được mở,
+   * hoặc khi thay đổi trang / tiêu chí sắp xếp / hướng sắp xếp.
+   */
   useEffect(() => {
     loadProducts();
     loadCategories();
   }, [page, sortBy, direction]);
 
+  /**
+   * Xử lý submit form tìm kiếm/lọc sản phẩm.
+   *
+   * Khi lọc lại dữ liệu, trang sẽ được đưa về trang đầu tiên.
+   */
   const handleFilterSubmit = (e) => {
     e.preventDefault();
     setPage(0);
     loadProducts();
   };
 
+  /**
+   * Reset bộ lọc về trạng thái mặc định.
+   */
   const handleResetFilter = () => {
     setKeyword("");
     setCategoryIdFilter("");
@@ -85,6 +139,10 @@ function ProductManagementPage() {
     setPage(0);
   };
 
+  /**
+   * Khi toàn bộ điều kiện lọc trở về mặc định,
+   * hệ thống tự động tải lại danh sách sản phẩm ban đầu.
+   */
   useEffect(() => {
     if (
       keyword === "" &&
@@ -97,6 +155,9 @@ function ProductManagementPage() {
     }
   }, [keyword, categoryIdFilter, statusFilter, sortBy, direction]);
 
+  /**
+   * Cập nhật state form khi admin nhập dữ liệu.
+   */
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -104,6 +165,9 @@ function ProductManagementPage() {
     });
   };
 
+  /**
+   * Reset form về trạng thái thêm mới.
+   */
   const resetForm = () => {
     setForm({
       name: "",
@@ -118,6 +182,12 @@ function ProductManagementPage() {
     setEditingId(null);
   };
 
+  /**
+   * Upload ảnh sản phẩm lên server.
+   *
+   * Sau khi upload thành công, backend trả về imageUrl.
+   * imageUrl này sẽ được gán vào field image của form.
+   */
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
 
@@ -142,6 +212,12 @@ function ProductManagementPage() {
     }
   };
 
+  /**
+   * Xử lý thêm mới hoặc cập nhật sản phẩm.
+   *
+   * Nếu editingId có giá trị thì gọi API cập nhật.
+   * Nếu editingId là null thì gọi API thêm mới.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -169,24 +245,43 @@ function ProductManagementPage() {
     }
   };
 
+  /**
+   * Đưa thông tin sản phẩm được chọn lên form để chỉnh sửa.
+   *
+   * Có xử lý tìm lại categoryId theo categoryName trong trường hợp
+   * dữ liệu product trả về không có sẵn categoryId.
+   *
+   * Sau khi set dữ liệu form, trang sẽ tự động cuộn lên khu vực form
+   * để admin dễ dàng cập nhật sản phẩm.
+   */
   const handleEdit = (product) => {
-  setEditingId(product.productId);
+    setEditingId(product.productId);
 
-  const currentCategory = categories.find(
-    (category) => category.name === product.categoryName
-  );
+    const currentCategory = categories.find(
+      (category) => category.name === product.categoryName
+    );
 
-  setForm({
-    name: product.name || "",
-    price: product.price || "",
-    stock: product.stock || "",
-    description: product.description || "",
-    image: product.image || "",
-    categoryId: product.categoryId || currentCategory?.categoryId || "",
-    status: product.status || "ACTIVE",
-  });
-};
+    setForm({
+      name: product.name || "",
+      price: product.price || "",
+      stock: product.stock || "",
+      description: product.description || "",
+      image: product.image || "",
+      categoryId: product.categoryId || currentCategory?.categoryId || "",
+      status: product.status || "ACTIVE",
+    });
 
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  /**
+   * Xóa sản phẩm theo ID.
+   *
+   * Trước khi xóa sẽ hiển thị confirm để tránh admin thao tác nhầm.
+   */
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
 
@@ -200,26 +295,26 @@ function ProductManagementPage() {
     }
   };
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
+  // const API_BASE_URL =
+  //   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return "";
+  // const getImageUrl = (imagePath) => {
+  //   if (!imagePath) return "";
 
-    if (imagePath.startsWith("http")) return imagePath;
+  //   if (imagePath.startsWith("http")) return imagePath;
 
-    const serverUrl = API_BASE_URL.replace("/api/v1", "");
+  //   const serverUrl = API_BASE_URL.replace("/api/v1", "");
 
-    if (imagePath.startsWith("/uploads/")) {
-      return `${serverUrl}${imagePath}`;
-    }
+  //   if (imagePath.startsWith("/uploads/")) {
+  //     return `${serverUrl}${imagePath}`;
+  //   }
 
-    if (imagePath.startsWith("uploads/")) {
-      return `${serverUrl}/${imagePath}`;
-    }
+  //   if (imagePath.startsWith("uploads/")) {
+  //     return `${serverUrl}/${imagePath}`;
+  //   }
 
-    return `${serverUrl}/uploads/products/${imagePath}`;
-  };
+  //   return `${serverUrl}/uploads/products/${imagePath}`;
+  // };
 
   return (
     <div className="product-management">
@@ -280,7 +375,11 @@ function ProductManagementPage() {
         </div>
       </form>
 
-      <form className="product-management__form" onSubmit={handleSubmit}>
+      <form
+        ref={formRef}
+        className="product-management__form"
+        onSubmit={handleSubmit}
+      >
         <h3>{editingId ? "Cập nhật sản phẩm" : "Thêm sản phẩm"}</h3>
 
         <div className="product-management__form-row">
@@ -339,7 +438,7 @@ function ProductManagementPage() {
 
           {form.image && (
             <img
-              src={getImageUrl(form.image)}
+              src={form.image}
               alt="Preview"
               className="product-management__preview"
             />
@@ -373,6 +472,7 @@ function ProductManagementPage() {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Ảnh</th>
             <th>Tên</th>
             <th>Giá</th>
             <th>Kho</th>
@@ -386,6 +486,15 @@ function ProductManagementPage() {
           {products.map((product) => (
             <tr key={product.productId}>
               <td>{product.productId}</td>
+
+              <td>
+                <img
+                  className="product-management__table-image"
+                  src={product.image || "/favicon.svg"}
+                  alt={product.name}
+                />
+              </td>
+
               <td>{product.name}</td>
               <td>{Number(product.price).toLocaleString("vi-VN")} đ</td>
               <td>{product.stock}</td>

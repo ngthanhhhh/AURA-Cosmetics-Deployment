@@ -1,0 +1,476 @@
+/* =========================================================
+   TOÀN BỘ TRANG HOMEPAGE
+   ========================================================= */
+
+/* 
+  Nền chính của homepage 
+  position relative để các nút nổi fixed/absolute hoạt động đúng
+*/
+.home-page {
+  background: #fff3eb31;
+  color: #db9d0b;
+  position: relative;
+}
+
+/* =========================================================
+   NÚT NỔI "BẮT ĐẦU MUA SẮM"
+   ========================================================= */
+
+/*
+  Nút nổi cố định góc phải dưới màn hình
+*/
+.floating-shop-btn {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+
+  z-index: 200;
+
+  border: none;
+
+  background: #ff6f10;
+  color: #ffffff;
+
+  padding: 15px 24px;
+
+  border-radius: 999px;
+
+  font-weight: 700;
+
+  box-shadow: 0 12px 30px rgba(48, 39, 53, 0.28);
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+
+/*
+  Khu vực banner đầu trang
+  Chia 2 cột:
+  - bên trái: text
+  - bên phải: hình ảnh
+*/
+.hero {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  min-height: 480Spx;
+
+  align-items: center;
+
+  padding: 70px 90px;
+
+  background: linear-gradient(135deg, #fafafa, #502f259a);
+}
+
+/*
+  Các đoạn text nhỏ:
+  - AURA COSMETICS
+  - DANH MỤC NỔI BẬT
+  - ABOUT US
+*/
+.hero-content p,
+.section-label,
+.about-us p {
+  color: #bb6195;
+
+  font-weight: 800;
+
+  letter-spacing: 3px;
+}
+
+/*
+  Tiêu đề lớn ở hero
+*/
+.hero-content h1 {
+  font-size: 56px;
+
+  line-height: 1.15;
+
+  margin: 16px 0;
+}
+
+/*
+  Đoạn mô tả dưới tiêu đề
+*/
+.hero-content span {
+  display: block;
+
+  max-width: 500px;
+
+  line-height: 1.8;
+
+  color: #0b0b0b;
+}
+
+/* =========================================================
+   NHÓM NÚT TRONG HERO
+   ========================================================= */
+
+/*
+  Container chứa các nút
+*/
+.hero-buttons {
+  margin-top: 30px;
+
+  display: flex;
+
+  gap: 16px;
+}
+
+/*
+  Style chung cho:
+  - nút hero
+  - nút trong card sản phẩm
+*/
+.hero-buttons button,
+.product-info button {
+  border: none;
+
+  background: #101010;
+
+  color: #ffffff;
+
+  padding: 13px 26px;
+
+  border-radius: 999px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/*
+  Nút outline
+*/
+.hero-buttons .outline {
+  background: transparent;
+
+  color: #f74514;
+
+  border: 1px solid #09040b;
+}
+
+/* =========================================================
+   HÌNH ẢNH HERO
+   ========================================================= */
+
+/*
+  Ảnh banner mỹ phẩm
+*/
+.hero-image img {
+  width: 100%;
+
+  height: 430px;
+
+  object-fit: cover;
+
+  border-radius: 34px;
+
+  box-shadow: 0 24px 60px rgba(48, 39, 53, 0.18);
+}
+
+/* =========================================================
+   SECTION CHUNG
+   ========================================================= */
+
+/*
+  Padding chung cho các section
+*/
+.section {
+  padding: 72px 90px;
+
+  text-align: center;
+}
+
+/*
+  Tiêu đề section
+*/
+.section h2 {
+  font-size: 38px;
+  margin: 10px 0 36px;
+}
+
+/* =========================================================
+   GRID DANH MỤC & SẢN PHẨM
+   ========================================================= */
+
+/*
+  Chia layout 4 cột
+*/
+.category-grid,
+.product-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 26px;
+}
+
+/* =========================================================
+   CARD DANH MỤC
+   ========================================================= */
+
+/*
+  Hiển thị cursor pointer để biết card bấm được
+*/
+.category-card {
+  cursor: pointer;
+}
+
+/*
+  Style chung cho card danh mục và sản phẩm
+*/
+.category-card,
+.product-card {
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  overflow: hidden;
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
+
+  text-align: left;
+}
+
+/*
+  Ảnh trong card
+*/
+.category-card img,
+.product-card img {
+  width: 100%;
+
+  height: 210px;
+
+  object-fit: cover;
+}
+
+/*
+  Phần text bên dưới card danh mục
+*/
+.category-card div {
+  padding: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+/*
+  Tiêu đề card
+*/
+.category-card h3,
+.product-info h3 {
+  color: #ff5500;
+}
+
+/*
+  Nút mũi tên trong card danh mục
+*/
+.category-card button {
+  width: 34px;
+
+  height: 34px;
+
+  border-radius: 50%;
+
+  border: 1px solid #fdfcfb;
+
+  background: #ffffff;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   CARD SẢN PHẨM
+   ========================================================= */
+
+/*
+  Phần thông tin sản phẩm
+*/
+.product-info {
+  padding: 20px;
+}
+
+/*
+  Tên sản phẩm
+*/
+.product-info h3 {
+  margin: 0 0 10px;
+}
+
+/*
+  Giá sản phẩm
+*/
+.product-info strong {
+  display: block;
+
+  margin-bottom: 10px;
+
+  color: #090909;
+}
+
+/*
+  Màu sao đánh giá
+*/
+.product-info p {
+  color: #d98467;
+}
+
+/*
+  Số lượng đánh giá
+*/
+.product-info span {
+  color: #8c7c8d;
+}
+
+/*
+  Nút sản phẩm full width
+*/
+.product-info button {
+  width: 100%;
+
+  margin-top: 8px;
+}
+
+/* =========================================================
+   SECTION ƯU ĐIỂM
+   ========================================================= */
+
+/*
+  3 cột ưu điểm
+*/
+.benefits {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  background: #464049;
+
+  color: #ffffff;
+
+  padding: 54px 90px;
+
+  gap: 30px;
+}
+
+/*
+  Từng block ưu điểm
+*/
+.benefits div {
+  padding: 24px;
+
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/*
+  Bỏ border cột cuối
+*/
+.benefits div:last-child {
+  border-right: none;
+}
+
+/*
+  Mô tả ưu điểm
+*/
+.benefits p {
+  color: #7f747d;
+
+  line-height: 1.7;
+}
+
+/* =========================================================
+   ABOUT US
+   ========================================================= */
+
+/*
+  Section about us cuối trang
+*/
+.about-us {
+  padding: 90px 24px;
+
+  text-align: center;
+
+  background: linear-gradient(135deg, #fff4ef, #f7ddd5);
+}
+
+/*
+  Tiêu đề About Us
+*/
+.about-us h2 {
+  font-size: 42px;
+
+  margin: 12px 0;
+}
+
+/*
+  Nội dung mô tả About Us
+*/
+.about-us span {
+  display: block;
+
+  max-width: 760px;
+
+  margin: 0 auto;
+
+  color: #453f46;
+
+  line-height: 1.8;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  /*
+    Giảm padding mobile/tablet
+  */
+  .hero,
+  .section,
+  .benefits {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  /*
+    Chuyển tất cả thành 1 cột
+  */
+  .hero,
+  .category-grid,
+  .product-grid,
+  .benefits {
+    grid-template-columns: 1fr;
+  }
+
+  /*
+    Giảm size tiêu đề hero
+  */
+  .hero-content h1 {
+    font-size: 40px;
+  }
+
+  /*
+    Xếp nút theo cột trên mobile
+  */
+  .hero-buttons {
+    flex-direction: column;
+  }
+
+  /*
+    Thu nhỏ nút nổi
+  */
+  .floating-shop-btn {
+    right: 18px;
+    bottom: 18px;
+
+    padding: 12px 18px;
+  }
+}

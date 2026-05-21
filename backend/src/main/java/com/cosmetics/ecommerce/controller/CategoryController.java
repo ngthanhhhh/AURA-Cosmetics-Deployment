@@ -18,13 +18,20 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<Page<Category>> getAll(
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "categoryId") String sortBy,
             @RequestParam(defaultValue = "asc") String direction
     ) {
         return ResponseEntity.ok(
-                categoryService.getAll(page, size, sortBy, direction)
+                categoryService.getAll(
+                        keyword,
+                        page,
+                        size,
+                        sortBy,
+                        direction
+                )
         );
     }
 
