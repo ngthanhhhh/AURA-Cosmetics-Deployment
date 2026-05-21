@@ -157,7 +157,7 @@ function OrderDetailManagementPage() {
         );
     }
 
-    if (error & !order) {
+    if (error && !order) {
         return (
             <div className="admin-order-detail-page">
                 <div className="admin-order-detail-page__error">{error}</div>
