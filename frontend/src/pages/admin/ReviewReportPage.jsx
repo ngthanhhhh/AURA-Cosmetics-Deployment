@@ -18,7 +18,7 @@ function ReviewReportPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const fetchReport = async () => {
+    const fetchReport = async (overrideParams = {}) => {
         try {
             setLoading(true);
             setError("");
@@ -29,7 +29,8 @@ function ReviewReportPage() {
                 page,
                 size,
                 sortBy,
-                sortDir
+                sortDir,
+                ...overrideParams
             });
 
             setReports(data?.content || []);
@@ -53,16 +54,39 @@ function ReviewReportPage() {
 
     const handleSearchSubmit = (event) => {
         event.preventDefault();
-        setPage(0);
-        fetchReport();
-    }
+
+        const searchParams = {
+            keyword: keyword.trim() || undefined,
+            minAverageRating: minAverageRating === "" ? undefined : minAverageRating,
+            page: 0
+        };
+
+        if (page === 0) {
+            fetchReport(searchParams);
+        } else {
+            setPage(0);
+        }
+    };
 
     const handleReset = () => {
         setKeyWord("");
         setMinAverageRating("");
         setSortBy("averageRating");
         setSortDir("desc");
-        setPage(0);
+
+        const resetParams = {
+            keyword: undefined,
+            minAverageRating: undefined,
+            page: 0,
+            sortBy: "averageRating",
+            sortDir: "desc"
+        };
+
+        if (page === 0) {
+            fetchReport(resetParams);
+        } else {
+            setPage(0);
+        }
     };
 
     const formatNumber = (value) => {

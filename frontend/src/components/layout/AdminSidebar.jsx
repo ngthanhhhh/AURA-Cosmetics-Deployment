@@ -35,6 +35,10 @@ function AdminSidebar({ collapsed = false }) {
                     Đánh giá
                 </NavLink>
 
+                <NavLink to="/admin/reviews/report">
+                    Báo cáo hài lòng
+                </NavLink>
+
                 <NavLink to="/admin/customers" end>
                     Quản lý khách hàng
                 </NavLink>
