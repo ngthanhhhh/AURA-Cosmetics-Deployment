@@ -305,7 +305,7 @@ public class OrderServiceImpl implements OrderService{
                         ? payment.getPaymentMethod().name() : null   
                 )
                 .paymentStatus(
-                    payment != null & payment.getStatus() != null
+                    payment != null && payment.getStatus() != null
                         ? payment.getStatus().name() : null
                 )
                 .createdAt(order.getCreatedAt())
@@ -382,6 +382,8 @@ public class OrderServiceImpl implements OrderService{
         }
 
         validateStatusTransition(currentStatus, newStatus);
+
+        validatePaymentBeforeProcessing(order, newStatus);
 
         if (newStatus == OrderStatus.COMPLETED) {
             validatePaymentForCompletion(orderId);
@@ -570,6 +572,24 @@ public class OrderServiceImpl implements OrderService{
     
         if (payment.getStatus() != PaymentStatus.SUCCESS) {
             throw new BadRequestException("Không thể hoàn thành đơn hàng do chưa xác nhận thanh toán thành công");
+        }
+    }
+
+    private void validatePaymentBeforeProcessing(Order order, OrderStatus newStatus) {
+        if (newStatus == OrderStatus.CANCELLED) {
+            return;
+        }
+
+        Payment payment = paymentRepository.findByOrder_OrderId(order.getOrderId())
+                .orElseThrow(() -> new BadRequestException(
+                        "Không thể cập nhật trạng thái do chưa có thông tin thanh toán!"
+                ));
+
+        if (payment.getPaymentMethod() == PaymentMethod.VNPAY
+                && payment.getStatus() != PaymentStatus.SUCCESS) {
+            throw new BadRequestException(
+                    "Không thể xử lý đơn VNPay khi thanh toán chưa thành công!"
+            );
         }
     }
 

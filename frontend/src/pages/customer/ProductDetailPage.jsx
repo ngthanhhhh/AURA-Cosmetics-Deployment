@@ -5,6 +5,8 @@ import { CartContext } from "../../context/CartContext";
 import { productService } from "../../features/products/productService";
 import ProductReviews from "./ProductReviews";
 
+import ScrollTopButton from "../../components/common/ScrollTopButton";
+
 import "./ProductDetailPage.css";
 
 function ProductDetailPage() {
@@ -23,8 +25,6 @@ function ProductDetailPage() {
       setLoading(true);
 
       const data = await productService.getProductById(productId);
-
-      console.log("PRODUCT DETAIL DATA:", data);
 
       setProduct(data);
     } catch (error) {
@@ -110,6 +110,8 @@ function ProductDetailPage() {
     return `${API_BASE_URL.replace("/api/v1", "")}/uploads/products/${imagePath}`;
   };
 
+  <ScrollTopButton />
+
   return (
     <div className="product-detail">
       <div className="product-detail__main">
@@ -177,7 +179,9 @@ function ProductDetailPage() {
       <div className="product-detail__reviews">
         <ProductReviews productId={productId} />
       </div>
+      <ScrollTopButton />
     </div>
+    
   );
 }
 

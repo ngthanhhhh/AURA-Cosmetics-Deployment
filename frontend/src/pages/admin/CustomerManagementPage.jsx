@@ -283,7 +283,9 @@ function CustomerManagementPage() {
 
                 {/* Bảng */}
                 {loading ? (
-                    <Loading/>
+                    <div className="customer-table-loading">
+                        <Loading/>
+                    </div>
 
                 ) : error ? (
                     <p className="customer-empty">{error}</p>
@@ -292,11 +294,14 @@ function CustomerManagementPage() {
                         <p className="customer-empty">Không có khách hàng phù hợp</p>  
 
                 ) : (
-                    <Table
-                        columns={columns}
-                        data={customers}
-                        renderRow={renderRow}
-                    />
+                    <div className="customer-table-scroll">
+                        <Table
+                            columns={columns}
+                            data={customers}
+                            renderRow={renderRow}
+                        />
+                    </div>
+                    
                 )}
             </div>
 

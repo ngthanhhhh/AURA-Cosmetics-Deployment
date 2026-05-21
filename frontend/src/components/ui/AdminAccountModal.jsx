@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
+import "./AdminAccountModal.css";
 import {
     createAdminAccount,
     updateAdminAccount,
@@ -130,13 +131,18 @@ function AdminAccountModal({ open, mode, account, onClose, onSubmit}) {
                         gap: 8,
                         marginTop: 8
                     }}>
-                        <label>Trạng thái</label>
-                        <input
-                            type="checkbox"
-                            checked={form.isActive}
-                            onChange={(e) => setForm({...form, isActive: e.target.checked})}
-                        />
-                        <span>{form.isActive ? "Hoạt động" : "Đã khóa"}</span>
+                        <div className="admin-status-field">
+                            <label>Trạng thái</label>
+
+                            <label className="admin-status-toggle">
+                                <input
+                                type="checkbox"
+                                checked={form.isActive}
+                                onChange={(e) => setForm({...form, isActive: e.target.checked})}
+                                />
+                                <span>{form.isActive ? "Hoạt động" : "Đã khóa"}</span>
+                            </label>
+                        </div>
                             
                     </div>
                     {mode === "add" && (
@@ -182,21 +188,23 @@ function AdminAccountModal({ open, mode, account, onClose, onSubmit}) {
                     margin: 16
                 }}
             >
-                <Button
+                <div className="modal-actions">
+                    <Button
                     variant="secondary"
                     onClick={onClose}
                     disabled={loading}
-                >
-                    Hủy
-                </Button>
+                    >
+                        Hủy
+                    </Button>
 
-                <Button
-                    onClick={handleSubmit}
-                    disabled={loading}
-                >
-                    {loading ? "Đang xử lý..." : "Xác nhận"}
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={loading}
+                    >
+                        {loading ? "Đang xử lý..." : "Xác nhận"}
 
-                </Button>
+                    </Button>
+                </div>
             </div>
 
         </Modal>

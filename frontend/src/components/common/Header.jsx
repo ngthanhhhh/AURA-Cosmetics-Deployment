@@ -1,133 +1,159 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useContext, useState } from "react";
 import { ChevronDown } from "lucide-react";
-
-import SearchBox from "../ui/SearchBox";
-import { logoutUser } from "../../features/auth/authService";
-import { categoryService } from "../../features/categories/categoryService";
-import { CartContext } from "../../context/CartContext";
-import { AuthContext } from "../../context/AuthContext";
 
 import "./Header.css";
 
-function Header() {
-    const navigate = useNavigate();
-    const { totalItems, clearCartState } = useContext(CartContext);
-    const [categories, setCategories] = useState([]);
+import { AuthContext } from "../../context/AuthContext";
+import { CartContext } from "../../context/CartContext";
+import { logoutUser } from "../../features/auth/authService";
 
-    const { user, logout } = useContext(AuthContext);
-    const role = user?.role;
+export default function Header() {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const isCustomer = role === "ROLE_CUSTOMER";
-    const isAdmin = role === "ROLE_ADMIN";
+  const { user, logout } = useContext(AuthContext);
+  const { totalItems, clearCartState } = useContext(CartContext);
 
-    const handleLogout = () => {
-        logoutUser();
-        logout();
-        clearCartState();
-        navigate("/");
-    };
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const data = await categoryService.getAllCategories({
-                    page: 0,
-                    size: 20,
-                    sortBy: "categoryId",
-                    direction: "asc",
-                });
+  const isAdmin = user?.role === "ROLE_ADMIN";
 
-                setCategories(data?.content || [])
-            } catch (error) {
-                console.error("Fetch header categories error:", error);
-                setCategories([]);
-            }
-        };
-        
-        fetchCategories();
-    }, []);
+  // Điều hướng và tự đóng menu tài khoản
+  const handleMenuNavigate = (path) => {
+    setShowProfileMenu(false);
+    navigate(path);
+  };
 
-    return (
-        <header className="header">
-            <div className="header-container">
-                <div className="header-left">
-                    <Link to="/" className="header-logo">AURA</Link>
+  const handleLogout = () => {
+    setShowProfileMenu(false);
+    logoutUser();
+    logout();
+    clearCartState();
+    navigate("/");
+  };
 
-                    <div className="category-dropdown">
-                        <button type="button" className="category-button">
-                            <span className="hamburger-icon">☰</span>
-                            <span>Danh mục</span>
-                        </button>
+  const scrollToSection = (id) => {
+    if (location.pathname !== "/") {
+      navigate("/");
 
-                        <div className="dropdown-menu">
-                            <Link to="/products">Tất cả sản phẩm</Link>
-                            {categories.map((category) => (
-                                <Link
-                                    key={category.categoryId}
-                                    to={`/products?categoryId=${category.categoryId}`}
-                                >
-                                    {category.name}
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+      setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({
+          behavior: "smooth",
+        });
+      }, 100);
 
-                <div className="header-center">
-                    <SearchBox />
-                </div>
+      return;
+    }
 
-                <div className="header-right">
-                    {!isAdmin && (
-                        <Link to="/cart" className="cart-link">
-                            🛒
-                            {totalItems > 0 && (
-                                <span className="cart-badge">{totalItems}</span>
-                            )}
-                        </Link>
-                    )}
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
 
-                    {!user ? (
-                        <Link to="/auth/login" className="login-link">
-                            Đăng nhập
-                        </Link>
-                    ) : (
-                        <div className="profile-dropdown">
-                            <button type="button" className="profile-trigger">
-                                <div className="profile-avatar">
-                                    {user.name?.charAt(0).toUpperCase() || "U"}
-                                </div>
+  return (
+    <header className="main-header">
+      <Link to="/" className="logo">
+        AURA
+      </Link>
 
-                                <div className="profile-info">
-                                    <strong>{user.name}</strong>
-                                    <span>{isAdmin ? "Quản trị viên" : "Khách hàng"}</span>
-                                </div>
+      <nav className="nav-menu">
+        <button type="button" onClick={() => scrollToSection("about-us")}>
+          About Us
+        </button>
 
-                                <ChevronDown size={16} className="dropdown-arrow" />
-                            </button>
+        <button type="button" onClick={() => navigate("/products")}>
+          Products
+        </button>
 
-                            <div className="profile-menu">
-                                {isAdmin ? (
-                                    <Link to="/admin">Trang quản trị</Link>
-                                ) : (
-                                    <>
-                                        <Link to="/account">Thông tin cá nhân</Link>
-                                        <Link to="/my-orders">Đơn hàng của tôi</Link>
-                                        <Link to="/change-password">Đổi mật khẩu</Link>
-                                    </>
-                                )}
+        <button type="button" onClick={() => scrollToSection("categories")}>
+          Danh mục
+        </button>
+      </nav>
 
-                                <button type="button" onClick={handleLogout}>
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </header>
-    );
+      <div className="header-actions">
+        {!isAdmin && (
+          <button
+            type="button"
+            className="cart-btn"
+            onClick={() => navigate("/cart")}
+          >
+            <span>🛒</span>
+            {totalItems > 0 && (
+              <span className="cart-badge">{totalItems}</span>
+            )}
+          </button>
+        )}
+
+        {!user ? (
+          <button
+            type="button"
+            className="login-header-btn"
+            onClick={() => navigate("/auth/login")}
+          >
+            Đăng nhập
+          </button>
+        ) : (
+          <div className="profile-dropdown">
+            <button
+              type="button"
+              className="user-box"
+              onClick={() => setShowProfileMenu((prev) => !prev)}
+            >
+              <div className="avatar">
+                {user.name?.charAt(0).toUpperCase() || "U"}
+              </div>
+
+              <div>
+                <strong>{user.name}</strong>
+                <p>{isAdmin ? "Quản trị viên" : "Khách hàng"}</p>
+              </div>
+
+              <ChevronDown size={16} />
+            </button>
+
+            {showProfileMenu && (
+              <div className="profile-menu">
+                {isAdmin ? (
+                  <button
+                    type="button"
+                    onClick={() => handleMenuNavigate("/admin")}
+                  >
+                    Trang quản trị
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/account")}
+                    >
+                      Thông tin cá nhân
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/my-orders")}
+                    >
+                      Đơn hàng của tôi
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleMenuNavigate("/change-password")}
+                    >
+                      Đổi mật khẩu
+                    </button>
+                  </>
+                )}
+
+                <button type="button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </header>
+  );
 }
-
-export default Header;

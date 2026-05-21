@@ -22,7 +22,13 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Page<Category> getAll(int page, int size, String sortBy, String direction) {
+    public Page<Category> getAll(
+            String keyword,
+            int page,
+            int size,
+            String sortBy,
+            String direction
+    ) {
 
         if (page < 0) {
             throw new BadRequestException("Số trang không hợp lệ");
@@ -41,6 +47,13 @@ public class CategoryServiceImpl implements CategoryService {
                 : Sort.by(sortBy).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sort);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return categoryRepository.findByNameContainingIgnoreCase(
+                    keyword.trim(),
+                    pageable
+            );
+        }
 
         return categoryRepository.findAll(pageable);
     }

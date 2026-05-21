@@ -54,8 +54,14 @@ function OrderDetailManagementPage() {
             CANCELLED: []
         };
 
-        return transitionMap[order.status] || [];
-    }, [order?.status]);
+        const baseStatuses = transitionMap[order.status] || [];
+
+        if (order.paymentMethod === "VNPAY" && order.paymentStatus !== "SUCCESS") {
+            return baseStatuses.filter((status) => status === "CANCELLED");
+        }
+
+        return baseStatuses;
+    }, [order?.status, order?.paymentMethod, order?.paymentStatus]);
 
     const getStatusLabel = (status) => {
         const labels = {
@@ -157,7 +163,7 @@ function OrderDetailManagementPage() {
         );
     }
 
-    if (error & !order) {
+    if (error && !order) {
         return (
             <div className="admin-order-detail-page">
                 <div className="admin-order-detail-page__error">{error}</div>

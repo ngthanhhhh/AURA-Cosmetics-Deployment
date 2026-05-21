@@ -4,8 +4,10 @@ import "./CategoryManagementPage.css";
 
 function CategoryManagementPage() {
   const [categories, setCategories] = useState([]);
+
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
   const [keyword, setKeyword] = useState("");
   const [sortBy, setSortBy] = useState("categoryId");
   const [direction, setDirection] = useState("asc");
@@ -17,39 +19,63 @@ function CategoryManagementPage() {
 
   const [editingId, setEditingId] = useState(null);
 
-  const loadCategories = async () => {
+  const loadCategories = async ({
+    nextKeyword = keyword,
+    nextPage = page,
+    nextSortBy = sortBy,
+    nextDirection = direction,
+  } = {}) => {
     try {
       const data = await categoryService.getAdminCategories({
-        keyword: keyword || undefined,
-        page,
+        keyword: nextKeyword.trim() || undefined,
+        page: nextPage,
         size: 10,
-        sortBy,
-        direction,
+        sortBy: nextSortBy,
+        direction: nextDirection,
       });
 
       setCategories(data.content || []);
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Load categories error:", error);
-      alert("Không thể tải danh sách danh mục");
+      alert(error.response?.data?.message || "Không thể tải danh sách danh mục");
     }
   };
 
   useEffect(() => {
-    loadCategories();
+    loadCategories({
+      nextKeyword: keyword,
+      nextPage: page,
+      nextSortBy: sortBy,
+      nextDirection: direction,
+    });
   }, [page, sortBy, direction]);
 
-  const handleFilterSubmit = (e) => {
+  const handleFilterSubmit = async (e) => {
     e.preventDefault();
+
     setPage(0);
-    loadCategories();
+
+    await loadCategories({
+      nextKeyword: keyword,
+      nextPage: 0,
+      nextSortBy: sortBy,
+      nextDirection: direction,
+    });
   };
 
-  const handleResetFilter = () => {
+  const handleResetFilter = async () => {
     setKeyword("");
     setSortBy("categoryId");
     setDirection("asc");
     setPage(0);
+
+    await loadCategories({
+      nextKeyword: "",
+      nextPage: 0,
+      nextSortBy: "categoryId",
+      nextDirection: "asc",
+    });
   };
 
   const handleChange = (e) => {
@@ -64,6 +90,7 @@ function CategoryManagementPage() {
       name: "",
       description: "",
     });
+
     setEditingId(null);
   };
 
@@ -71,9 +98,14 @@ function CategoryManagementPage() {
     e.preventDefault();
 
     const data = {
-      name: form.name,
-      description: form.description,
+      name: form.name.trim(),
+      description: form.description.trim(),
     };
+
+    if (!data.name) {
+      alert("Tên danh mục không được để trống");
+      return;
+    }
 
     try {
       if (editingId) {
@@ -85,7 +117,13 @@ function CategoryManagementPage() {
       }
 
       resetForm();
-      loadCategories();
+
+      await loadCategories({
+        nextKeyword: keyword,
+        nextPage: page,
+        nextSortBy: sortBy,
+        nextDirection: direction,
+      });
     } catch (error) {
       console.error("Save category error:", error);
       alert(error.response?.data?.message || "Thao tác thất bại");
@@ -99,6 +137,11 @@ function CategoryManagementPage() {
       name: category.name || "",
       description: category.description || "",
     });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   const handleDelete = async (id) => {
@@ -107,7 +150,13 @@ function CategoryManagementPage() {
     try {
       await categoryService.deleteCategory(id);
       alert("Xóa danh mục thành công");
-      loadCategories();
+
+      await loadCategories({
+        nextKeyword: keyword,
+        nextPage: page,
+        nextSortBy: sortBy,
+        nextDirection: direction,
+      });
     } catch (error) {
       console.error("Delete category error:", error);
       alert(error.response?.data?.message || "Không thể xóa danh mục");
@@ -119,49 +168,55 @@ function CategoryManagementPage() {
       <h2 className="category-management__title">Quản lý danh mục</h2>
 
       <form className="category-management__filter" onSubmit={handleFilterSubmit}>
-      <h3 className="category-management__filter-title">
-        Lọc / tìm kiếm danh mục
-      </h3>
+        <h3 className="category-management__filter-title">
+          Lọc / tìm kiếm danh mục
+        </h3>
 
-      <div className="category-management__filter-row">
-        <input
-          className="category-management__input"
-          placeholder="Tìm theo tên danh mục"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-        />
+        <div className="category-management__filter-row">
+          <input
+            className="category-management__input"
+            placeholder="Tìm theo tên danh mục"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
 
-        <select
-          className="category-management__input"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="categoryId">Sắp xếp theo ID</option>
-          <option value="name">Sắp xếp theo tên</option>
-        </select>
+          <select
+            className="category-management__input"
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="categoryId">Sắp xếp theo ID</option>
+            <option value="name">Sắp xếp theo tên</option>
+          </select>
 
-        <select
-          className="category-management__input"
-          value={direction}
-          onChange={(e) => setDirection(e.target.value)}
-        >
-          <option value="asc">Tăng dần</option>
-          <option value="desc">Giảm dần</option>
-        </select>
+          <select
+            className="category-management__input"
+            value={direction}
+            onChange={(e) => {
+              setDirection(e.target.value);
+              setPage(0);
+            }}
+          >
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+          </select>
 
-        <button className="category-management__btn" type="submit">
-          Áp dụng
-        </button>
+          <button className="category-management__btn" type="submit">
+            Áp dụng
+          </button>
 
-        <button
-          className="category-management__btn category-management__btn--secondary"
-          type="button"
-          onClick={handleResetFilter}
-        >
-          Reset
-        </button>
-      </div>
-    </form>
+          <button
+            className="category-management__btn category-management__btn--secondary"
+            type="button"
+            onClick={handleResetFilter}
+          >
+            Reset
+          </button>
+        </div>
+      </form>
 
       <form className="category-management__form" onSubmit={handleSubmit}>
         <h3 className="category-management__form-title">
@@ -212,33 +267,45 @@ function CategoryManagementPage() {
         </thead>
 
         <tbody>
-          {categories.map((category) => (
-            <tr key={category.categoryId}>
-              <td>{category.categoryId}</td>
-              <td>{category.name}</td>
-              <td>{category.description}</td>
-              <td>
-                <button
-                  className="category-management__action-btn"
-                  onClick={() => handleEdit(category)}
-                >
-                  Sửa
-                </button>
-
-                <button
-                  className="category-management__action-btn category-management__action-btn--danger"
-                  onClick={() => handleDelete(category.categoryId)}
-                >
-                  Xóa
-                </button>
+          {categories.length === 0 ? (
+            <tr>
+              <td colSpan="4" style={{ textAlign: "center" }}>
+                Không có danh mục phù hợp
               </td>
             </tr>
-          ))}
+          ) : (
+            categories.map((category) => (
+              <tr key={category.categoryId}>
+                <td>{category.categoryId}</td>
+                <td>{category.name}</td>
+                <td>{category.description}</td>
+                <td>
+                  <button
+                    className="category-management__action-btn"
+                    onClick={() => handleEdit(category)}
+                  >
+                    Sửa
+                  </button>
+
+                  <button
+                    className="category-management__action-btn category-management__action-btn--danger"
+                    onClick={() => handleDelete(category.categoryId)}
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
 
       <div className="category-management__pagination">
-        <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
+        <button
+          type="button"
+          disabled={page <= 0}
+          onClick={() => setPage(page - 1)}
+        >
           Trang trước
         </button>
 
@@ -247,6 +314,7 @@ function CategoryManagementPage() {
         </span>
 
         <button
+          type="button"
           disabled={page + 1 >= totalPages}
           onClick={() => setPage(page + 1)}
         >

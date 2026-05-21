@@ -1,0 +1,17 @@
+.scroll-top-btn {
+  position: fixed;
+  right: 28px;
+  bottom: 92px;
+  z-index: 300;
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #f15e09;
+  font-size: 24px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(48, 39, 53, 0.18);
+  border: 1px solid #eadbd3;
+}

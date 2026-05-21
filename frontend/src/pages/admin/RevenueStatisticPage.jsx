@@ -15,6 +15,8 @@ import Loading from "../../components/common/Loading";
 import Button from "../../components/ui/Button";
 import "./RevenueStatisticPage.css";
 
+const PAGE_SIZE = 10;
+
 function RevenueStatisticPage() {
 
     const [type, setType] = useState("DAY");
@@ -23,9 +25,12 @@ function RevenueStatisticPage() {
     const [statistics, setStatistics] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+   
 
     useEffect(() => {
         loadRevenueStatistics("DAY", "", "");
+        
     }, []);
 
     /**
@@ -78,14 +83,60 @@ function RevenueStatisticPage() {
      *
      * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
      */
+
+    const getDaysBetween = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        return (end - start) / (1000 * 60 * 60 * 24);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const effectiveToDate =
+            toDate || new Date().toISOString().split("T")[0];
 
         if(fromDate && toDate && fromDate > toDate){
             setError("Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.");
             return;
         }
 
+        if(type === "DAY" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
+
+            if(diffDays > 365){
+                setError(
+                    "Khoảng thời gian quá lớn cho thống kê theo ngày. Vui lòng chọn tối đa 1 năm hoặc chuyển sang thống kê theo tuần/tháng."
+                );
+                return;
+            }
+        }
+
+        if(type === "WEEK" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
+
+            if(diffDays > 1095){
+                setError(
+                    "Khoảng thời gian quá lớn cho thống kê theo tuần. Vui lòng chọn tối đa 3 năm hoặc chuyển sang thống kê theo tháng."
+                );
+                return;
+            }
+        }
+
+        if(type === "MONTH" && fromDate){
+            const diffDays = getDaysBetween(fromDate, effectiveToDate);
+
+            if(diffDays > 1825){
+                setError(
+                    "Khoảng thời gian quá lớn cho thống kê theo tháng. Vui lòng chọn tối đa 5 năm."
+                );
+                return;
+            }
+        }
+
+        // Đưa page về 1 khi lọc hoặc reset
+        setCurrentPage(1);
         loadRevenueStatistics(type, fromDate, toDate);
     };
 
@@ -97,15 +148,99 @@ function RevenueStatisticPage() {
         setFromDate("");
         setToDate("");
         setError("");
+        setCurrentPage(1);
 
         loadRevenueStatistics("DAY", "", "");
     };
 
     const chartData = statistics?.chartData || [];
 
-    if (loading) {
-        return <Loading/>;
-    }
+    const totalPages = Math.ceil(chartData.length / PAGE_SIZE);
+
+    const paginatedChartData = chartData.slice(
+        (currentPage - 1) * PAGE_SIZE,
+        currentPage * PAGE_SIZE
+    );
+
+    const formatDateDisplay = (date) => {
+        return date.toLocaleDateString("vi-VN", {
+            day: "2-digit",
+            month: "2-digit",
+        });
+    };
+
+    const getWeekDateRange = (label) => {
+        if (!label || !label.includes("-W")){
+            return null;
+        }
+
+        const [yearText, weekText] = label.split("-W");
+        const year = Number(yearText);
+        const week = Number(weekText);
+
+        if(!year || !week){
+            return null;
+        }
+
+        const firstDayOfYear = new Date(year, 0, 1);
+        const weekStart = new Date(firstDayOfYear);
+
+        weekStart.setDate(firstDayOfYear.getDate() + (week - 1) * 7);
+
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        
+        return {
+            start: formatDateDisplay(weekStart),
+            end: formatDateDisplay(weekEnd)
+        };
+    };
+
+    const formatChartLabel = (label) => {
+        if(type !== "WEEK"){
+            return label;
+        }
+
+        if(!label || !label.includes("-W")){
+            return label;
+        }
+
+        const [, weekText] = label.split("-W");
+        return `Tuần ${Number(weekText)}`
+    };
+
+    const formatTablePeriod = (label) => {
+        if(type !== "WEEK"){
+            return label;
+        }
+
+        const range = getWeekDateRange(label);
+
+        return (
+            <div className="week-period">
+                <strong>{formatChartLabel(label)}</strong>
+                {range && (
+                    <span>
+                        {range.start} - {range.end}
+                    </span>
+                )}
+            </div>
+        );
+    };
+
+    const getEmptyChartMessage = () => {
+        if (type === "DAY"){
+            return "Không có dữ liệu doanh thu theo ngày trong khoảng thời gian này."
+        }
+
+        if (type === "WEEK"){
+            return "Không có dữ liệu doanh thu theo tuần trong khoảng thời gian này."
+        }
+
+        return "Không có dữ liệu doanh thu theo tháng trong khoảng thời gian này.";
+    };
+
+    {loading && <Loading/>}
 
     return (
         <div className="revenue-stat-page">
@@ -124,6 +259,7 @@ function RevenueStatisticPage() {
                     <select value={type} onChange={(e) =>{ 
                         setError(""); 
                         setType(e.target.value);
+                        setCurrentPage(1);
 
                     }}>
                         <option value="DAY">Theo ngày</option>
@@ -157,11 +293,12 @@ function RevenueStatisticPage() {
                 </div>
 
                 <div className="filter-action">
-                    <Button type="submit">Lọc dữ liệu</Button>
+                    <Button type="submit" disabled={loading}>Lọc dữ liệu</Button>
 
                     <Button
                         type="button"
                         variant="secondary"
+                        disabled={loading}
                         onClick={handleReset}>
                             Đặt lại
                     </Button>
@@ -199,15 +336,24 @@ function RevenueStatisticPage() {
 
                 {chartData.length === 0 ? (
                     <div className="empty-chart">
-                        Không có dữ liệu doanh thu trong khoảng thời gian này.
+                        {getEmptyChartMessage()}
                     </div>
                 ) : (
                     <div className="chart-wrapper">
                         <ResponsiveContainer width="100%" height={320}>
-                            <LineChart data={chartData}>
+                            <LineChart 
+                                data={chartData}
+                                margin={{ top: 10, right: 24, left: 16, bottom: 16 }}
+                            >
                                 <CartesianGrid strokeDasharray="3 3"/>
-                                <XAxis dataKey="label"/>
+                                <XAxis 
+                                    dataKey="label"
+                                    tick={{fontSize: 12}}
+                                    tickFormatter={formatChartLabel}
+                                />
                                 <YAxis
+                                    width={100}
+                                    tick={{ fontSize: 14 }}
                                     tickFormatter={(value) => 
                                         Number(value).toLocaleString("vi-VN")
                                     }
@@ -254,15 +400,41 @@ function RevenueStatisticPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                chartData.map((item) => (
+                                paginatedChartData.map((item) => (
                                     <tr key={item.label}>
-                                        <td>{item.label}</td>
+                                        <td>{formatTablePeriod(item.label)}</td>
                                         <td>{formatCurrency(item.revenue)}</td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
+
+                    {chartData.length > PAGE_SIZE && (
+                        <div className="revenue-pagination">
+                            <Button 
+                                type="button"
+                                variant="secondary"
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(currentPage - 1)}
+                            >
+                                Trước
+                            </Button>
+
+                            <span>
+                                Trang {currentPage} / {totalPages}
+                            </span>
+
+                            <Button
+                                type="button"
+                                variant="secondary"
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(currentPage + 1)}
+                            >
+                                Sau
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </section>
         </div>
