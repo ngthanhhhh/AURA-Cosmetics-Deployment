@@ -142,7 +142,7 @@ function MyOrdersPage() {
                             setPage(0);
                         }}
                     >
-                        <option value="desc">Giảm dần</option>                        <option value="desc">Giảm dần</option>
+                        <option value="desc">Giảm dần</option>
                         <option value="asc">Tăng dần</option>
                     </select>
                 </div>
