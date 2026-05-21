@@ -331,7 +331,7 @@ function ReviewManagementPage() {
                         </table>
                     </div>
 
-                    <div className="admin-reviews=page__pagination">
+                    <div className="admin-reviews-page__pagination">
                         <button
                             type="button"
                             disabled={page <= 0}
