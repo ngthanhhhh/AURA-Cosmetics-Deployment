@@ -45,7 +45,7 @@ public class UserController {
     public ResponseEntity<?> changePassword(
             Authentication authentication,
             @RequestBody ChangePasswordRequest request){
-        //Lấy email của customer đang đăng nhập từ SecurityContext
+        // Lấy user hiện tại từ Authentication/SecurityContext
         User currentUser = currentUserProvider.getCurrentUser(authentication);
 
         userService.changePassword(currentUser.getEmail(), request);
