@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { fetchMyProfile, updateMyProfile } from "../../features/users/userService";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import { AuthContext } from "../../context/AuthContext";
 import "./CustomerProfilePage.css";
 
 function CustomerProfilePage(){
@@ -19,6 +20,7 @@ function CustomerProfilePage(){
         address: "",
     });
 
+    const { setUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -113,13 +115,13 @@ function CustomerProfilePage(){
             const currentUser = JSON.parse(localStorage.getItem("user") || "null");
 
             if(currentUser){
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        ...currentUser,
-                        name: updatedProfile.name,
-                    })
-                );
+                const newUser = {
+                    ...currentUser,
+                    name: updatedProfile.name,
+                };
+
+                localStorage.setItem("user", JSON.stringify(newUser));
+                setUser(newUser);
             }
 
             setMessage("Cập nhật thông tin thành công.");
@@ -134,6 +136,9 @@ function CustomerProfilePage(){
 
     };
 
+    /**
+     * Khôi phục dữ liệu ban đầu và xóa các thông báo trên giao diện.
+     */
     const handleCancel = async () => {
         setFormData(originalData);
         setError("");
