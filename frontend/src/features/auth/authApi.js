@@ -1,10 +1,10 @@
 import axiosClient from "../../api/axiosClient";
 
 /**
- * Gọi API đăng ký tài khoản khách hàng.
+ * Gửi yêu cầu đăng ký tài khoản khách hàng mới.
  *
  * @param {Object} data Thông tin đăng ký.
- * @returns {Promise<Object>} Response từ backend.
+ * @returns {Promise<Object>} Kết quả đăng ký từ backend.
  */
 
 export const registerApi = (data) => {
@@ -12,12 +12,12 @@ export const registerApi = (data) => {
 };
 
 /**
- * Gọi API đăng nhập hệ thống.
+ * Gửi yêu cầu đăng nhập hệ thống.
  *
- * API này dùng chung cho cả customer và admin.
+ * API được sử dụng cho cả khách hàng và quản trị viên.
  *
  * @param {Object} data Thông tin đăng nhập.
- * @returns {Promise<Object>} JWT token và thông tin user.
+ * @returns {Promise<Object>} JWT token và thông tin tài khoản.
  */
 
 export const loginApi = (data) => {

@@ -17,7 +17,7 @@ function RegisterPage() {
 
     const [error, setError]= useState("");
 
-    // State loading
+    // Trạng thái đang gửi yêu cầu đăng ký
     const [loading, setLoading] = useState(false);
 
     // Hàm cập nhật state mỗi khi người dùng gõ vào ô input
@@ -56,10 +56,9 @@ function RegisterPage() {
             return;
         }
 
-        // console.log("Du lieu hien tai: ", formData);
         setError("");
 
-        // Đóng gói dữ liệu: Kết hợp thông tin người dùng nhập + dữ liệu mặc định hệ thống cần
+        // Chuẩn hóa dữ liệu trước khi gửi lên backend
         const dataToSubmit = {
             name: formData.name.trim(),
             email: formData.email.trim().toLowerCase(),
@@ -95,7 +94,6 @@ function RegisterPage() {
             
             <form className="register-form" onSubmit={handleSubmit}>
 
-                {/* Phần nhập họ tên */}
                 <div className="form-group">
                     <label>Họ tên</label>
                     <input 
@@ -108,7 +106,6 @@ function RegisterPage() {
 
                 </div>
 
-                {/* Phần nhập email */}
                 <div className="form-group">
                     <label>Email</label>
                     <input 
@@ -121,7 +118,6 @@ function RegisterPage() {
 
                 </div>
 
-                {/* Phần nhập sdt */}
                 <div className="form-group">
                     <label>Số điện thoại</label>
                     <input 
@@ -134,8 +130,6 @@ function RegisterPage() {
 
                 </div>
                 
-
-                {/* Phần nhập mật khẩu */}
                 <div className="form-group">
                     <label>Mật khẩu</label>
                     <input 
@@ -148,7 +142,6 @@ function RegisterPage() {
 
                 </div>
 
-                {/* Phần xác nhận mật khẩu */}
                 <div className="form-group">
                     <label>Xác nhận mật khẩu</label>
                     <input
@@ -162,7 +155,6 @@ function RegisterPage() {
                     </input>
                 </div>
                 
-                {/* Nút gửi form */}
                 <button 
                     type="submit" 
                     className="btn-submit"
@@ -172,7 +164,6 @@ function RegisterPage() {
                 </button>
             </form>
 
-            {/* Link chuyển hướng trang đăng nhập */}
             <div className="register-footer">
                 <span>Bạn đã có tài khoản?  </span>
                 <Link to="/auth/login">Đăng nhập!</Link>
