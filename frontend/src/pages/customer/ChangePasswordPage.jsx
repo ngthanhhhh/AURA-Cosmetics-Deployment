@@ -29,11 +29,12 @@ function ChangePasswordPage() {
     };
 
     /**
-     * Xử lý đổi mật khẩu customer.
+     * Xử lý đổi mật khẩu cho khách hàng.
      *
      * Trước khi gửi request:
      * - kiểm tra mật khẩu hiện tại
-     * - kiểm tra mật khẩu mới
+     * - kiểm tra độ dài mật khẩu mới
+     * - kiểm tra mật khẩu mới khác mật khẩu cũ
      * - kiểm tra xác nhận mật khẩu
      *
      * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
