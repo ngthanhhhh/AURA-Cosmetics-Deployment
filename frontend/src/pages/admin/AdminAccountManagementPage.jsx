@@ -163,7 +163,7 @@ function AdminAccountManagementPage(){
         <div className="account-page">
 
             {/* Header */}
-            <div className="account-page__header">
+            <div className="account-page-header">
                 <h2>Quản lý tài khoản Admin</h2>
                 <button
                     type="button"
