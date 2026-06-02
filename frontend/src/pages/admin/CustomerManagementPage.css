@@ -1,3 +1,4 @@
+/* Trang quản lý khách hàng */
 .customer-management {
     display: flex;
     flex-direction: column;
@@ -15,6 +16,7 @@
     color: #7c7488;
 }
 
+/* Thanh công cụ tìm kiếm, lọc và thao tác */
 .customer-toolbar {
     display: flex;
     align-items: center;
@@ -27,6 +29,7 @@
     box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
 
+/* Form tìm kiếm khách hàng */
 .customer-search-form {
     display: flex;
     align-items: center;
@@ -49,6 +52,7 @@
     background: #ffffff;
 }
 
+/* Bộ lọc và sắp xếp dữ liệu */
 .customer-filter-sort {
     display: flex;
     gap: 10px;
@@ -63,6 +67,7 @@
     outline: none;
 }
 
+/* Nhóm nút thao tác */
 .customer-btn {
     border: none;
     border-radius: 12px;
@@ -94,6 +99,7 @@
     color: #2f6b43;
 }
 
+/* Khu vực hiển thị bảng khách hàng */
 .customer-table-card {
     background: #ffffff;
     border: 1px solid #eee8f3;
@@ -103,6 +109,7 @@
 
 }
 
+/* Bảng danh sách khách hàng */
 .customer-table-scroll {
     overflow: auto;
     max-height: calc(100vh - 360px);
@@ -141,6 +148,7 @@
     justify-content: center;
 }
 
+/* Trạng thái tài khoản khách hàng */
 .customer-badge {
     display: inline-flex;
     align-items: center;
@@ -162,6 +170,7 @@
     color: #8a2f2f;
 }
 
+/* Các thao tác trên từng khách hàng */
 .customer-actions {
     display: flex;
     gap: 8px;
@@ -173,6 +182,7 @@
     color: #7c7488;
 }
 
+/* Phân trang danh sách khách hàng */
 .customer-pagination {
     display: flex;
     justify-content: center;
@@ -201,6 +211,7 @@
     cursor: not-allowed;
 }
 
+/* Responsive cho tablet */
 @media (max-width: 1024px) {
     .customer-toolbar {
         flex-direction: column;
@@ -218,6 +229,7 @@
     }
 }
 
+/* Responsive cho thiết bị di động */
 @media (max-width: 768px) {
     .customer-management {
         gap: 16px;
