@@ -9,6 +9,17 @@ import ScrollTopButton from "../../components/common/ScrollTopButton";
 
 import "./ProductDetailPage.css";
 
+/**
+ * Trang chi tiết sản phẩm.
+ *
+ * Chức năng chính:
+ * - Lấy productId từ URL.
+ * - Tải thông tin chi tiết sản phẩm.
+ * - Hiển thị ảnh, tên, giá, danh mục, tồn kho và mô tả sản phẩm.
+ * - Cho phép người dùng chọn số lượng hợp lệ.
+ * - Thêm sản phẩm vào giỏ hàng.
+ * - Hiển thị khu vực đánh giá sản phẩm.
+ */
 function ProductDetailPage() {
   const { productId } = useParams();
 
@@ -20,6 +31,13 @@ function ProductDetailPage() {
   const [addingToCart, setAddingToCart] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
+  /**
+   * Tải thông tin chi tiết sản phẩm theo productId.
+   *
+   * productId được lấy từ tham số trên URL.
+   * Trong lúc gọi API, loading được bật để hiển thị trạng thái đang tải.
+   * Nếu gọi API thành công, dữ liệu sản phẩm sẽ được lưu vào state product.
+   */
   const loadProduct = async () => {
     try {
       setLoading(true);
@@ -35,10 +53,21 @@ function ProductDetailPage() {
     }
   };
 
+  /**
+   * Tải lại chi tiết sản phẩm khi productId trên URL thay đổi.
+   */
   useEffect(() => {
     loadProduct();
   }, [productId]);
 
+  /**
+   * Xử lý thay đổi số lượng sản phẩm.
+   *
+   * Nếu số lượng nhỏ hơn 1, hệ thống tự động đưa về 1.
+   * Nếu số lượng vượt quá tồn kho, hệ thống tự động đưa về số lượng tồn kho.
+   *
+   * @param {Object} e Sự kiện thay đổi giá trị input số lượng.
+   */
   const handleQuantityChange = (e) => {
     const value = Number(e.target.value);
 
@@ -55,6 +84,13 @@ function ProductDetailPage() {
     setQuantity(value);
   };
 
+  /**
+   * Thêm sản phẩm hiện tại vào giỏ hàng.
+   *
+   * Hàm gọi addItemToCart từ CartContext với productId và quantity.
+   * Trong lúc xử lý, addingToCart được bật để khóa nút thêm vào giỏ.
+   * Nếu thêm thành công, hiển thị thông báo thành công cho người dùng.
+   */
   const handleAddToCart = async () => {
     try {
       setAddingToCart(true);
@@ -94,6 +130,18 @@ function ProductDetailPage() {
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1";
 
+  /**
+   * Chuẩn hóa đường dẫn ảnh sản phẩm để hiển thị trên giao diện.
+   *
+   * Hàm hỗ trợ nhiều dạng đường dẫn ảnh:
+   * - Ảnh rỗng thì dùng ảnh mặc định.
+   * - Ảnh đã là URL đầy đủ thì giữ nguyên.
+   * - Ảnh bắt đầu bằng /uploads/ hoặc uploads/ thì ghép với domain backend.
+   * - Ảnh chỉ có tên file thì ghép vào thư mục uploads/products.
+   *
+   * @param {string} imagePath Đường dẫn ảnh sản phẩm nhận từ backend.
+   * @returns {string} Đường dẫn ảnh có thể dùng trực tiếp trong thẻ img.
+   */
   const getImageUrl = (imagePath) => {
     if (!imagePath) return "/favicon.svg";
 
@@ -114,6 +162,7 @@ function ProductDetailPage() {
 
   return (
     <div className="product-detail">
+      {/* Khu vực chính hiển thị ảnh và thông tin chi tiết sản phẩm */}
       <div className="product-detail__main">
         <div className="product-detail__image-box">
           <img
@@ -142,6 +191,7 @@ function ProductDetailPage() {
             {product.description}
           </p>
 
+          {/* Khu vực chọn số lượng và thêm sản phẩm vào giỏ hàng */}
           <div className="product-detail__cart-box">
             <label htmlFor="quantity">Số lượng:</label>
 
@@ -176,9 +226,12 @@ function ProductDetailPage() {
         </div>
       </div>
 
+      {/* Khu vực đánh giá sản phẩm */}
       <div className="product-detail__reviews">
         <ProductReviews productId={productId} />
       </div>
+
+      {/* Nút cuộn nhanh về đầu trang */}
       <ScrollTopButton />
     </div>
     

@@ -6,6 +6,19 @@ import { reviewService } from "../../features/reviews/reviewService";
 import { formatDate } from "../../utils/formatDate";
 import "./ProductReviews.css";
 
+/**
+ * Component hiển thị và xử lý đánh giá sản phẩm.
+ *
+ * Chức năng chính:
+ * - Hiển thị tổng quan điểm đánh giá của sản phẩm.
+ * - Hiển thị thống kê số lượng đánh giá theo từng mức sao.
+ * - Tìm kiếm, lọc và sắp xếp danh sách đánh giá.
+ * - Gửi đánh giá mới cho sản phẩm.
+ * - Phân trang danh sách đánh giá.
+ *
+ * @param {Object} props Props truyền vào component.
+ * @param {number|string} props.productId ID của sản phẩm cần hiển thị đánh giá.
+ */
 function ProductReviews({productId}) {
     const [reviewData, setReviewData] = useState(null);
     const [reviews, setReviews] = useState([]);
@@ -39,6 +52,16 @@ function ProductReviews({productId}) {
         1: 0,
     });
 
+    /**
+     * Tải danh sách đánh giá của sản phẩm.
+     *
+     * Hàm gọi API lấy đánh giá theo các điều kiện hiện tại:
+     * số sao, trạng thái xác nhận mua hàng, từ khóa tìm kiếm,
+     * phân trang và sắp xếp.
+     *
+     * Nếu tải thành công, dữ liệu tổng quan được lưu vào reviewData
+     * và danh sách đánh giá được lưu vào reviews.
+     */
     const fetchReviews = async () => {
         if (!productId) return;
 
@@ -70,6 +93,13 @@ function ProductReviews({productId}) {
         }
     };
 
+    /**
+     * Tải thống kê số lượng đánh giá theo từng mức sao.
+     *
+     * Hàm lấy danh sách đánh giá của sản phẩm, sau đó đếm số lượng
+     * đánh giá 5 sao, 4 sao, 3 sao, 2 sao và 1 sao để hiển thị
+     * trong khu vực tổng quan đánh giá.
+     */
     const fetchRatingSummary = async () => {
         if (!productId) return;
 
@@ -107,17 +137,34 @@ function ProductReviews({productId}) {
         }
     };
 
+    /**
+     * Tải lại đánh giá khi sản phẩm, trang, bộ lọc hoặc sắp xếp thay đổi.
+     */
     useEffect(() => {
         fetchReviews();
         fetchRatingSummary();
     }, [productId, page, rating, verified, sortBy, sortDir]);
 
+    /**
+     * Xử lý tìm kiếm đánh giá theo từ khóa.
+     *
+     * Khi người dùng submit form tìm kiếm, trang hiện tại được đưa về trang đầu
+     * và danh sách đánh giá được tải lại theo từ khóa đang nhập.
+     *
+     * @param {Object} event Sự kiện submit form tìm kiếm.
+     */
     const handleSearchSubmit = (event) => {
         event.preventDefault();
         setPage(0);
         fetchReviews();
     };
 
+    /**
+     * Đặt lại bộ lọc đánh giá về trạng thái mặc định.
+     *
+     * Hàm xóa bộ lọc số sao, trạng thái xác nhận mua hàng,
+     * từ khóa tìm kiếm, tiêu chí sắp xếp và đưa phân trang về trang đầu.
+     */
     const handleReset = () => {
         setRating("");
         setVerified("");
@@ -127,6 +174,15 @@ function ProductReviews({productId}) {
         setPage(0);
     };
 
+    /**
+     * Gửi đánh giá mới cho sản phẩm.
+     *
+     * Hàm lấy số sao và nội dung bình luận từ form,
+     * gọi API tạo đánh giá mới, sau đó reset form, đóng form đánh giá
+     * và tải lại danh sách cùng thống kê đánh giá.
+     *
+     * @param {Object} event Sự kiện submit form đánh giá.
+     */
     const handleSubmitReview = async (event) => {
         event.preventDefault();
 
@@ -159,6 +215,14 @@ function ProductReviews({productId}) {
         }
     };
 
+    /**
+     * Chuyển điểm đánh giá dạng số thành chuỗi ký tự sao.
+     *
+     * Ví dụ: rating là 4 thì trả về 4 sao đặc và 1 sao rỗng.
+     *
+     * @param {number|string} value Giá trị điểm đánh giá.
+     * @returns {string} Chuỗi biểu diễn sao đánh giá.
+     */
     const renderStars = (value) => {
         const ratingValue = Math.round(Number(value || 0));
 
@@ -167,6 +231,7 @@ function ProductReviews({productId}) {
 
     return (
         <section className="product-reviews">
+            {/* Khu vực tổng quan điểm đánh giá và thao tác nhanh */}
             <div className="product-reviews__summary">
                 <div className="product-reviews__summary-left">
                     <h3>ĐÁNH GIÁ ({reviewData?.totalReviews || 0})</h3>
@@ -182,6 +247,7 @@ function ProductReviews({productId}) {
                     <p>{reviewData?.totalReviews || 0} đánh giá</p>
                 </div>
 
+                {/* Khu vực thống kê số lượng đánh giá theo từng mức sao */}
                 <div className="product-reviews__summary-center">
                     <button type="button">Tất cả ({reviewData?.totalReviews || 0})</button>
                     <button type="button">5 ★ ({ratingSummary[5]})</button>
@@ -199,6 +265,7 @@ function ProductReviews({productId}) {
                     <Filter size={28} />
                 </button>
 
+                {/* Khu vực mở form viết đánh giá */}
                 <div className="product-reviews__write-box">
                     <p>Chia sẻ nhận xét của bạn về sản phẩm này</p>
 
@@ -211,12 +278,15 @@ function ProductReviews({productId}) {
                 </div>
             </div>
 
+            {/* Thông báo lỗi khi tải hoặc gửi đánh giá thất bại */}
             {error && <div className="product-reviews__error">{error}</div>} 
 
+            {/* Thông báo thành công sau khi gửi đánh giá */}
             {successMessage && (
                 <div className="product-reviews__success">{successMessage}</div>
             )}  
 
+            {/* Form tìm kiếm, lọc và sắp xếp đánh giá */}
             {showFilters && (
                 <form className="product-reviews__filters" onSubmit={handleSearchSubmit}>
                     <div className="product-reviews__field">
@@ -301,6 +371,7 @@ function ProductReviews({productId}) {
                 </form>
             )}
  
+            {/* Form gửi đánh giá mới cho sản phẩm */}
             {showReviewForm && (
                 <form className="product-reviews__form" onSubmit={handleSubmitReview}>
                     <h4>Gửi đánh giá của bạn</h4>
@@ -337,6 +408,7 @@ function ProductReviews({productId}) {
                 </form>
             )}
 
+            {/* Khu vực hiển thị trạng thái tải, trạng thái rỗng hoặc danh sách đánh giá */}
             {loading ? (
                 <p>Đang tải đánh giá...</p>
             ) : reviews.length === 0 ? (
@@ -345,6 +417,7 @@ function ProductReviews({productId}) {
                 </div>
             ) : (
                 <>
+                    {/* Danh sách các đánh giá của sản phẩm */}
                     <div className="product-reviews__list">
                         {reviews.map((review) => (
                             <article key={review.reviewId} className="product-reviews__item">
@@ -370,6 +443,7 @@ function ProductReviews({productId}) {
                         ))}
                     </div>
 
+                    {/* Phân trang danh sách đánh giá */}
                     <div className="product-reviews__pagination">
                         <button
                             type="button"
