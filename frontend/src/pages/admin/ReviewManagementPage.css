@@ -1,48 +1,51 @@
+/* Áp dụng box-sizing cho trang quản lý đánh giá và toàn bộ phần tử con */
 .admin-reviews-page,
 .admin-reviews-page * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Tính cả padding và border vào kích thước width/height */
 }
 
 .admin-reviews-page {
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ header khoảng 80px */
     padding: 32px 24px 48px;
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
-.admin-reviews-page__header {
-    max-width: 1180px;
-    margin: 0 auto 20px;
+.admin-reviews-page__header { /* Header của trang */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 20px; /* Căn giữa header, cách phần dưới 20px */
 }
 
-.admin-reviews-page__header h2 {
-    margin: 0;
+.admin-reviews-page__header h2 { /* Tiêu đề trang */
+    margin: 0; /* Xóa margin mặc định */
     color: #3f2d24;
     font-size: 28px;
     font-weight: 750;
 }
 
-.admin-reviews-page__filters {
-    max-width: 1180px;
-    margin: 0 auto 16px;
-    padding: 18px;
+.admin-reviews-page__filters { /* Form tìm kiếm, lọc và sắp xếp đánh giá */
+    max-width: 1180px; /* Giới hạn chiều rộng giống nội dung chính */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
+    padding: 18px; /* Khoảng cách bên trong form */
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: #fff;
-    display: grid;
+    display: grid; /* Dùng grid để chia các ô filter thành nhiều cột */
+
+    /* Cột tìm kiếm rộng hơn, 3 cột còn lại chia đều */
     grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(145px, 1fr));
-    gap: 14px;
-    align-items: end;
+    gap: 14px; /* Khoảng cách giữa các ô filter */
+    align-items: end; /* Căn các ô xuống đáy để thẳng hàng */
     box-shadow: 0 14px 34px rgba(86, 63, 50, 0.09);
 }
 
-.admin-reviews-page__filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    min-width: 0;
+.admin-reviews-page__filter-group { /* Một nhóm filter gồm label và input/select */
+    display: flex; /* Dàn label và ô nhập/chọn theo chiều dọc */
+    flex-direction: column; /* Chuyển flex thành cột */
+    gap: 7px; /* Khoảng cách giữa label và input/select */
+    min-width: 0; /* Cho phép group co lại trong grid, tránh vỡ layout */
 }
 
-.admin-reviews-page__filter-group label {
+.admin-reviews-page__filter-group label { /* Label của các ô filter */
     color: #4b382f;
     font-size: 14px;
     font-weight: 700;
@@ -50,56 +53,61 @@
 
 .admin-reviews-page__filter-group input,
 .admin-reviews-page__filter-group select,
-.admin-reviews-page__table select {
-    width: 100%;
-    min-height: 42px;
-    padding: 11px 12px;
+.admin-reviews-page__table select { /* Style chung cho input/select ở filter và select trong bảng */
+    width: 100%; /* Chiếm toàn bộ chiều rộng của group/cột */
+    min-height: 42px; /* Chiều cao tối thiểu để các ô đều nhau */
+    padding: 11px 12px; /* Khoảng cách bên trong ô */
     border: 1px solid #dccbc1;
     border-radius: 14px;
     background: #fffaf7;
     color: #3f2d24;
-    font: inherit;
-    outline: none;
+    font: inherit; /* Kế thừa font chung */
+    outline: none; /* Bỏ outline mặc định của trình duyệt */
+
+    /* Hiệu ứng mượt khi focus */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .admin-reviews-page__filter-group input:focus,
 .admin-reviews-page__filter-group select:focus,
-.admin-reviews-page__table select:focus {
+.admin-reviews-page__table select:focus { /* Khi input/select đang được focus */
     border-color: #8b6654;
     background: #fff;
     box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12);
 }
 
-.admin-reviews-page__filter-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    grid-column: 1 / -1;
+.admin-reviews-page__filter-actions { /* Khối chứa nút tìm kiếm và đặt lại */
+    display: flex; /* Dàn nút trên cùng một hàng */
+    justify-content: flex-end; /* Đẩy nhóm nút về bên phải */
+    gap: 8px; /* Khoảng cách giữa các nút */
+    grid-column: 1 / -1; /* Cho nhóm nút chiếm toàn bộ hàng trong grid */
 }
 
+/* Style chung cho nút filter và nút phân trang */
 .admin-reviews-page__filter-actions button,
 .admin-reviews-page__pagination button {
-    min-height: 42px;
+    min-height: 42px; /* Chiều cao tối thiểu */
     padding: 10px 16px;
     border: 1px solid #6b4f3f;
     border-radius: 999px;
     background: #fff;
     color: #6b4f3f;
-    cursor: pointer;
+    cursor: pointer; /* Hiện con trỏ bàn tay */
     font-weight: 750;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; /* Hiệu ứng hover mượt */
 }
 
+/* Nút đầu tiên trong filter, tức nút Tìm kiếm */
 .admin-reviews-page__filter-actions button:first-child {
     background: linear-gradient(135deg, #7a5543, #4d3529);
     color: #fff;
     box-shadow: 0 10px 20px rgba(86, 63, 50, 0.18);
 }
 
+/* Hover cho nút filter và nút phân trang khi không bị disabled */
 .admin-reviews-page__filter-actions button:hover,
 .admin-reviews-page__pagination button:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
 }
 
 .admin-reviews-page__pagination button:hover:not(:disabled) {
@@ -107,124 +115,128 @@
     color: #fff;
 }
 
+/* Nút phân trang bị khóa */
 .admin-reviews-page__pagination button:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
+    cursor: not-allowed; /* Hiện con trỏ không cho bấm */
+    opacity: 0.45; /* Làm nút mờ đi */
 }
 
 .admin-reviews-page__error,
-.admin-reviews-page__success {
+.admin-reviews-page__success { /* Style chung cho thông báo lỗi và thành công */
     max-width: 1180px;
-    margin: 0 auto 16px;
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
     padding: 13px 16px;
     border-radius: 12px;
     font-weight: 500;
 }
 
 .admin-reviews-page__error {
-    border: 1px solid #f2b6bd;
-    background: #fff0f2;
-    color: #9b1c31;
+    border: 1px solid #f2b6bd; /* Viền đỏ nhạt */
+    background: #fff0f2; /* Nền hồng nhạt */
+    color: #9b1c31; /* Chữ đỏ đậm */
 }
 
 .admin-reviews-page__success {
-    border: 1px solid #a8d8bc;
-    background: #effaf3;
-    color: #18643a;
+    border: 1px solid #a8d8bc; /* Viền xanh nhạt */
+    background: #effaf3; /* Nền xanh nhạt */
+    color: #18643a; /* Chữ xanh đậm */
 }
 
+/* Style chung cho khung rỗng và khung tổng số đánh giá */
 .admin-reviews-page__empty,
 .admin-reviews-page__summary {
-    max-width: 1180px;
-    margin: 0 auto 16px;
-    padding: 16px 18px;
-    border: 1px solid #eadbd2;
+    max-width: 1180px; /* Giới hạn chiều rộng */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
+    padding: 16px 18px; /* Khoảng cách bên trong */
+    border: 1px solid #eadbd2; /* Viền ngoài */
     border-radius: 18px;
     background: #fff;
     color: #5c463b;
-    box-shadow: 0 12px 28px rgba(86, 63, 50, 0.08);
+    box-shadow: 0 12px 28px rgba(86, 63, 50, 0.08); /* Bóng nhẹ */
 }
 
-.admin-reviews-page__empty {
-    margin-top: 24px;
-    padding: 38px 24px;
-    text-align: center;
-    font-weight: 600;
+.admin-reviews-page__empty { /* Khung hiển thị khi không có đánh giá phù hợp */
+    margin-top: 24px; /* Cách phía trên 24px */
+    padding: 38px 24px; /* Tăng padding để trạng thái rỗng nhìn thoáng hơn */
+    text-align: center; /* Căn giữa nội dung */
+    font-weight: 600; /* Làm chữ đậm vừa */
 }
 
-.admin-reviews-page__summary strong {
+.admin-reviews-page__summary strong { /* Làm nổi bật số tổng đánh giá */
     color: #3f2d24;
     font-size: 18px;
 }
 
-.admin-reviews-page__table-wrapper {
-    max-width: 1180px;
-    max-height: 460px;
-    margin: 0 auto;
-    overflow-y: auto;
-    overflow-x: au18;
+.admin-reviews-page__table-wrapper { /* Khung bọc bảng danh sách đánh giá */
+    max-width: 1180px; /* Giới hạn chiều rộng */
+    max-height: 460px; /* Giới hạn chiều cao, nếu nhiều dòng thì cuộn dọc */
+    margin: 0 auto; /* Căn giữa bảng */
+    overflow-y: auto; /* Cho phép cuộn dọc khi bảng nhiều dòng */
+    overflow-x: auto;
     border: 1px solid #eadbd2;
     border-radius: 18px;
     background: #fff;
-    box-shadow: 0 14px 32px rgba(86, 63, 50, 0.08);
+    box-shadow: 0 14px 32px rgba(86, 63, 50, 0.08); /* Bóng nhẹ */
 }
 
+/* Tùy chỉnh thanh cuộn trong Chrome/Edge/Safari */
 .admin-reviews-page__table-wrapper::-webkit-scrollbar {
     width: 9px;
     height: 9px;
 }
 
-.admin-reviews-page__table-wrapper::-webkit-scrollbar-track {
+.admin-reviews-page__table-wrapper::-webkit-scrollbar-track { /* Track/nền của thanh cuộn */
     background: #f7eee8;
     border-radius: 999px;
 }
 
-.admin-reviews-page__table-wrapper::-webkit-scrollbar-thumb {
+.admin-reviews-page__table-wrapper::-webkit-scrollbar-thumb { /* Phần tay kéo của thanh cuộn */
     background: #b79b8a;
     border-radius: 999px;
 }
 
-.admin-reviews-page__table-wrapper::-webkit-scrollbar-thumb:hover {
+.admin-reviews-page__table-wrapper::-webkit-scrollbar-thumb:hover { /* Hover thanh kéo scrollbar */
     background: #8b6654;
 }
 
-.admin-reviews-page__table {
-    width: 100%;
-    min-width: 980px;
-    border-collapse: collapse;
+.admin-reviews-page__table { /* Bảng danh sách đánh giá */
+    width: 100%; /* Bảng chiếm toàn bộ chiều rộng khung */
+    min-width: 980px; /* Chiều rộng tối thiểu để bảng không bị ép nhỏ */
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh viền bị đôi */
     background: #fff;
     font-size: 13px;
 }
 
+/* Style chung cho ô tiêu đề và ô dữ liệu trong bảng */
 .admin-reviews-page__table th,
 .admin-reviews-page__table td {
-    padding: 10px 11px;
-    border-bottom: 1px solid #f0e6df;
-    text-align: left;
-    vertical-align: middle;
+    padding: 10px 11px; /* Khoảng cách bên trong mỗi ô */
+    border-bottom: 1px solid #f0e6df; /* Đường kẻ ngang giữa các dòng */
+    text-align: left; /* Căn chữ về bên trái */
+    vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
     color: #4b382f;
 }
 
-.admin-reviews-page__table th {
+.admin-reviews-page__table th { /* Header của bảng */
     background: #fbf4ef;
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em; /* Tăng khoảng cách giữa các chữ cái */
+    white-space: nowrap; /* Không cho tiêu đề cột xuống dòng */
 }
 
-.admin-reviews-page__table tbody tr {
-    transition: background 0.2s ease;
+.admin-reviews-page__table tbody tr { /* Các dòng dữ liệu trong bảng */
+    transition: background 0.2s ease; /* Tạo hiệu ứng đổi nền mượt khi hover */
 }
 
-.admin-reviews-page__table tbody tr:hover {
+.admin-reviews-page__table tbody tr:hover { /* Khi rê chuột vào một dòng đánh giá */
     background: #fff9f5;
 }
 
-.admin-reviews-page__table tbody tr:last-child td {
-    border-bottom: none;
+.admin-reviews-page__table tbody tr:last-child td { /* Các ô ở dòng cuối cùng */
+    border-bottom: none; /* Bỏ border dưới của dòng cuối để bảng nhìn gọn hơn */
 }
 
 .admin-reviews-page__table td:first-child {
@@ -234,47 +246,47 @@
 }
 
 .admin-reviews-page__product {
-    margin-bottom: 5px;
+    margin-bottom: 5px;  /* Cách dòng mã sản phẩm bên dưới */
     color: #3f2d24;
     font-weight: 800;
     line-height: 1.35;
 }
 
-.admin-reviews-page__table span {
+.admin-reviews-page__table span { /* Các thẻ span chung trong bảng */
     color: #7b665c;
     font-size: 13px;
 }
 
 .admin-reviews-page__stars {
-    color: #d28b00 !important;
-    letter-spacing: 1px;
-    white-space: nowrap;
-    font-size: 15px !important;
+    color: #d28b00 !important; /* Màu vàng/cam cho sao */
+    letter-spacing: 1px; /* Tăng khoảng cách giữa các ngôi sao */
+    white-space: nowrap; /* Không cho sao xuống dòng */
+    font-size: 15px !important; /* Cỡ chữ sao lớn hơn */
 }
 
-.admin-reviews-page__comment {
-    max-width: 260px;
-    min-width: 180px;
+.admin-reviews-page__comment { /* Cột bình luận */
+    max-width: 260px; /* Giới hạn chiều rộng tối đa của bình luận */
+    min-width: 180px; /* Đặt chiều rộng tối thiểu để cột không quá hẹp */
     color: #5c463b;
-    line-height: 1.4;
-    white-space: normal;
+    line-height: 1.4; /* Giãn dòng cho dễ đọc */
+    white-space: normal; /* Cho phép bình luận xuống dòng */
 }
 
 .admin-reviews-page__verified,
 .admin-reviews-page__not-verified,
-.admin-reviews-page__flag {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 82px;
+.admin-reviews-page__flag { /* Style chung cho badge đã mua, chưa xác nhận và flag đánh giá */
+    display: inline-flex; /* Hiển thị badge dạng inline-flex để căn giữa chữ */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    min-width: 82px; /* Đặt độ rộng tối thiểu cho badge */
     padding: 5px 8px;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 700;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho chữ trong badge xuống dòng */
 }
 
-.admin-reviews-page__verified {
+.admin-reviews-page__verified { /* Badge đánh giá đã xác nhận mua hàng */
     background: #e7f6ee;
     color: #0f5132 !important;
 }
@@ -309,63 +321,63 @@
 }
 
 .admin-reviews-page__table td:nth-child(9) select {
-    min-width: 145px;
-    padding: 8px 9px;
+    min-width: 145px; /* Đặt chiều rộng tối thiểu cho select */
+    padding: 8px 9px; /* Giảm padding để vừa trong bảng */
     border-radius: 12px;
     background: #fffaf7;
     font-size: 13px;
 }
 
 .admin-reviews-page__pagination {
-    max-width: 1180px;
-    margin: 18px auto 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
+    max-width: 1180px; /* Giới hạn chiều rộng giống nội dung chính */
+    margin: 18px auto 0; /* Cách bảng phía trên 18px và căn giữa */
+    display: flex; /* Dàn nút trang trước, số trang, trang sau trên cùng một hàng */
+    justify-content: center; /* Căn cụm phân trang vào giữa */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    gap: 12px; /* Khoảng cách giữa các phần tử */
 }
 
-.admin-reviews-page__pagination span {
+.admin-reviews-page__pagination span { /* Text hiển thị số trang */
     color: #4b382f;
     font-weight: 700;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1400px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 1400px */
     .admin-reviews-page__filters {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr; /* Chuyển form filter thành 3 cột */
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 900px */
     .admin-reviews-page__filters {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr; /* Chuyển form filter thành 2 cột */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .admin-reviews-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding tổng của trang cho vừa màn hình nhỏ */
     }
 
     .admin-reviews-page__header h2 {
-        font-size: 24px;
+        font-size: 24px; /* Giảm cỡ chữ tiêu đề */
     }
 
     .admin-reviews-page__filters {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển form filter thành 1 cột */
         border-radius: 18px;
     }
 
     .admin-reviews-page__filter-actions {
-        flex-direction: column;
+        flex-direction: column; /* Xếp nút tìm kiếm và đặt lại theo chiều dọc */
     }
 
     .admin-reviews-page__filter-actions button {
-        width: 100%;
+        width: 100%; /* Mỗi nút chiếm toàn bộ chiều rộng */
     }
 
     .admin-reviews-page__table-wrapper {
-        max-height: 420px;
-        border-radius: 18px;
+        max-height: 420px; /* Giảm chiều cao tối đa của bảng */
+        border-radius: 18px; /* Giảm bo góc cho hợp màn hình nhỏ */
     }
 }
