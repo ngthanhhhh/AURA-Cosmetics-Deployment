@@ -1,25 +1,26 @@
+/* Áp dụng box-sizing cho trang chi tiết đơn hàng của Admin và toàn bộ phần tử con */
 .admin-order-detail-page,
 .admin-order-detail-page * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Tính cả padding và border vào kích thước width/height */
 }
 
-.admin-order-detail-page {
-    min-height: calc(100vh - 80px);
-    padding: 32px 24px 48px;
+.admin-order-detail-page { /* Layout tổng của trang chi tiết đơn hàng Admin */
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ header khoảng 80px */
+    padding: 32px 24px 48px; /* Khoảng cách bên trong trang: trên 32px, trái/phải 24px, dưới 48px */
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
 .admin-order-detail-page__header {
     max-width: 1180px;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    margin: 0 auto 20px; /* Căn giữa header, cách phần dưới 20px */
+    display: flex; /* Dàn phần tiêu đề và link quay lại trên cùng một hàng */
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, link quay lại sang phải */
+    align-items: flex-start; /* Căn các phần tử theo mép trên */
     gap: 16px;
 }
 
-.admin-order-detail-page__header h2 {
-    margin: 0 0 6px;
+.admin-order-detail-page__header h2 { /* Tiêu đề trang chi tiết đơn hàng */
+    margin: 0 0 6px; /* Không cách trên/trái/phải, chỉ cách dưới 6px */
     color: #3f2d24;
     font-size: 28px;
     font-weight: 750;
@@ -31,31 +32,32 @@
     font-weight: 500;
 }
 
+/* Style chung cho link trong trang */
 .admin-order-detail-page a {
     color: #7a5543;
-    text-decoration: none;
+    text-decoration: none; /* Bỏ gạch chân mặc định của link */
     font-weight: 700;
     transition: all 0.2s ease;
 }
 
-.admin-order-detail-page a:hover {
+.admin-order-detail-page a:hover { /* Hover chung cho link */
     color: #4d3529;
-    text-decoration: none;
+    text-decoration: none; /* Đảm bảo hover không hiện gạch chân */
 }
 
-.admin-order-detail-page__header > a {
+.admin-order-detail-page__header > a { /* Link quay lại ở header */
     padding: 10px 14px;
     border: 1px solid #d7c4b8;
     border-radius: 999px;
     background: #fff;
     box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08);
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho chữ bị xuống dòng */
 }
 
 .admin-order-detail-page__error,
 .admin-order-detail-page__success {
-    max-width: 1180px;
-    margin: 0 auto 16px;
+    max-width: 1180px; /* Giới hạn chiều rộng giống nội dung chính */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
     padding: 13px 16px;
     border-radius: 12px;
     font-weight: 500;
@@ -73,16 +75,16 @@
     color: #18643a;
 }
 
-.admin-order-detail-page__grid {
-    max-width: 1180px;
-    margin: 0 auto 22px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+.admin-order-detail-page__grid { /* Grid chứa các card thông tin chính của đơn hàng */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 22px; /* Căn giữa, cách phần dưới 22px */
+    display: grid; /* Dùng grid để chia layout thành nhiều cột */
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* Chia thành 3 cột bằng nhau */
     gap: 18px;
 }
 
 .admin-order-detail-page__card,
-.admin-order-detail-page__items-card {
+.admin-order-detail-page__items-card { /* Style chung cho card thông tin và card danh sách sản phẩm */
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: #fff;
@@ -96,67 +98,68 @@
 
 .admin-order-detail-page__items-card {
     max-width: 1180px;
-    margin: 0 auto;
+    margin: 0 auto; /* Căn giữa theo chiều ngang */
     padding: 22px;
 }
 
 .admin-order-detail-page__card h3,
 .admin-order-detail-page__items-card h3 {
-    margin: 0 0 16px;
+    margin: 0 0 16px;  /* Không cách trên/trái/phải, chỉ cách dưới 16px */
     color: #3f2d24;
     font-size: 20px;
     font-weight: 750;
 }
 
-.admin-order-detail-page__card p {
+.admin-order-detail-page__card p { /* Các dòng thông tin trong card */
     margin: 11px 0;
     color: #3f2d24;
-    line-height: 1.5;
+    line-height: 1.5; /* Giãn dòng cho dễ đọc */
 }
 
-.admin-order-detail-page__card span {
-    color: #7b665c;
-    font-weight: 600;
+.admin-order-detail-page__card span { /* Phần nhãn trong card, ví dụ: Trạng thái, Tổng giá trị */
+    color: #7b665c; /* Màu nhãn nhạt hơn phần giá trị */
+    font-weight: 600; /* Làm nhãn đậm vừa */
 }
 
-.admin-order-detail-page__card strong {
-    color: #3f2d24;
-    font-weight: 800;
-    word-break: break-word;
+.admin-order-detail-page__card strong { /* Phần giá trị trong card */
+    color: #3f2d24; /* Màu chữ nâu đậm */
+    font-weight: 800; /* Làm giá trị nổi bật */
+    word-break: break-word; /* Nếu chữ dài thì cho phép tự xuống dòng */
 }
 
-.admin-order-detail-page__status-card {
-    max-width: 1180px;
-    min-height: auto;
-    margin: 0 auto 22px;
+.admin-order-detail-page__status-card { /* Card riêng cho phần cập nhật trạng thái đơn hàng */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    min-height: auto; /* Không ép chiều cao tối thiểu */
+    margin: 0 auto 22px; /* Căn giữa, cách phần dưới 22px */
     background: linear-gradient(135deg, #fff 0%, #fff8f3 100%);
 }
 
-.admin-order-detail-page__status-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
+.admin-order-detail-page__status-actions { /* Khối chứa select trạng thái và nút cập nhật */
+    display: flex; /* Dàn select và button trên cùng một hàng */
+    gap: 12px; /* Khoảng cách giữa select và button */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    flex-wrap: wrap; /* Cho phép xuống dòng nếu màn hình nhỏ */
 }
 
-.admin-order-detail-page__status-actions select {
-    min-width: 240px;
+.admin-order-detail-page__status-actions select { /* Ô select chọn trạng thái mới */
+    min-width: 240px; /* Chiều rộng tối thiểu của select */
     padding: 12px 14px;
     border: 1px solid #dccbc1;
     border-radius: 14px;
     background: #fffaf7;
     color: #3f2d24;
     font: inherit;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    outline: none; /* Bỏ outline mặc định của trình duyệt */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease; /* Hiệu ứng mượt khi focus */
 }
 
-.admin-order-detail-page__status-actions select:focus {
+.admin-order-detail-page__status-actions select:focus { /* Khi select đang được focus */
     border-color: #8b6654;
     background: #fff;
-    box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12);
+    box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12); /* Tạo vòng sáng nhẹ quanh select */
 }
 
+/* Nút cập nhật trạng thái và nút xác nhận thanh toán COD */
 .admin-order-detail-page__status-actions button,
 .admin-order-detail-page__cod-payment-btn {
     padding: 12px 16px;
@@ -170,64 +173,69 @@
     transition: all 0.2s ease;
 }
 
+/* Hover cho nút cập nhật trạng thái và nút COD khi không bị disabled */
 .admin-order-detail-page__status-actions button:hover:not(:disabled),
 .admin-order-detail-page__cod-payment-btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 26px rgba(86, 63, 50, 0.24);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
+    box-shadow: 0 14px 26px rgba(86, 63, 50, 0.24);  /* Tăng bóng để tạo cảm giác nổi hơn */
 }
 
 .admin-order-detail-page__status-actions button:disabled,
-.admin-order-detail-page__cod-payment-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-    box-shadow: none;
+.admin-order-detail-page__cod-payment-btn:disabled { /* Trạng thái nút bị khóa */
+    cursor: not-allowed; /* Hiện con trỏ báo không bấm được */
+    opacity: 0.6; /* Làm nút mờ đi */
+    box-shadow: none; /* Bỏ bóng để nút nhìn chìm xuống */
 }
 
-.admin-order-detail-page__cod-payment-btn {
+.admin-order-detail-page__cod-payment-btn { /* Nút xác nhận thanh toán COD */
     width: 100%;
     margin-top: 12px;
 }
 
-.admin-order-detail-page__table-wrapper {
-    max-height: 360px;
-    overflow: auto;
+.admin-order-detail-page__table-wrapper { /* Khung bọc bảng danh sách sản phẩm trong đơn hàng phía Admin */
+    max-height: 360px; /* Giới hạn chiều cao bảng, nếu nhiều dòng thì sẽ cuộn */
+    overflow: auto; /* Cho phép cuộn cả ngang và dọc khi bảng quá rộng hoặc quá cao */
     border: 1px solid #f0e6df;
     border-radius: 18px;
     background: #fff;
 }
 
+/* Tùy chỉnh thanh cuộn trong Chrome/Edge/Safari */
 .admin-order-detail-page__table-wrapper::-webkit-scrollbar {
-    width: 9px;
-    height: 9px;
+    width: 9px; /* Độ rộng thanh cuộn dọc */
+    height: 9px; /* Chiều cao thanh cuộn ngang */
 }
 
+/* Phần nền/đường ray của thanh cuộn */
 .admin-order-detail-page__table-wrapper::-webkit-scrollbar-track {
-    background: #f7eee8;
+    background: #f7eee8; /* Màu nền track */
     border-radius: 999px;
 }
 
+/* Phần tay kéo của thanh cuộn */
 .admin-order-detail-page__table-wrapper::-webkit-scrollbar-thumb {
     background: #b79b8a;
     border-radius: 999px;
 }
 
+/* Khi rê chuột vào thanh kéo scrollbar */
 .admin-order-detail-page__table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #8b6654;
+    background: #8b6654; /* Đổi màu thanh kéo đậm hơn */
 }
 
 .admin-order-detail-page__table {
-    width: 100%;
-    min-width: 860px;
-    border-collapse: collapse;
+    width: 100%; /* Bảng chiếm toàn bộ chiều rộng khung */
+    min-width: 860px; /* Chiều rộng tối thiểu để bảng không bị ép quá nhỏ */
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh viền bị đôi */
     background: #fff;
 }
 
 .admin-order-detail-page__table th,
 .admin-order-detail-page__table td {
     padding: 15px 16px;
-    border-bottom: 1px solid #f0e6df;
-    text-align: left;
-    vertical-align: middle;
+    border-bottom: 1px solid #f0e6df; /* Đường kẻ ngang giữa các dòng */
+    text-align: left;  /* Căn chữ về bên trái */
+    vertical-align: middle; /* Căn nội dung giữa theo chiều dọc */
     color: #4b382f;
 }
 
@@ -236,21 +244,21 @@
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em; /* Tăng khoảng cách giữa các chữ cái */
+    white-space: nowrap; /* Không cho tiêu đề cột xuống dòng */
 }
 
-.admin-order-detail-page__table tbody tr {
-    transition: background 0.2s ease;
+.admin-order-detail-page__table tbody tr { /* Các dòng dữ liệu trong bảng */
+    transition: background 0.2s ease; /* Hiệu ứng đổi nền mượt khi hover */
 }
 
-.admin-order-detail-page__table tbody tr:hover {
+.admin-order-detail-page__table tbody tr:hover { /* Khi rê chuột vào một dòng sản phẩm */
     background: #fff9f5;
 }
 
-.admin-order-detail-page__table tbody tr:last-child td {
-    border-bottom: none;
+.admin-order-detail-page__table tbody tr:last-child td { /* Các ô ở dòng cuối cùng */
+    border-bottom: none; /* Bỏ border dưới của dòng cuối để bảng nhìn gọn hơn */
 }
 
 .admin-order-detail-page__table td:nth-child(2),
@@ -264,7 +272,7 @@
     margin-bottom: 6px;
     color: #3f2d24;
     font-weight: 800;
-    line-height: 1.35;
+    line-height: 1.35; /* Giãn dòng nếu tên sản phẩm dài */
 }
 
 .admin-order-detail-page__table td:last-child {
@@ -273,31 +281,31 @@
     line-height: 1.45;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 1024px */
     .admin-order-detail-page__grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển grid thông tin từ 3 cột thành 1 cột */
     }
 
     .admin-order-detail-page__card {
-        min-height: auto;
+        min-height: auto; /* Bỏ chiều cao tối thiểu để card tự co theo nội dung */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .admin-order-detail-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding tổng của trang cho vừa màn hình nhỏ */
     }
 
     .admin-order-detail-page__header {
-        flex-direction: column;
+        flex-direction: column; /* Chuyển header từ hàng ngang sang cột dọc */
     }
 
     .admin-order-detail-page__header h2 {
-        font-size: 24px;
+        font-size: 24px; /* Giảm cỡ chữ tiêu đề */
     }
 
     .admin-order-detail-page__header > a {
-        width: 100%;
+        width: 100%; /* Link quay lại chiếm toàn bộ chiều rộng */
         text-align: center;
     }
 
@@ -308,12 +316,12 @@
     }
 
     .admin-order-detail-page__status-actions {
-        align-items: stretch;
-        flex-direction: column;
+        align-items: stretch; /* Kéo các phần tử giãn theo chiều ngang */
+        flex-direction: column; /* Xếp select và button cập nhật trạng thái theo chiều dọc */
     }
 
     .admin-order-detail-page__status-actions select,
     .admin-order-detail-page__status-actions button {
-        width: 100%;
+        width: 100%; /* Select và button chiếm toàn bộ chiều rộng */
     }
 }
