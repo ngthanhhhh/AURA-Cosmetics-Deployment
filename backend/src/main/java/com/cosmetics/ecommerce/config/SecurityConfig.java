@@ -17,13 +17,38 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
 
+/**
+ * Cấu hình Spring Security cho toàn bộ hệ thống.
+ *
+ * Chức năng chính:
+ * - Cấu hình xác thực bằng JWT
+ * - Phân quyền truy cập theo role
+ * - Cấu hình CORS cho frontend
+ * - Xử lý lỗi xác thực và phân quyền
+ * - Vô hiệu hóa Session và sử dụng Stateless Authentication
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    /**
+     * Filter xử lý JWT cho các request yêu cầu xác thực.
+     */
     private final JwtFilter jwtFilter;
 
+    /**
+     * Cấu hình các chính sách bảo mật của hệ thống.
+     *
+     * Bao gồm:
+     * - Xác thực bằng JWT
+     * - Phân quyền truy cập API
+     * - Xử lý lỗi bảo mật
+     * - Cấu hình Stateless Authentication
+     *
+     * @param http Đối tượng cấu hình bảo mật.
+     * @return SecurityFilterChain của hệ thống.
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -79,6 +104,14 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Cấu hình CORS cho frontend.
+     *
+     * Cho phép frontend React truy cập API backend
+     * thông qua các HTTP method được hỗ trợ.
+     *
+     * @return Cấu hình CORS của hệ thống.
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

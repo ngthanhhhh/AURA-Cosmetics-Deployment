@@ -17,6 +17,13 @@ import ReviewManagementPage from "../pages/admin/ReviewManagementPage";
 import ReviewReportPage from "../pages/admin/ReviewReportPage";
 import RevenueStatisticPage from "../pages/admin/RevenueStatisticPage";
 
+/**
+ * Bọc các trang quản trị bằng layout admin và lớp kiểm tra quyền.
+ *
+ * Chỉ tài khoản có ROLE_ADMIN mới được truy cập các route bên trong.
+ * Nếu chưa đăng nhập hoặc không đúng quyền, ProtectedRoute sẽ điều hướng
+ * người dùng về trang đăng nhập admin.
+ */
 function ProtectedAdminPage({ children }) {
   return (
     <ProtectedRoute requiredRole="ROLE_ADMIN" loginPath="/admin/login">

@@ -10,13 +10,13 @@ export const getDashboardStatisticApi = () => {
 };
 
 /**
- * Gọi API thống kê doanh thu.
+ * Gọi API thống kê doanh thu theo khoảng thời gian.
  *
- * Hỗ trợ:
- * - DAY
- * - WEEK
- * - MONTH
- * - custom range
+ * Hỗ trợ thống kê:
+ * - theo ngày
+ * - theo tuần
+ * - theo tháng
+ * - khoảng thời gian tùy chọn
  *
  * @param {Object} params Bộ lọc thống kê.
  * @returns {Promise<Object>} Dữ liệu thống kê doanh thu.

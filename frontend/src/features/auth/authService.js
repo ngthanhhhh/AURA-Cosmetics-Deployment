@@ -1,9 +1,9 @@
 import { loginApi, registerApi } from "./authApi";
 
 /**
- * Xử lý đăng ký tài khoản customer.
+ * Thực hiện đăng ký tài khoản khách hàng.
  *
- * @param {Object} data Dữ liệu đăng ký.
+ * @param {Object} data Thông tin đăng ký.
  * @returns {Promise<Object>} Dữ liệu trả về từ backend.
  */
 
@@ -13,16 +13,15 @@ export const registerUser = async (data) => {
 };
 
 /**
- * Xử lý đăng nhập hệ thống.
+ * Thực hiện đăng nhập hệ thống.
  *
- * Sau khi đăng nhập thành công:
+ * Sau khi xác thực thành công:
  * - lưu JWT token
- * - lưu role
- * - lưu tên user
- * - lưu thông tin user vào localStorage
+ * - lưu thông tin người dùng
+ * - lưu quyền hiện tại vào localStorage
  *
  * @param {Object} data Thông tin đăng nhập.
- * @returns {Promise<Object>} Dữ liệu đăng nhập từ backend.
+ * @returns {Promise<Object>} Thông tin người dùng và JWT token.
  */
 
 export const loginUser = async (data) => {
@@ -52,7 +51,7 @@ export const loginUser = async (data) => {
 /**
  * Đăng xuất người dùng hiện tại.
  *
- * Xóa toàn bộ thông tin đăng nhập khỏi localStorage.
+ * Xóa toàn bộ dữ liệu xác thực khỏi localStorage.
  */
 
 export const logoutUser = () => {

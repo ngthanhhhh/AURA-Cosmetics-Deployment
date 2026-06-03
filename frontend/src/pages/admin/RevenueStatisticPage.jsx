@@ -17,6 +17,17 @@ import "./RevenueStatisticPage.css";
 
 const PAGE_SIZE = 10;
 
+/**
+ * Trang thống kê doanh thu dành cho quản trị viên.
+ *
+ * Hỗ trợ:
+ * - thống kê theo ngày
+ * - thống kê theo tuần
+ * - thống kê theo tháng
+ * - lọc theo khoảng thời gian tùy chọn
+ * - biểu đồ doanh thu
+ * - bảng chi tiết có phân trang
+ */
 function RevenueStatisticPage() {
 
     const [type, setType] = useState("DAY");
@@ -74,16 +85,11 @@ function RevenueStatisticPage() {
     };
 
     /**
-     * Xử lý submit form lọc thống kê doanh thu.
+     * Tính số ngày giữa hai mốc thời gian.
      *
-     * Trước khi gọi API, frontend sẽ kiểm tra:
-     * - ngày bắt đầu
-     * - ngày kết thúc
-     * - khoảng thời gian hợp lệ
-     *
-     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     * Được sử dụng để giới hạn phạm vi thống kê
+     * nhằm tránh truy vấn dữ liệu quá lớn.
      */
-
     const getDaysBetween = (startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -91,6 +97,14 @@ function RevenueStatisticPage() {
         return (end - start) / (1000 * 60 * 60 * 24);
     };
 
+    /**
+     * Áp dụng bộ lọc thống kê doanh thu.
+     *
+     * Frontend kiểm tra tính hợp lệ của khoảng thời gian
+     * trước khi gửi yêu cầu tới backend.
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
+     */
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -135,7 +149,7 @@ function RevenueStatisticPage() {
             }
         }
 
-        // Đưa page về 1 khi lọc hoặc reset
+        // Quay về trang đầu tiên sau khi áp dụng bộ lọc mới
         setCurrentPage(1);
         loadRevenueStatistics(type, fromDate, toDate);
     };
@@ -153,15 +167,21 @@ function RevenueStatisticPage() {
         loadRevenueStatistics("DAY", "", "");
     };
 
+    // Dữ liệu biểu đồ doanh thu
     const chartData = statistics?.chartData || [];
 
+    // Tổng số trang của bảng chi tiết
     const totalPages = Math.ceil(chartData.length / PAGE_SIZE);
 
+    // Dữ liệu hiển thị trên trang hiện tại
     const paginatedChartData = chartData.slice(
         (currentPage - 1) * PAGE_SIZE,
         currentPage * PAGE_SIZE
     );
 
+    /**
+     * Định dạng ngày theo kiểu dd/MM để hiển thị trên giao diện.
+     */
     const formatDateDisplay = (date) => {
         return date.toLocaleDateString("vi-VN", {
             day: "2-digit",
@@ -169,6 +189,12 @@ function RevenueStatisticPage() {
         });
     };
 
+    /**
+     * Chuyển nhãn tuần từ backend thành khoảng ngày hiển thị.
+     *
+     * Ví dụ:
+     * 2026-W20 → 12/05 - 18/05
+     */
     const getWeekDateRange = (label) => {
         if (!label || !label.includes("-W")){
             return null;
@@ -196,6 +222,12 @@ function RevenueStatisticPage() {
         };
     };
 
+    /**
+     * Rút gọn nhãn tuần để hiển thị trên biểu đồ.
+     *
+     * Ví dụ:
+     * 2026-W20 → Tuần 20
+     */
     const formatChartLabel = (label) => {
         if(type !== "WEEK"){
             return label;
@@ -206,9 +238,12 @@ function RevenueStatisticPage() {
         }
 
         const [, weekText] = label.split("-W");
-        return `Tuần ${Number(weekText)}`
+        return `Tuần ${Number(weekText)}`;
     };
 
+    /**
+     * Định dạng cột mốc thời gian trong bảng chi tiết.
+     */
     const formatTablePeriod = (label) => {
         if(type !== "WEEK"){
             return label;
@@ -228,19 +263,20 @@ function RevenueStatisticPage() {
         );
     };
 
+    /**
+     * Trả về thông báo phù hợp khi biểu đồ không có dữ liệu.
+     */
     const getEmptyChartMessage = () => {
         if (type === "DAY"){
-            return "Không có dữ liệu doanh thu theo ngày trong khoảng thời gian này."
+            return "Không có dữ liệu doanh thu theo ngày trong khoảng thời gian này.";
         }
 
         if (type === "WEEK"){
-            return "Không có dữ liệu doanh thu theo tuần trong khoảng thời gian này."
+            return "Không có dữ liệu doanh thu theo tuần trong khoảng thời gian này.";
         }
 
         return "Không có dữ liệu doanh thu theo tháng trong khoảng thời gian này.";
     };
-
-    {loading && <Loading/>}
 
     return (
         <div className="revenue-stat-page">
@@ -252,6 +288,8 @@ function RevenueStatisticPage() {
             </div>
 
             {error && <p className="revenue-stat-error">{error}</p>}
+
+            {loading && <Loading/>}
 
             <form className="revenue-filter" onSubmit={handleSubmit}>
                 <div className="filter-group">

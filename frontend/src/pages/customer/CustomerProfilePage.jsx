@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { fetchMyProfile, updateMyProfile } from "../../features/users/userService";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
+import { AuthContext } from "../../context/AuthContext";
 import "./CustomerProfilePage.css";
-import LogoutButton from "../../components/common/LogoutButton";
 
 function CustomerProfilePage(){
     const [formData, setFormData] = useState({
@@ -13,6 +13,14 @@ function CustomerProfilePage(){
         address: "",
     });
 
+    const [originalData, setOriginalData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        address: "",
+    });
+
+    const { setUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
@@ -32,14 +40,17 @@ function CustomerProfilePage(){
 
             const data = await fetchMyProfile();
 
-            setFormData({
+            const profile = {
                 name: data.name || "",
                 email: data.email || "",
                 phone: data.phone || "",
                 address: data.address || "",
-            });
+            };
+
+            setFormData(profile);
+            setOriginalData(profile);
         } catch {
-            setError("Không thể tải thông tin tài khoản.");
+            setError("Không thể tải thông tin tài khoản. Vui lòng thử lại sau.");
         } finally {
             setLoading(false);
         }
@@ -91,23 +102,26 @@ function CustomerProfilePage(){
 
             const updatedProfile = await fetchMyProfile();
 
-            setFormData({
+            const latestProfile = {
                 name: updatedProfile.name || "",
                 email: updatedProfile.email || "",
                 phone: updatedProfile.phone || "",
                 address: updatedProfile.address || "",
-            });
+            };
+
+            setFormData(latestProfile);
+            setOriginalData(latestProfile);
 
             const currentUser = JSON.parse(localStorage.getItem("user") || "null");
 
             if(currentUser){
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        ...currentUser,
-                        name: updatedProfile.name,
-                    })
-                );
+                const newUser = {
+                    ...currentUser,
+                    name: updatedProfile.name,
+                };
+
+                localStorage.setItem("user", JSON.stringify(newUser));
+                setUser(newUser);
             }
 
             setMessage("Cập nhật thông tin thành công.");
@@ -121,6 +135,15 @@ function CustomerProfilePage(){
         }
 
     };
+
+    /**
+     * Khôi phục dữ liệu ban đầu và xóa các thông báo trên giao diện.
+     */
+    const handleCancel = async () => {
+        setFormData(originalData);
+        setError("");
+        setMessage("");
+    }
     
     if (loading){
         return <div>Đang tải thông tin tài khoản...</div>;
@@ -185,7 +208,10 @@ function CustomerProfilePage(){
                     </div>
 
                     <div className="profile-actions">
-                        <LogoutButton />
+                        <Button
+                            type="button"
+                            onClick={handleCancel}
+                        >Hủy</Button>
 
                         <Button type="submit" disabled={saving}>
                             {saving ? "Đang lưu..." : "Lưu thay đổi"}

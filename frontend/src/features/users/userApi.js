@@ -10,14 +10,9 @@ export const getMyProfileApi = () => {
 };
 
 /**
- * Gọi API cập nhật thông tin cá nhân.
+ * Gọi API cập nhật thông tin cá nhân của người dùng hiện tại.
  *
- * Cho phép cập nhật:
- * - họ tên
- * - số điện thoại
- * - địa chỉ
- *
- * @param {Object} data Dữ liệu profile cần cập nhật.
+ * @param {Object} data Dữ liệu cần cập nhật.
  * @returns {Promise<Object>} Response thông báo cập nhật.
  */
 export const updateMyProfileApi = (data) => {
@@ -44,6 +39,7 @@ export const changePasswordApi = (data) => {
  * - sắp xếp
  *
  * @param {Object} params Bộ lọc truy vấn.
+ * @returns {Promise<Object>} Danh sách khách hàng theo điều kiện tìm kiếm.
  */
 
 export const getCustomersApi = (params) => {

@@ -1,9 +1,11 @@
+/* Trang quản lý tài khoản */
 .account-page {
     display: flex;
     flex-direction: column;
     gap: 22px;
 }
 
+/* Khu vực tiêu đề trang */
 .account-page-header {
     display: flex;
     justify-content: space-between;
@@ -17,11 +19,7 @@
     color: #171321;
 }
 
-.account-page-header p {
-    margin: 0;
-    color: #7c7488;
-}
-
+/* Thanh công cụ tìm kiếm, lọc và thao tác */
 .account-toolbar {
     display: flex;
     align-items: center;
@@ -34,6 +32,7 @@
     box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
 
+/* Form tìm kiếm tài khoản */
 .account-search-form {
     display: flex;
     align-items: center;
@@ -56,6 +55,7 @@
     background: #ffffff;
 }
 
+/* Khu vực bộ lọc và sắp xếp */ 
 .account-filter-sort {
     display: flex;
     gap: 10px;
@@ -70,6 +70,7 @@
     outline: none;
 }
 
+/* Nhóm nút thao tác chung */
 .account-btn {
     border: none;
     border-radius: 12px;
@@ -85,23 +86,12 @@
     color: #ffffff;
 }
 
-.account-btn--secondary,
-.account-btn--edit,
-.account-btn--password {
-    background: #eee5db;
-    color: #4b3f35;
-}
-
-.account-btn--danger {
-    background: #f3dddd;
-    color: #8a2f2f;
-}
-
 .account-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
+/* Khung chứa bảng dữ liệu */
 .account-table-card {
     background: #ffffff;
     border: 1px solid #eee8f3;
@@ -111,6 +101,7 @@
     overflow: hidden;
 }
 
+/* Khu vực cuộn của bảng dữ liệu */
 .account-table-scroll {
     width: 100%;
     overflow-x: auto;
@@ -130,6 +121,7 @@
     white-space: nowrap;
 }
 
+/* Cố định header của bảng khi cuộn */
 .account-table-card .table thead th {
     position: sticky;
     top: 0;
@@ -137,6 +129,7 @@
     background: #ffffff;
 }
 
+/* Trạng thái tải dữ liệu */
 .account-table-loading {
     min-height: 360px;
     display: flex;
@@ -144,6 +137,7 @@
     justify-content: center;
 }
 
+/* Hiển thị trạng thái tài khoản */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -165,11 +159,13 @@
     color: #8a2f2f;
 }
 
+/* Nhóm nút thao tác trên từng dòng dữ liệu */
 .action-group {
     display: flex;
     gap: 8px;
 }
 
+/* Nút thao tác trong bảng */
 .btn-action {
     border: none;
     border-radius: 12px;
@@ -196,11 +192,13 @@
     cursor: not-allowed;
 }
 
+/* Thông báo lỗi */
 .account-page__error {
     margin: 0 0 14px;
     color: #8a2f2f;
 }
 
+/* Khu vực phân trang */
 .account-page__pagination {
     display: flex;
     justify-content: center;
@@ -235,6 +233,7 @@
     font-size: 14px;
 }
 
+/* Responsive cho tablet */
 @media (max-width: 1024px) {
     .account-toolbar {
         flex-direction: column;
@@ -252,6 +251,7 @@
     }
 }
 
+/* Responsive cho thiết bị di động */
 @media (max-width: 768px) {
     .account-page {
         gap: 16px;

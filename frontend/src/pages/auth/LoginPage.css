@@ -1,3 +1,4 @@
+/* Trang đăng nhập */
 .login-container {
     max-width: 400px;
     margin: 60px auto;
@@ -7,27 +8,32 @@
     background: #fff;
 }
 
+
 .login-title {
     text-align: center;
     margin-bottom: 20px;
 }
 
+/* Form đăng nhập */
 .login-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
+
 .form-group {
     display: flex;
     flex-direction: column;
 }
+
 
 .form-group input {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
 }
+
 
 .btn-submit {
     padding: 12px;
@@ -36,11 +42,12 @@
     cursor: pointer;
 }
 
+/* Liên kết đăng ký */
 .login-footer {
     margin-top: 16px;
     text-align: center;
 }
-
+/* Thông báo lỗi */
 .error-message {
     color: red;
     margin-bottom: 10px;
