@@ -1,33 +1,38 @@
+/* Layout tổng của trang giỏ hàng */
 .cart-page {
-    min-height: calc(100vh - 80px);
-    padding: 32px 24px 48px;
-    background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu của trang = chiều cao màn hình trừ chiều cao header khoảng 80px */
+    padding: 32px 24px 48px; /* Khoảng cách bên trong: trên 32px, trái/phải 24px, dưới 48px */
+    background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%); /* Nền chuyển màu nhẹ từ trên xuống dưới */
 }
 
+/* Phần header: tiêu đề + link tiếp tục mua sắm */
 .cart-page__header {
     max-width: 1180px;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: space-between;
+    margin: 0 auto 20px; /* Căn giữa header, cách phần bên dưới 20px */
+    display: flex; /* Dàn các phần tử con trên cùng một hàng */
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, link sang phải */
     align-items: center;
     gap: 16px;
 }
 
+/* Tiêu đề trong header */
 .cart-page__header h2 {
     margin: 0;
     color: #3f2d24;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 700; /* Độ đậm của chữ */
 }
 
+/* Style chung cho các link trong trang giỏ hàng */
 .cart-page__continue-link,
 .cart-page__product-link {
     color: #7a5543;
-    text-decoration: none;
+    text-decoration: none; /* Bỏ gạch chân mặc định của thẻ a/Link */
     font-weight: 600;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease; /* Tạo hiệu ứng chuyển màu mượt khi hover */
 }
 
+/* Nút/link tiếp tục mua sắm */
 .cart-page__continue-link {
     padding: 10px 14px;
     border: 1px solid #d7c4b8;
@@ -36,12 +41,14 @@
     box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08);
 }
 
+/* Hiệu ứng hover cho link */
 .cart-page__continue-link:hover,
 .cart-page__product-link:hover {
     color: #4d3529;
     text-decoration: none;
 }
 
+/* Khung hiển thị lỗi */
 .cart-page__error {
     max-width: 1180px;
     margin: 0 auto 16px;
@@ -53,6 +60,7 @@
     font-weight: 500;
 }
 
+/* Khung hiển thị khi giỏ hàng trống */
 .cart-page__empty {
     max-width: 720px;
     margin: 40px auto 0;
@@ -71,8 +79,9 @@
     font-weight: 600;
 }
 
+/* Link trong trạng thái giỏ hàng trống */
 .cart-page__empty a {
-    display: inline-block;
+    display: inline-block; /* Giữ link nằm cùng dòng theo nội dung, nhưng vẫn cho phép set padding như một khối */
     padding: 11px 18px;
     border-radius: 999px;
     background: #6b4f3f;
@@ -81,82 +90,94 @@
     font-weight: 600;
 }
 
+/* Khung bọc bảng, cho phép cuộn ngang trên màn hình nhỏ */
 .cart-page__table-wrapper {
-    max-width: 1180px;
-    margin: 0 auto;
-    overflow-x: auto;
+    max-width: 1180px; /* Giới hạn độ rộng tối đa của bảng, tránh bảng kéo quá rộng trên màn hình lớn */
+    margin: 0 auto; /* Căn giữa bảng theo chiều ngang */
+    overflow-x: auto; /* Nếu bảng quá rộng trên màn hình nhỏ thì cho phép cuộn ngang */
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: #fff;
     box-shadow: 0 18px 45px rgba(86, 63, 50, 0.1);
 }
 
+/* Bảng danh sách sản phẩm trong giỏ hàng */
 .cart-page__table {
-    width: 100%;
-    border-collapse: collapse;
+    width: 100%; /* Nếu bảng quá rộng trên màn hình nhỏ thì cho phép cuộn ngang */
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh bị viền đôi */
     background: #fff;
 }
 
+/* Style chung cho ô tiêu đề và ô dữ liệu */
 .cart-page__table th,
 .cart-page__table td {
-    padding: 18px 16px;
-    border-bottom: 1px solid #f0e6df;
-    text-align: left;
-    vertical-align: middle;
+    padding: 18px 16px; /* Khoảng cách bên trong mỗi ô: trên/dưới 18px, trái/phải 16px */
+    border-bottom: 1px solid #f0e6df; /* Tạo đường kẻ ngang ngăn cách các dòng */
+    text-align: left; /* Căn chữ về bên trái */
+    vertical-align: middle; /* Căn nội dung nằm giữa theo chiều dọc của ô */
     color: #4b382f;
 }
 
+/* Header của bảng */
 .cart-page__table th {
     background: #fbf4ef;
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em;  /* Tăng khoảng cách giữa các chữ cái */
 }
 
+/* Hiệu ứng hover cho từng dòng sản phẩm */
 .cart-page__table tbody tr {
-    transition: background 0.2s ease;
+    transition: background 0.2s ease; /* Tạo hiệu ứng đổi nền mượt khi hover */
 }
 
+/* Khi rê chuột vào một dòng sản phẩm */
 .cart-page__table tbody tr:hover {
-    background: #fff9f5;
+    background: #fff9f5; /* Đổi nền dòng sang màu kem rất nhạt */
 }
 
+/* Ô dữ liệu ở dòng cuối cùng */
 .cart-page__table tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: none; /* Bỏ đường kẻ dưới của dòng cuối để bảng nhìn gọn hơn */
 }
 
+/* Khối thông tin sản phẩm: ảnh + tên + link chi tiết */
 .cart-page__product {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 260px;
+    display: flex; /* Bỏ đường kẻ dưới của dòng cuối để bảng nhìn gọn hơn */
+    align-items: center;  /* Căn giữa ảnh và chữ theo chiều dọc */
+    gap: 14px; /* Khoảng cách giữa ảnh và phần chữ */
+    min-width: 260px; /* Đặt độ rộng tối thiểu để cột sản phẩm không bị ép quá nhỏ */
 }
 
+/* Ảnh sản phẩm */
 .cart-page__product-image {
-    width: 74px;
-    height: 74px;
-    object-fit: cover;
+    width: 74px; /* Chiều rộng ảnh */
+    height: 74px; /* Chiều cao ảnh */
+    object-fit: cover; /* Ảnh tự cắt vừa khung, không bị méo */
     border-radius: 16px;
     border: 1px solid #eadbd2;
-    background: #fafafa;
+    background: #fafafa; /* Màu nền dự phòng nếu ảnh trong suốt hoặc tải chậm */
     box-shadow: 0 8px 20px rgba(86, 63, 50, 0.08);
 }
 
+/* Tên sản phẩm */
 .cart-page__product-name {
-    margin-bottom: 6px;
+    margin-bottom: 6px; /* Cách link xem chi tiết bên dưới 6px */
     color: #3f2d24;
     font-weight: 700;
-    line-height: 1.35;
+    line-height: 1.35; /* Chiều cao dòng, giúp chữ nhiều dòng dễ đọc hơn */
 }
 
+/* Link xem chi tiết sản phẩm */
 .cart-page__product-link {
-    font-size: 14px;
+    font-size: 14px; /* Chiều cao dòng, giúp chữ nhiều dòng dễ đọc hơn */
 }
 
+/* Cụm chỉnh số lượng: nút trừ, số lượng, nút cộng */
 .cart-page__quantity {
-    display: inline-flex;
+    display: inline-flex; /* Dàn các phần tử theo hàng ngang, nhưng chỉ rộng vừa nội dung */
     align-items: center;
     gap: 10px;
     padding: 6px;
@@ -165,13 +186,15 @@
     background: #fffaf7;
 }
 
+/* Số lượng sản phẩm ở giữa nút - và + */
 .cart-page__quantity span {
-    min-width: 26px;
+    min-width: 26px; /* Đặt độ rộng tối thiểu để số lượng không làm layout nhảy khi đổi từ 1 sang 10 */
     text-align: center;
     color: #3f2d24;
     font-weight: 700;
 }
 
+/* Nút tăng/giảm số lượng */
 .cart-page__quantity-btn {
     width: 32px;
     height: 32px;
@@ -179,31 +202,35 @@
     border-radius: 50%;
     background: #fff;
     color: #6b4f3f;
-    cursor: pointer;
+    cursor: pointer; /* Hiện con trỏ dạng bàn tay khi rê chuột */
     font-size: 18px;
     font-weight: 700;
     box-shadow: 0 4px 12px rgba(86, 63, 50, 0.1);
-    transition: all 0.2s ease;
+    transition: all 0.2s ease;  /* Tạo hiệu ứng chuyển động mượt cho hover */
 }
 
+/* Hover nút tăng/giảm khi nút không bị disabled */
 .cart-page__quantity-btn:hover:not(:disabled) {
     background: #6b4f3f;
     color: #fff;
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ 1px để tạo cảm giác nổi */
 }
 
+/* Style chung cho các nút bị vô hiệu hóa */
 .cart-page__quantity-btn:disabled,
 .cart-page__delete-btn:disabled,
 .cart-page__checkout-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.55;
+    cursor: not-allowed; /* Đổi con trỏ để báo rằng nút không bấm được */
+    opacity: 0.55; /* Làm nút mờ đi */
 }
 
+/* Thành tiền của từng sản phẩm */
 .cart-page__item-total {
     color: #3f2d24;
     font-weight: 800;
 }
 
+/* Nút xóa sản phẩm */
 .cart-page__delete-btn {
     padding: 9px 14px;
     border: 1px solid #e4a0a8;
@@ -215,16 +242,18 @@
     transition: all 0.2s ease;
 }
 
+/* Hover nút xóa */
 .cart-page__delete-btn:hover:not(:disabled) {
     background: #b00020;
     color: #fff;
     border-color: #b00020;
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
 }
 
+/* Khung tổng kết giỏ hàng */
 .cart-page__summary {
-    max-width: 1180px;
-    margin: 22px auto 0;
+    max-width: 1180px; /* Giới hạn độ rộng tối đa bằng bảng */
+    margin: 22px auto 0; /* Cách bảng phía trên 22px, căn giữa theo chiều ngang */
     padding: 20px 22px;
     border: 1px solid #eadbd2;
     border-radius: 22px;
@@ -236,16 +265,19 @@
     box-shadow: 0 18px 45px rgba(86, 63, 50, 0.1);
 }
 
+/* Các dòng chữ trong khung tổng kết */
 .cart-page__summary p {
     margin: 5px 0;
     color: #5c463b;
 }
 
+/* Làm nổi bật tổng số lượng và tổng tiền */
 .cart-page__summary strong {
     color: #3f2d24;
     font-size: 18px;
 }
 
+/* Nút chuyển sang trang checkout */
 .cart-page__checkout-btn {
     padding: 14px 24px;
     border-radius: 999px;
@@ -258,19 +290,21 @@
     transition: all 0.2s ease;
 }
 
+/* Hover nút checkout */
 .cart-page__checkout-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* Các dòng chữ trong khung tổng kết */
     box-shadow: 0 16px 30px rgba(86, 63, 50, 0.28);
 }
 
+/* Responsive cho tablet và màn hình nhỏ hơn hoặc bằng 900px */
 @media (max-width: 900px) {
     .cart-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding để phù hợp màn hình nhỏ */
     }
 
     .cart-page__header {
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: flex-start; /* Căn nội dung header về đầu dòng */
+        flex-direction: column; /* Chuyển header từ hàng ngang sang cột dọc */
     }
 
     .cart-page__header h2 {
@@ -279,7 +313,7 @@
 
     .cart-page__table th,
     .cart-page__table td {
-        padding: 14px 12px;
+        padding: 14px 12px; /* Giảm padding trong ô bảng để tiết kiệm không gian */
     }
 
     .cart-page__product {
@@ -287,8 +321,8 @@
     }
 
     .cart-page__summary {
-        align-items: stretch;
-        flex-direction: column;
+        align-items: stretch; /* Cho các phần tử kéo rộng hết chiều ngang */
+        flex-direction: column; /* Chuyển khung tổng kết từ hàng ngang sang cột dọc */
     }
 
     .cart-page__checkout-btn {
@@ -296,11 +330,12 @@
     }
 }
 
+/* Responsive cho điện thoại nhỏ hơn hoặc bằng 560px */
 @media (max-width: 560px) {
     .cart-page__product-image {
         width: 58px;
         height: 58px;
-        border-radius: 12px;
+        border-radius: 12px; /* Giảm độ bo góc cho hợp kích thước ảnh nhỏ */
     }
 
     .cart-page__quantity {

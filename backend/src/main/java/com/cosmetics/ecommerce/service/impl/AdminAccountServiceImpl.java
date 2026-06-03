@@ -53,7 +53,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 
         keyword = (keyword == null || keyword.trim().isEmpty()) ? null : keyword.trim();
 
-        //Lọc chỉ lấy user có role ADMIN, chuyển sang DTO rồi trả về
+        // Lọc tài khoản có ROLE_ADMIN và chuyển sang DTO trả về frontend
         return userRepository.findAdmins(keyword, isActive, pageable)
                 .map(this::toResponse);
 
@@ -265,7 +265,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản"));
 
-        //Check role trước
+        // Kiểm tra tài khoản cần xử lý có phải admin hay không
         if(!user.getRole().getRoleName().equals("ROLE_ADMIN")){
             throw new BadRequestException("Chỉ áp dụng cho tài khoản ADMIN");
         }
@@ -347,7 +347,7 @@ public class AdminAccountServiceImpl implements AdminAccountService {
                 throw new BadRequestException("Mật khẩu phải có ít nhất 6 ký tự");
             }
 
-            //Bắt buộc có chữ + số
+            // Mật khẩu bắt buộc chứa cả chữ và số
             if(!password.matches("^(?=.*[A-Za-z])(?=.*\\d).+$")){
                 throw new BadRequestException("Mật khẩu phải chứa chữ và số");
             }

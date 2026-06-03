@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Tài khoản đã bị khóa");
         }
 
-        // xác thực và cập nhật
+        // Kiểm tra và cập nhật các thông tin được phép thay đổi
         if(request.getName() != null && !request.getName().isBlank()){
             user.setName(request.getName().trim());
         }

@@ -68,18 +68,18 @@ public class CartServiceImpl implements CartService{
      * Thêm sản phẩm vào giỏ hàng.
      *
      * Quy trình xử lý:
-     * - Kiểm tra người dùng hợp lệ
-     * - Kiểm tra request hợp lệ
+     * - Kiểm tra userId hợp lệ
+     * - Kiểm tra request thêm vào giỏ hợp lệ
      * - Kiểm tra sản phẩm tồn tại và còn đang kinh doanh
      * - Lấy hoặc tạo giỏ hàng cho người dùng
      * - Lấy CartItem hiện có hoặc tạo mới nếu sản phẩm chưa có trong giỏ
-     * - Tính số lượng mới sau khi cộng thêm
-     * - Kiểm tra giới hạn số lượng và tồn kho
+     * - Tính số lượng mới bằng cách cộng số lượng hiện tại với số lượng request
+     * - Kiểm tra giới hạn số lượng và số lượng tồn kho
      * - Lưu CartItem vào database
-     * - Truy xuất lại giỏ hàng mới nhất để trả về cho client
+     * - Chuyển giỏ hàng sang DTO để trả về cho client
      *
-     * @param userId ID của người dùng
-     * @param request Thông tin sản phẩm và số lượng cần thêm
+     * @param userId  ID của người dùng
+     * @param request Thông tin sản phẩm và số lượng cần thêm vào giỏ
      * @return Giỏ hàng sau khi thêm sản phẩm thành công
      */
     @Override
@@ -89,8 +89,12 @@ public class CartServiceImpl implements CartService{
 
         Product product = getValidProduct(request.getProductId());
         Cart cart = getOrCreateCart(userId);
+        
+        // Tìm xem trong giỏ đã có sản phẩm này chưa. 
+        // Nếu có thì lấy CartItem cũ, nếu chưa có thì tạo CartItem mới.
         CartItem cartItem = getOrCreateCartItem(cart, product);
 
+        // Kiểm tra đây có phải item mới chưa từng lưu database không.
         boolean isNewItem = cartItem.getCartItemId() == null;
 
         int currentQuantity = cartItem.getCartItemId() == null ? 0 : cartItem.getQuantity();
@@ -101,6 +105,8 @@ public class CartServiceImpl implements CartService{
         cartItem.setQuantity(newQuantity);
         CartItem savedItem = cartItemRepository.save(cartItem);
 
+        // Nếu đây là item mới, thì thêm nó vào danh sách item của giỏ hàng hiện tại 
+        // để lúc map response có dữ liệu mới.
         if (isNewItem) {
             cart.getCartItems().add(savedItem);
         }
@@ -112,18 +118,18 @@ public class CartServiceImpl implements CartService{
      * Cập nhật số lượng của một sản phẩm đã có trong giỏ hàng.
      *
      * Quy trình xử lý:
-     * - Kiểm tra người dùng hợp lệ
-     * - Kiểm tra request hợp lệ
+     * - Kiểm tra userId hợp lệ
+     * - Kiểm tra request cập nhật hợp lệ
      * - Kiểm tra sản phẩm tồn tại và còn đang kinh doanh
-     * - Lấy giỏ hàng của người dùng
-     * - Tìm CartItem tương ứng trong giỏ
-     * - Kiểm tra số lượng cập nhật có vượt giới hạn hoặc tồn kho không
-     * - Cập nhật lại số lượng và lưu vào database
-     * - Trả về giỏ hàng sau khi cập nhật
+     * - Lấy giỏ hàng hiện có của người dùng
+     * - Tìm CartItem tương ứng với sản phẩm trong giỏ hàng
+     * - Kiểm tra số lượng mới có vượt giới hạn hoặc tồn kho không
+     * - Cập nhật lại số lượng và lưu CartItem vào database
+     * - Truy xuất lại giỏ hàng mới nhất để trả về cho client
      *
-     * @param userId ID của người dùng
-     * @param request Thông tin sản phẩm và số lượng mới
-     * @return Giỏ hàng sau khi cập nhật thành công
+     * @param userId  ID của người dùng
+     * @param request Thông tin sản phẩm và số lượng mới cần cập nhật
+     * @return Giỏ hàng sau khi cập nhật số lượng thành công
      */
     @Override
     public CartResponseDTO updateCartItem(Integer userId, CartItemRequestDTO request){
@@ -132,16 +138,20 @@ public class CartServiceImpl implements CartService{
         Product product = getValidProduct(request.getProductId());
         Cart cart = getExistingCart(userId);
 
+        // Tìm đúng sản phẩm đó trong đúng giỏ hàng đó. 
+        // Nếu chưa có trong giỏ thì báo lỗi.
         CartItem cartItem = cartItemRepository
             .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), product.getProductId())
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm chưa có trong giỏ hàng để cập nhật!"));
 
+        //Lấy số lượng mới và kiểm tra không vượt tồn kho/giới hạn.
         int newQuantity = request.getQuantity();
         validateQuantityLimits(product, newQuantity);
 
         cartItem.setQuantity(newQuantity);
         cartItemRepository.save(cartItem);
 
+        //Lấy lại giỏ hàng mới nhất
         Cart refreshedCart = cartRepository.findByUser_UserId(userId)
             .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy giỏ hàng!"));
         return mapToCartResponse(refreshedCart);
@@ -151,14 +161,14 @@ public class CartServiceImpl implements CartService{
      * Xóa một sản phẩm khỏi giỏ hàng của người dùng.
      *
      * Quy trình xử lý:
-     * - Kiểm tra người dùng hợp lệ
+     * - Kiểm tra userId hợp lệ
      * - Kiểm tra productId hợp lệ
-     * - Lấy giỏ hàng hiện tại của người dùng
-     * - Tìm CartItem tương ứng trong giỏ
-     * - Gỡ CartItem khỏi danh sách trong Cart để đồng bộ object trong memory
+     * - Lấy giỏ hàng hiện có của người dùng
+     * - Tìm CartItem tương ứng với sản phẩm trong giỏ
+     * - Gỡ CartItem khỏi danh sách trong Cart để đồng bộ object trong bộ nhớ
      * - Xóa CartItem khỏi database
      *
-     * @param userId ID của người dùng
+     * @param userId    ID của người dùng
      * @param productId ID của sản phẩm cần xóa khỏi giỏ
      */
     @Override
@@ -168,14 +178,17 @@ public class CartServiceImpl implements CartService{
 
         Cart cart = getExistingCart(userId);
 
+        // Tìm đúng sản phẩm đó trong đúng giỏ hàng của user
         CartItem cartItem = cartItemRepository
             .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), productId)
             .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không có trong giỏ hàng!"));
 
-        // Gỡ khỏi list trong Cart để đồng bộ object trong memory
+        // Gỡ khỏi danh sách CartItem trong Cart để object cart hiện tại đồng bộ với database
         if (cart.getCartItems() != null) {
             cart.getCartItems().removeIf(item -> item.getProduct().getProductId().equals(productId));
         }
+
+        //Xóa CartItem khỏi database.
         cartItemRepository.delete(cartItem);
     }
 
@@ -184,6 +197,7 @@ public class CartServiceImpl implements CartService{
      *
      * Quy trình xử lý:
      * - Tìm Cart theo userId
+     * - Nếu đã có Cart thì trả về Cart hiện tại
      * - Nếu chưa có thì kiểm tra User tồn tại
      * - Tạo mới Cart và gắn với User
      *
@@ -212,6 +226,7 @@ public class CartServiceImpl implements CartService{
      * @return DTO chứa thông tin giỏ hàng trả về cho frontend
      */
     private CartResponseDTO mapToCartResponse(Cart cart) {
+        // lấy danh sách CartItem trong giỏ rồi chuyển từng item sang CartItemResponseDTO
         List<CartItemResponseDTO> items = Optional.ofNullable(cart.getCartItems())
                 .orElse(List.of())
                 .stream()
@@ -240,7 +255,10 @@ public class CartServiceImpl implements CartService{
      * @return DTO chứa thông tin một sản phẩm trong giỏ hàng
      */
     private CartItemResponseDTO mapToCartItemResponse(CartItem item){
+        // Lấy đơn giá hiện tại của sản phẩm
         BigDecimal unitPrice = item.getProduct().getPrice();
+
+        // Tính thành tiền của item đó:
         BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(item.getQuantity()));
 
         return CartItemResponseDTO.builder()
@@ -337,7 +355,10 @@ public class CartServiceImpl implements CartService{
         return cartItemRepository
                 .findByCart_CartIdAndProduct_ProductId(cart.getCartId(), product.getProductId())
                 .orElseGet(() -> {
+                    // Tạo một CartItem mới.
                     CartItem newItem = new CartItem();
+
+                    // Gắn CartItem mới này với giỏ hàng và sản phẩm tương ứng.
                     newItem.setCart(cart);
                     newItem.setProduct(product);
                     return newItem;

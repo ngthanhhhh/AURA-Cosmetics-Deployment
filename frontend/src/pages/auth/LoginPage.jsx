@@ -7,6 +7,8 @@ import "./LoginPage.css";
 function LoginPage(){
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+
+    // Trạng thái đang gửi yêu cầu đăng nhập
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -14,10 +16,14 @@ function LoginPage(){
     const { login, logout } = useContext(AuthContext);
 
     /**
-     * Xử lý đăng nhập customer.
+     * Xử lý đăng nhập cho khách hàng.
      *
-     * Nếu tài khoản là admin, hệ thống sẽ đăng xuất ngay
-     * và hiển thị thông báo yêu cầu đăng nhập tại trang quản trị.
+     * Sau khi đăng nhập thành công, authService sẽ lưu token và user
+     * vào localStorage. Sau đó LoginPage cập nhật AuthContext để giao diện
+     * nhận biết trạng thái đăng nhập hiện tại.
+     *
+     * Nếu tài khoản có quyền quản trị, hệ thống sẽ xóa dữ liệu đăng nhập
+     * và yêu cầu đăng nhập lại tại trang quản trị.
      *
      * @param {React.FormEvent<HTMLFormElement>} e Sự kiện submit form.
      */

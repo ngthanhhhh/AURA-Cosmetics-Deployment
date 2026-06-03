@@ -320,6 +320,7 @@ function ProductManagementPage() {
     <div className="product-management">
       <h2 className="product-management__title">Quản lý sản phẩm</h2>
 
+      {/* Khu vực tìm kiếm, lọc danh mục, lọc trạng thái và sắp xếp sản phẩm */}
       <form className="product-management__filter" onSubmit={handleFilterSubmit}>
         <h3>Lọc / tìm kiếm sản phẩm</h3>
 
@@ -375,6 +376,7 @@ function ProductManagementPage() {
         </div>
       </form>
 
+      {/* Form nhập thông tin sản phẩm, dùng chung cho chức năng thêm mới và cập nhật */}
       <form
         ref={formRef}
         className="product-management__form"
@@ -460,14 +462,15 @@ function ProductManagementPage() {
             {editingId ? "Cập nhật" : "Thêm"}
           </button>
 
-          {editingId && (
-            <button type="button" onClick={resetForm}>
-              Hủy
-            </button>
-          )}
+          
+          <button type="button" onClick={resetForm}>
+            Hủy
+          </button>
+          
         </div>
       </form>
 
+      {/* Bảng danh sách sản phẩm và các thao tác quản trị trên từng sản phẩm */}
       <table className="product-management__table">
         <thead>
           <tr>
@@ -513,6 +516,7 @@ function ProductManagementPage() {
         </tbody>
       </table>
 
+      {/* Phân trang danh sách sản phẩm */}
       <div className="product-management__pagination">
         <button disabled={page <= 0} onClick={() => setPage(page - 1)}>
           Trang trước

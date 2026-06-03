@@ -1,25 +1,26 @@
+/* Áp dụng box-sizing cho trang chi tiết đơn hàng và toàn bộ phần tử con */
 .order-detail-page,
 .order-detail-page * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Tính cả padding và border vào kích thước width/height */
 }
 
-.order-detail-page {
-    min-height: calc(100vh - 80px);
+.order-detail-page { /* Layout tổng của trang chi tiết đơn hàng */
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ header khoảng 80px */
     padding: 32px 24px 48px;
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
-.order-detail-page__header {
-    max-width: 1180px;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+.order-detail-page__header { /* Header trang: tiêu đề/ngày đặt + link quay lại */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 20px; /* Căn giữa header, cách phần dưới 20px */
+    display: flex; /* Dàn phần tiêu đề và link quay lại trên cùng một hàng */
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, link quay lại sang phải */
+    align-items: flex-start;  /* Căn các phần tử theo mép trên */
     gap: 16px;
 }
 
-.order-detail-page__header h2 {
-    margin: 0 0 6px;
+.order-detail-page__header h2 {/* Tiêu đề chi tiết đơn hàng */
+    margin: 0 0 6px; /* Không cách trên/trái/phải, chỉ cách dưới 6px */
     color: #3f2d24;
     font-size: 28px;
     font-weight: 750;
@@ -35,7 +36,7 @@
     color: #7a5543;
     text-decoration: none;
     font-weight: 700;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; /* Đảm bảo không hiện gạch chân khi hover */
 }
 
 .order-detail-page a:hover {
@@ -43,18 +44,18 @@
     text-decoration: none;
 }
 
-.order-detail-page__header > a {
-    padding: 10px 14px;
+.order-detail-page__header > a { /* Link quay lại danh sách ở header */
+    padding: 10px 14px; /* Khoảng cách bên trong link */
     border: 1px solid #d7c4b8;
     border-radius: 999px;
     background: #fff;
-    box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08);
-    white-space: nowrap;
+    box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08); /* Bóng nhẹ giúp link nổi lên */
+    white-space: nowrap; /* Không cho chữ trong link bị xuống dòng */
 }
 
 .order-detail-page__error {
-    max-width: 1180px;
-    margin: 0 auto 16px;
+    max-width: 1180px; /* Giới hạn chiều rộng giống nội dung chính */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
     padding: 13px 16px;
     border: 1px solid #f2b6bd;
     border-radius: 12px;
@@ -63,14 +64,15 @@
     font-weight: 500;
 }
 
-.order-detail-page__grid {
+.order-detail-page__grid { /* Grid chứa các card thông tin: đơn hàng, người nhận, thanh toán */
     max-width: 1180px;
     margin: 0 auto 22px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid; /* Dùng grid để chia card thành nhiều cột */
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* Chia thành 3 cột bằng nhau */
     gap: 18px;
 }
 
+/* Style chung cho card thông tin và card danh sách sản phẩm */
 .order-detail-page__card,
 .order-detail-page__items-card {
     border: 1px solid #eadbd2;
@@ -86,115 +88,116 @@
 
 .order-detail-page__items-card {
     max-width: 1180px;
-    margin: 0 auto;
+    margin: 0 auto; /* Căn giữa theo chiều ngang */
     padding: 22px;
 }
 
 .order-detail-page__card h3,
-.order-detail-page__items-card h3 {
-    margin: 0 0 16px;
+.order-detail-page__items-card h3 { /* Tiêu đề trong card */
+    margin: 0 0 16px; /* Không cách trên/trái/phải, chỉ cách dưới 16px */
     color: #3f2d24;
     font-size: 20px;
     font-weight: 750;
 }
 
-.order-detail-page__card p {
-    margin: 11px 0;
+.order-detail-page__card p { /* Các dòng thông tin trong card */
+    margin: 11px 0; /* Cách trên/dưới 11px */
     color: #3f2d24;
-    line-height: 1.5;
+    line-height: 1.5; /* Giãn dòng cho dễ đọc */
 }
 
-.order-detail-page__card span {
+.order-detail-page__card span { /* Phần nhãn trong card, ví dụ: Trạng thái, Tổng giá trị */
     color: #7b665c;
     font-weight: 600;
 }
 
-.order-detail-page__card strong {
+.order-detail-page__card strong { /* Phần giá trị trong card */
     color: #3f2d24;
     font-weight: 800;
-    word-break: break-word;
+    word-break: break-word; /* Nếu chữ quá dài thì được phép xuống dòng */
 }
 
-.order-detail-page__table-wrapper {
-    max-height: 360px;
-    overflow-x: auto;
+.order-detail-page__table-wrapper { /* Khung bọc bảng danh sách sản phẩm */
+    max-height: 360px; /* Giới hạn chiều cao bảng, nếu nhiều dòng thì cuộn */
+    overflow-x: auto; /* Nếu bảng rộng hơn khung thì cho cuộn ngang */
     border: 1px solid #f0e6df;
     border-radius: 18px;
     background: #fff;
 }
 
+/* Tùy chỉnh thanh cuộn trong Chrome/Edge/Safari */
 .order-detail-page__table-wrapper::-webkit-scrollbar {
     width: 9px;
     height: 9px;
 }
 
-.order-detail-page__table-wrapper::-webkit-scrollbar-track {
+.order-detail-page__table-wrapper::-webkit-scrollbar-track { /* Track/nền của thanh cuộn */
     background: #f7eee8;
     border-radius: 999px;
 }
 
-.order-detail-page__table-wrapper::-webkit-scrollbar-thumb {
+.order-detail-page__table-wrapper::-webkit-scrollbar-thumb {/* Phần tay kéo của thanh cuộn */
     background: #b79b8a;
     border-radius: 999px;
 }
 
-.order-detail-page__table-wrapper::-webkit-scrollbar-thumb:hover {
+.order-detail-page__table-wrapper::-webkit-scrollbar-thumb:hover { /* Hover thanh kéo scrollbar */
     background: #8b6654;
 }
 
-.order-detail-page__table {
-    width: 100%;
-    min-width: 860px;
-    border-collapse: collapse;
+.order-detail-page__table { /* Bảng danh sách sản phẩm */
+    width: 100%; /* Bảng chiếm toàn bộ chiều rộng khung */
+    min-width: 860px; /* Đặt chiều rộng tối thiểu để bảng không bị ép quá nhỏ */
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh viền đôi */
     background: #fff;
 }
 
 .order-detail-page__table th,
-.order-detail-page__table td {
+.order-detail-page__table td { /* Style chung cho ô tiêu đề và ô dữ liệu */
     padding: 15px 16px;
-    border-bottom: 1px solid #f0e6df;
-    text-align: left;
-    vertical-align: middle;
+    border-bottom: 1px solid #f0e6df; /* Đường kẻ ngang giữa các dòng */
+    text-align: left; /* Căn chữ bên trái */
+    vertical-align: middle; /* Căn nội dung giữa theo chiều dọc */
     color: #4b382f;
 }
 
-.order-detail-page__table th {
-    position: sticky;
-    top: 0;
-    z-index: 1;
+.order-detail-page__table th { /* Header của bảng */
+    position: sticky; /* Giữ hàng tiêu đề dính trên cùng khi cuộn bảng */
+    top: 0; /* Vị trí dính ở mép trên của khung bảng */
+    z-index: 1; /* Đảm bảo header nằm trên các dòng dữ liệu */
     background: #fbf4ef;
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em; /* Tăng khoảng cách giữa các chữ cái */
+    white-space: nowrap; /* Không cho tiêu đề cột xuống dòng */
 }
 
-.order-detail-page__table tbody tr {
-    transition: background 0.2s ease;
+.order-detail-page__table tbody tr { /* Các dòng dữ liệu trong bảng */
+    transition: background 0.2s ease; /* Hiệu ứng đổi nền mượt khi hover */
 }
 
-.order-detail-page__table tbody tr:hover {
+.order-detail-page__table tbody tr:hover { /* Khi rê chuột vào dòng sản phẩm */
     background: #fff9f5;
 }
 
 .order-detail-page__table tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: none; /* Bỏ border dưới của dòng cuối để bảng gọn hơn */
 }
 
 .order-detail-page__table td:nth-child(2),
 .order-detail-page__table td:nth-child(3),
 .order-detail-page__table td:nth-child(4) {
     font-weight: 700;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho số lượng/giá tiền bị xuống dòng */
 }
 
-.order-detail-page__product-name {
-    margin-bottom: 6px;
+.order-detail-page__product-name { /* Tên sản phẩm trong bảng */
+    margin-bottom: 6px; /* Cách link xem sản phẩm phía dưới 6px */
     color: #3f2d24;
     font-weight: 800;
-    line-height: 1.35;
+    line-height: 1.35; /* Giãn dòng nếu tên sản phẩm dài */
 }
 
 .order-detail-page__table td:last-child {
@@ -203,23 +206,23 @@
     line-height: 1.45;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 1024px */
     .order-detail-page__grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển 3 card từ 3 cột thành 1 cột */
     }
 
     .order-detail-page__card {
-        min-height: auto;
+        min-height: auto; /* Bỏ chiều cao tối thiểu để card tự co theo nội dung */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .order-detail-page {
         padding: 22px 14px 36px;
     }
 
     .order-detail-page__header {
-        flex-direction: column;
+        flex-direction: column; /* Chuyển header từ hàng ngang sang cột dọc */
     }
 
     .order-detail-page__header h2 {
@@ -227,13 +230,13 @@
     }
 
     .order-detail-page__header > a {
-        width: 100%;
+        width: 100%; /* Link quay lại chiếm toàn bộ chiều rộng */
         text-align: center;
     }
 
     .order-detail-page__card,
     .order-detail-page__items-card {
         padding: 18px;
-        border-radius: 18px;
+        border-radius: 18px; /* Giảm bo góc cho hợp màn hình nhỏ */
     }
 }

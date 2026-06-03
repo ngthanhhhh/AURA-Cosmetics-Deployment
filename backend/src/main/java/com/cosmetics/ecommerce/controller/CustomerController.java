@@ -86,10 +86,11 @@ public class CustomerController {
     }
 
     /**
-     * Khóa hoặc mở khóa tài khoản khách hàng.
+     * Khóa hoặc mở khóa tài khoản khách hàng,
+     * không xóa dữ liệu khách hàng khỏi hệ thống.
      *
      * @param id ID khách hàng cần cập nhật trạng thái.
-     * @param request Body chứa isActive.
+     * @param request Body chứa trạng thái hoạt động mới
      * @return Thông báo cập nhật trạng thái thành công.
      */
     @PutMapping("/{id}/status")

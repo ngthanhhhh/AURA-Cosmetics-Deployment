@@ -15,15 +15,13 @@ import Button from "../../components/ui/Button";
 import "./DashboardPage.css";
 import { formatCurrency } from "../../utils/formatCurrency";
 
-
 /**
- * Tải dữ liệu dashboard tổng quan từ backend.
+ * Trang dashboard tổng quan dành cho quản trị viên.
  *
- * Bao gồm:
- * - doanh thu
- * - tổng đơn hàng
- * - tổng khách hàng
- * - trạng thái đơn hàng
+ * Hiển thị:
+ * - số liệu tổng quan hệ thống
+ * - biểu đồ doanh thu ngắn hạn
+ * - thống kê trạng thái đơn hàng
  */
 function DashboardPage() {
 
@@ -44,6 +42,10 @@ function DashboardPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [revenueRange]);
 
+    /**
+     * Chuyển đối tượng Date sang định dạng yyyy-MM-dd
+     * để gửi cho API thống kê.
+     */
     const formatDateParam = (date) => {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -52,6 +54,13 @@ function DashboardPage() {
         return `${year}-${month}-${day}`;
     };
 
+    /**
+     * Tạo khoảng thời gian thống kê tính từ ngày hiện tại.
+     *
+     * Ví dụ:
+     * - 7 ngày gần nhất
+     * - 30 ngày gần nhất
+     */
     const getDateRange = (days) => {
         const toDate = new Date();
         const fromDate = new Date();
@@ -64,6 +73,9 @@ function DashboardPage() {
         };
     };
 
+    /**
+     * Tải dữ liệu tổng quan cho dashboard quản trị.
+     */
     const loadDashboardData = async () => {
         try{
             setLoading(true);
@@ -78,6 +90,12 @@ function DashboardPage() {
         }
     };
 
+    /**
+     * Tải dữ liệu biểu đồ doanh thu ngắn hạn.
+     *
+     * Dashboard chỉ hiển thị doanh thu theo ngày
+     * trong khoảng 7 hoặc 30 ngày gần nhất.
+     */
     const loadMiniRevenueChart = async (days) => {
         try {
             setChartLoading(true);
@@ -98,8 +116,7 @@ function DashboardPage() {
         }
     };
 
-    
-
+    // Dữ liệu các thẻ thống kê tổng quan
     const summaryCards = [
         {
             title: "Tổng doanh thu",
@@ -124,6 +141,7 @@ function DashboardPage() {
         
     ];
 
+    // Dữ liệu thống kê trạng thái đơn hàng
     const orderStatusCards = [
         {
             title: "Chờ xử lý",

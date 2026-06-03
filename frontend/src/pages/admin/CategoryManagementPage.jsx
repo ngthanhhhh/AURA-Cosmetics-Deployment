@@ -2,23 +2,79 @@ import { useEffect, useState } from "react";
 import { categoryService } from "../../features/categories/categoryService";
 import "./CategoryManagementPage.css";
 
+/* =========================================================
+   CATEGORY MANAGEMENT PAGE
+   ---------------------------------------------------------
+   Trang quản lý danh mục dành cho quản trị viên.
+
+   Chức năng chính:
+   - Hiển thị danh sách danh mục.
+   - Tìm kiếm danh mục theo tên.
+   - Sắp xếp danh mục theo ID hoặc tên.
+   - Phân trang danh sách danh mục.
+   - Thêm mới danh mục.
+   - Cập nhật danh mục.
+   - Xóa danh mục.
+========================================================= */
 function CategoryManagementPage() {
+  /* =========================================================
+     STATE LƯU DANH SÁCH DANH MỤC
+     ---------------------------------------------------------
+     categories chứa dữ liệu danh mục nhận từ backend.
+  ========================================================= */
   const [categories, setCategories] = useState([]);
 
+  /* =========================================================
+     STATE PHÂN TRANG
+     ---------------------------------------------------------
+     page       : trang hiện tại.
+     totalPages : tổng số trang trả về từ backend.
+  ========================================================= */
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  /* =========================================================
+     STATE TÌM KIẾM VÀ SẮP XẾP
+     ---------------------------------------------------------
+     keyword   : từ khóa tìm kiếm theo tên danh mục.
+     sortBy    : trường dùng để sắp xếp.
+     direction : hướng sắp xếp tăng dần hoặc giảm dần.
+  ========================================================= */
   const [keyword, setKeyword] = useState("");
   const [sortBy, setSortBy] = useState("categoryId");
   const [direction, setDirection] = useState("asc");
 
+  /* =========================================================
+     STATE FORM THÊM / CẬP NHẬT DANH MỤC
+     ---------------------------------------------------------
+     form lưu dữ liệu người dùng nhập vào form.
+  ========================================================= */
   const [form, setForm] = useState({
     name: "",
     description: "",
   });
 
+  /* =========================================================
+     STATE XÁC ĐỊNH CHẾ ĐỘ FORM
+     ---------------------------------------------------------
+     editingId = null  : đang ở chế độ thêm mới.
+     editingId != null : đang ở chế độ cập nhật danh mục.
+  ========================================================= */
   const [editingId, setEditingId] = useState(null);
 
+  /* =========================================================
+     HÀM TẢI DANH SÁCH DANH MỤC
+     ---------------------------------------------------------
+     Gọi API lấy danh sách danh mục từ backend.
+
+     Hỗ trợ:
+     - Tìm kiếm theo keyword.
+     - Phân trang.
+     - Sắp xếp theo sortBy và direction.
+
+     Các tham số next... giúp gọi lại hàm với giá trị mới
+     mà không phụ thuộc hoàn toàn vào state hiện tại.
+  ========================================================= */
   const loadCategories = async ({
     nextKeyword = keyword,
     nextPage = page,
@@ -42,6 +98,12 @@ function CategoryManagementPage() {
     }
   };
 
+  /* =========================================================
+     EFFECT TỰ ĐỘNG LOAD DANH MỤC
+     ---------------------------------------------------------
+     Khi page, sortBy hoặc direction thay đổi, hệ thống tự
+     gọi lại API để cập nhật danh sách danh mục.
+  ========================================================= */
   useEffect(() => {
     loadCategories({
       nextKeyword: keyword,
@@ -51,6 +113,14 @@ function CategoryManagementPage() {
     });
   }, [page, sortBy, direction]);
 
+  /* =========================================================
+     XỬ LÝ SUBMIT BỘ LỌC
+     ---------------------------------------------------------
+     Khi quản trị viên nhấn nút "Áp dụng":
+     - Không reload trang.
+     - Đưa về trang đầu tiên.
+     - Gọi API với keyword và tiêu chí sắp xếp hiện tại.
+  ========================================================= */
   const handleFilterSubmit = async (e) => {
     e.preventDefault();
 
@@ -64,6 +134,12 @@ function CategoryManagementPage() {
     });
   };
 
+  /* =========================================================
+     RESET BỘ LỌC
+     ---------------------------------------------------------
+     Đưa các tiêu chí lọc và sắp xếp về mặc định,
+     sau đó tải lại danh sách danh mục từ trang đầu tiên.
+  ========================================================= */
   const handleResetFilter = async () => {
     setKeyword("");
     setSortBy("categoryId");
@@ -78,6 +154,12 @@ function CategoryManagementPage() {
     });
   };
 
+  /* =========================================================
+     XỬ LÝ THAY ĐỔI DỮ LIỆU FORM
+     ---------------------------------------------------------
+     Cập nhật state form dựa trên name của input.
+     Dùng chung cho cả ô tên danh mục và mô tả.
+  ========================================================= */
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -85,6 +167,11 @@ function CategoryManagementPage() {
     });
   };
 
+  /* =========================================================
+     RESET FORM
+     ---------------------------------------------------------
+     Xóa dữ liệu đang nhập và thoát khỏi chế độ chỉnh sửa.
+  ========================================================= */
   const resetForm = () => {
     setForm({
       name: "",
@@ -94,6 +181,15 @@ function CategoryManagementPage() {
     setEditingId(null);
   };
 
+  /* =========================================================
+     XỬ LÝ THÊM MỚI / CẬP NHẬT DANH MỤC
+     ---------------------------------------------------------
+     Nếu editingId có giá trị:
+     - Gọi API cập nhật danh mục.
+
+     Nếu editingId là null:
+     - Gọi API thêm mới danh mục.
+  ========================================================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -130,6 +226,14 @@ function CategoryManagementPage() {
     }
   };
 
+  /* =========================================================
+     CHỌN DANH MỤC ĐỂ CHỈNH SỬA
+     ---------------------------------------------------------
+     Khi nhấn nút "Sửa":
+     - Lưu ID danh mục đang sửa.
+     - Đổ dữ liệu danh mục lên form.
+     - Cuộn lên đầu trang để dễ thao tác.
+  ========================================================= */
   const handleEdit = (category) => {
     setEditingId(category.categoryId);
 
@@ -144,6 +248,13 @@ function CategoryManagementPage() {
     });
   };
 
+  /* =========================================================
+     XÓA DANH MỤC
+     ---------------------------------------------------------
+     Trước khi xóa, hệ thống hiển thị hộp thoại xác nhận.
+     Nếu backend không cho xóa do danh mục còn sản phẩm,
+     thông báo lỗi từ backend sẽ được hiển thị.
+  ========================================================= */
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
 
@@ -165,8 +276,14 @@ function CategoryManagementPage() {
 
   return (
     <div className="category-management">
+      {/* =====================================================
+          TIÊU ĐỀ TRANG QUẢN LÝ DANH MỤC
+      ===================================================== */}
       <h2 className="category-management__title">Quản lý danh mục</h2>
 
+      {/* =====================================================
+          FORM TÌM KIẾM, LỌC VÀ SẮP XẾP DANH MỤC
+      ===================================================== */}
       <form className="category-management__filter" onSubmit={handleFilterSubmit}>
         <h3 className="category-management__filter-title">
           Lọc / tìm kiếm danh mục
@@ -218,6 +335,9 @@ function CategoryManagementPage() {
         </div>
       </form>
 
+      {/* =====================================================
+          FORM THÊM MỚI / CẬP NHẬT DANH MỤC
+      ===================================================== */}
       <form className="category-management__form" onSubmit={handleSubmit}>
         <h3 className="category-management__form-title">
           {editingId ? "Cập nhật danh mục" : "Thêm danh mục"}
@@ -256,6 +376,9 @@ function CategoryManagementPage() {
         </div>
       </form>
 
+      {/* =====================================================
+          BẢNG HIỂN THỊ DANH SÁCH DANH MỤC
+      ===================================================== */}
       <table className="category-management__table">
         <thead>
           <tr>
@@ -300,6 +423,9 @@ function CategoryManagementPage() {
         </tbody>
       </table>
 
+      {/* =====================================================
+          KHU VỰC PHÂN TRANG DANH MỤC
+      ===================================================== */}
       <div className="category-management__pagination">
         <button
           type="button"

@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
  *
  * Bao gồm:
  * - Tạo link thanh toán cho đơn hàng
- * - Nhận kết quả thanh toán từ VNPay (callback/redirect)
+ * - Nhận kết quả thanh toán từ VNPay trả về sau khi người dùng thanh toán
  *
  */
 @RestController
@@ -33,17 +33,16 @@ public class PaymentController {
     private final CurrentUserProvider currentUserProvider;
 
     /**
-     * API tạo link thanh toán VNPay cho một đơn hàng.
+     * Tạo link thanh toán VNPay cho một đơn hàng.
      *
-     * Flow:
-     * - Nhận orderId từ frontend
-     * - Lấy IP của người dùng
-     * - Gọi service để tạo URL thanh toán
-     * - Trả về URL để frontend redirect sang VNPay
+     * API này dùng khi khách hàng chọn thanh toán bằng VNPay.
+     * Hệ thống sẽ xác định người dùng hiện tại, lấy orderId từ URL,
+     * lấy địa chỉ IP của client, sau đó gọi PaymentService để tạo URL thanh toán.
      *
-     * @param orderId ID của đơn hàng cần thanh toán
-     * @param request HttpServletRequest để lấy địa chỉ IP
-     * @return JSON chứa URL thanh toán
+     * @param authentication Thông tin xác thực của người dùng hiện tại.
+     * @param orderId        ID của đơn hàng cần thanh toán.
+     * @param request        HttpServletRequest dùng để lấy địa chỉ IP của client.
+     * @return ResponseEntity chứa URL thanh toán VNPay.
      */
     @PostMapping("/vnpay/{orderId}")
     public ResponseEntity<Map<String, String>> createVnPayPayment(
@@ -52,35 +51,34 @@ public class PaymentController {
         HttpServletRequest request
     ){
         Integer userId = currentUserProvider.getCurrentUserId(authentication);
-        // Lấy IP của client (VNPay yêu cầu)
+        // Lấy IP của client để gửi sang VNPay
         String ipAddress = request.getRemoteAddr();
 
         // Gọi service tạo URL thanh toán
         String paymentUrl = paymentService.createVnPayPaymentUrl(userId, orderId, ipAddress);
 
-        // Trả về cho frontend dưới dạng JSON
+        // Trả về URL thanh toán về cho frontend
         return ResponseEntity.ok(Map.of("paymentUrl", paymentUrl));
     }
 
     /**
-     * API nhận phản hồi từ VNPay sau khi người dùng thanh toán.
+     * Nhận kết quả thanh toán trả về từ VNPay.
      *
-     * Flow:
-     * - VNPay redirect về endpoint này kèm theo params
-     * - Truyền toàn bộ params xuống service để xử lý
-     * - Trả kết quả về frontend (thành công / thất bại)
+     * Sau khi người dùng thanh toán, VNPay sẽ redirect về endpoint này
+     * kèm theo các tham số như mã giao dịch, mã phản hồi và chữ ký bảo mật.
+     * Service sẽ kiểm tra chữ ký, đối chiếu giao dịch và cập nhật trạng thái thanh toán.
      *
-     * @param params Toàn bộ query params VNPay gửi về
-     * @return JSON chứa thông báo kết quả thanh toán
+     * @param params Toàn bộ query params do VNPay gửi về.
+     * @return ResponseEntity chứa thông báo kết quả xử lý thanh toán.
      */
     @GetMapping("/vnpay-return")
     public ResponseEntity<Map<String, String>> vnpayReturn(
         @RequestParam Map<String, String> params
     ){
-        // Gọi service xử lý callback từ VNPay
+        // Gọi Service để xử lý kết quả thanh toán từ VNPay
         String message = paymentService.handleVnPayReturn(params);
 
-        // Trả kết quả về frontend
+        // Trả thông báo kết quả xử lý
         return ResponseEntity.ok(Map.of("message", message));
     }
 }

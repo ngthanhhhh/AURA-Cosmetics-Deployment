@@ -5,65 +5,112 @@ import { orderService } from "../../features/orders/orderService";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
 
+/**
+ * Trang Admin quản lý danh sách đơn hàng.
+ *
+ * Component này hỗ trợ:
+ * - Lấy danh sách đơn hàng từ backend
+ * - Tìm kiếm theo từ khóa
+ * - Lọc theo trạng thái đơn hàng
+ * - Lọc theo phương thức thanh toán
+ * - Lọc theo trạng thái thanh toán
+ * - Sắp xếp và phân trang danh sách đơn hàng
+ */
 function OrderManagementPage() {
+    // State lưu danh sách đơn hàng hiện tại.
     const [orders, setOrders] = useState([]);
 
+    // State lưu từ khóa tìm kiếm.
     const [keyword, setKeyword] = useState("");
-    const [status, setStatus] = useState("");
+    const [status, setStatus] = useState(""); // State lưu trạng thái đơn hàng cần lọc.
     const [paymentMethod, setPaymentMethod] = useState("");
     const [paymentStatus, setPaymentStatus] = useState("");
     const [sortBy, setSortBy] = useState("createdAt");
     const [sortDir, setSortDir] = useState("desc");
 
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(0); // State lưu trang hiện tại, bắt đầu từ 0.
+
+    // State lưu số lượng đơn hàng trên mỗi trang.
+    // Ở đây cố định là 10 nên không cần setter.
     const [size] = useState(10);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
+    const [totalPages, setTotalPages] = useState(0); // State lưu tổng số trang backend trả về.
+    const [totalElements, setTotalElements] = useState(0); // State lưu tổng số đơn hàng phù hợp với điều kiện lọc/tìm kiếm.
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false); // State kiểm tra trang có đang tải dữ liệu hay không.
+    const [error, setError] = useState(""); // State lưu thông báo lỗi khi gọi API thất bại.
 
+    /**
+     * Gọi API lấy danh sách đơn hàng phía Admin.
+     *
+     * Request gửi lên backend gồm:
+     * - page, size để phân trang
+     * - keyword để tìm kiếm
+     * - status để lọc trạng thái đơn hàng
+     * - paymentMethod để lọc phương thức thanh toán
+     * - paymentStatus để lọc trạng thái thanh toán
+     * - sortBy, sortDir để sắp xếp
+     */
     const fetchOrders = async () => {
         try {
-            setLoading(true);
+            setLoading(true); // Bật loading và xóa lỗi cũ.
             setError("");
 
+            // Gọi service lấy danh sách đơn hàng Admin.
             const data = await orderService.getAdminOrders({
                 page,
                 size,
-                keyword: keyword.trim() || undefined,
-                status: status || undefined,
+                keyword: keyword.trim() || undefined, // Nếu keyword sau khi trim là rỗng thì gửi undefined để không lọc keyword.
+                status: status || undefined, // Nếu status rỗng thì gửi undefined để lấy tất cả trạng thái.
                 paymentMethod: paymentMethod || undefined,
                 paymentStatus: paymentStatus || undefined,
                 sortBy,
                 sortDir
             });
 
-            setOrders(data?.content || []);
-            setTotalPages(data?.totalPages || 0);
-            setTotalElements(data?.totalElements || 0);
+            setOrders(data?.content || []); // Lưu danh sách đơn hàng của trang hiện tại.
+            setTotalPages(data?.totalPages || 0); // Lưu tổng số trang.
+            setTotalElements(data?.totalElements || 0);  // Lưu tổng số đơn hàng.
         } catch (err) {
             console.error("Fetch admin orders error: ", err);
 
-            setError(
+            setError( // Ưu tiên message từ backend, nếu không có thì dùng lỗi mặc định.
                 err?.response?.data?.message ||
                 "Không thể tải danh sách đơn hàng. Vui lòng thử lại sau!"
             );
         } finally {
-            setLoading(false);
+            setLoading(false); // Dù thành công hay lỗi thì cũng tắt loading.
         }
     };
 
+    /**
+     * Tự động tải lại danh sách đơn hàng khi:
+     * - page thay đổi
+     * - trạng thái đơn hàng thay đổi
+     * - phương thức thanh toán thay đổi
+     * - trạng thái thanh toán thay đổi
+     * - kiểu sắp xếp thay đổi
+     *
+     * keyword không nằm trong dependency để tránh gọi API liên tục khi đang gõ.
+     * Tìm kiếm keyword chỉ chạy khi submit form.
+     */
     useEffect(() => {
         fetchOrders();
     }, [page, status, paymentMethod, paymentStatus, sortBy, sortDir]);
 
+    /**
+     * Xử lý khi Admin submit form tìm kiếm.
+     *
+     * @param event Sự kiện submit form
+     */
     const handleSearchSubmit = (event) => {
-        event.preventDefault();
-        setPage(0);
-        fetchOrders();
+        event.preventDefault(); // Ngăn form reload lại trang.
+        setPage(0); // Khi tìm kiếm mới thì quay về trang đầu tiên.
+        fetchOrders(); // Gọi lại API với keyword hiện tại.
     };
 
+    /**
+     * Đặt lại toàn bộ bộ lọc và sắp xếp về mặc định.
+     */
     const handleReset = () => {
         setKeyword("");
         setStatus("");
@@ -74,6 +121,12 @@ function OrderManagementPage() {
         setPage(0);
     };
 
+    /**
+     * Chuyển mã trạng thái đơn hàng từ backend sang nhãn tiếng Việt.
+     *
+     * @param orderStatus Trạng thái đơn hàng từ backend
+     * @returns Nhãn trạng thái tiếng Việt để hiển thị
+     */
     const getStatusLabel = (orderStatus) => {
         const labels = {
             PENDING: "Chờ xử lý",
@@ -84,6 +137,7 @@ function OrderManagementPage() {
             CANCELLED: "Đã hủy"
         };
 
+        // Nếu trạng thái không có trong labels thì hiển thị lại giá trị gốc.
         return labels[orderStatus] || orderStatus;
     };
 
@@ -93,7 +147,9 @@ function OrderManagementPage() {
                 <h2>Quản lý đơn hàng</h2>
             </div>
 
+            {/* Form tìm kiếm, lọc và sắp xếp danh sách đơn hàng */}
             <form className="admin-orders-page__filters" onSubmit={handleSearchSubmit}>
+                {/* Ô tìm kiếm theo tên, số điện thoại, địa chỉ hoặc email khách hàng */}
                 <div className="admin-orders-page__filter-group">
                     <label>Tìm kiếm</label>
                     <input
@@ -104,13 +160,15 @@ function OrderManagementPage() {
                     />
                 </div>
 
+                {/* Bộ lọc theo trạng thái đơn hàng */}
                 <div className="admin-orders-page__filter-group">
                     <label>Trạng thái đơn</label>
                     <select
                         value={status}
                         onChange={(event) => {
+                            // Cập nhật trạng thái đơn cần lọc.
                             setStatus(event.target.value);
-                            setPage(0);
+                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -128,8 +186,8 @@ function OrderManagementPage() {
                     <select
                         value={paymentMethod}
                         onChange={(event) => {
-                            setPaymentMethod(event.target.value);
-                            setPage(0);
+                            setPaymentMethod(event.target.value); // Cập nhật phương thức thanh toán cần lọc.
+                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -143,8 +201,8 @@ function OrderManagementPage() {
                     <select
                         value={paymentStatus}
                         onChange={(event) => {
-                            setPaymentStatus(event.target.value);
-                            setPage(0);
+                            setPaymentStatus(event.target.value); // Cập nhật trạng thái thanh toán cần lọc.
+                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -159,8 +217,8 @@ function OrderManagementPage() {
                     <select
                         value={sortBy}
                         onChange={(event) => {
-                            setSortBy(event.target.value);
-                            setPage(0);
+                            setSortBy(event.target.value); // Cập nhật trường sắp xếp.
+                            setPage(0); // Khi đổi sắp xếp thì quay về trang đầu tiên.
                         }}
                     >
                         <option value="createdAt">Ngày tạo</option>
@@ -176,8 +234,8 @@ function OrderManagementPage() {
                     <select
                         value={sortDir}
                         onChange={(event) => {
-                            setSortDir(event.target.value);
-                            setPage(0);
+                            setSortDir(event.target.value); // Cập nhật chiều sắp xếp asc/desc.
+                            setPage(0); // Khi đổi chiều sắp xếp thì quay về trang đầu tiên.
                         }}
                     >
                         <option value="desc">Giảm dần</option>
@@ -222,6 +280,7 @@ function OrderManagementPage() {
                             </thead>
 
                             <tbody>
+                                {/* Render từng đơn hàng thành một dòng trong bảng */}
                                 {orders.map((order) => (
                                     <tr key={order.orderId}>
                                         <td>#{order.orderId}</td>
@@ -230,6 +289,7 @@ function OrderManagementPage() {
                                         <td>{order.recipientPhone}</td>
                                         <td>{formatCurrency(order.totalPrice)}</td>
 
+                                        {/* Badge phương thức thanh toán */}
                                         <td>
                                             <span className={`payment-method-badge payment-method-badge--${order.paymentMethod?.toLowerCase()}`}>
                                                 {order.paymentMethod === "COD"
@@ -241,6 +301,7 @@ function OrderManagementPage() {
                                             </span>
                                         </td>
 
+                                        {/* Badge trạng thái thanh toán */}
                                         <td>
                                             <span className={`payment-status-badge payment-status-badge--${order.paymentStatus?.toLowerCase()}`}>
                                                 {order.paymentStatus === "PENDING"
@@ -254,6 +315,7 @@ function OrderManagementPage() {
                                             </span>
                                         </td>
 
+                                        {/* Badge trạng thái đơn hàng */}
                                         <td>
                                             <span className={`admin-orders-page__status status-${order.status}`}>
                                                 {getStatusLabel(order.status)}
@@ -274,23 +336,24 @@ function OrderManagementPage() {
                         </table>
                     </div>
 
+                    {/* Phân trang danh sách đơn hàng */}
                     <div className="admin-orders-page__pagination">
                         <button
                             type="button"
-                            disabled={page <= 0}
-                            onClick={() => setPage((prev) => prev - 1)}
+                            disabled={page <= 0} // Không cho bấm nếu đang ở trang đầu tiên.
+                            onClick={() => setPage((prev) => prev - 1)} // Chuyển về trang trước.
                         >
                             Trang trước
                         </button>
 
                         <span>
-                            Trang {page + 1} / {totalPages || 1}
+                            Trang {page + 1} / {totalPages || 1} {/* Hiển thị trang hiện tại / tổng số trang */}
                         </span>
 
                         <button
                             type="button"
-                            disabled={page + 1 >= totalPages}
-                            onClick={() => setPage((prev) => prev + 1)}
+                            disabled={page + 1 >= totalPages} // Không cho bấm nếu đang ở trang cuối.
+                            onClick={() => setPage((prev) => prev + 1)} // Chuyển sang trang sau.
                         >
                             Trang sau
                         </button>

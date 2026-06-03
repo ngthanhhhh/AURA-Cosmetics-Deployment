@@ -1,15 +1,18 @@
+/* Container chính của trang quản lý danh mục */
 .category-management {
   display: flex;
   flex-direction: column;
   gap: 22px;
 }
 
+/* Tiêu đề trang quản lý danh mục */
 .category-management__title {
   font-size: 28px;
   margin: 0 0 6px;
   color: #171321;
 }
 
+/* Khung bộ lọc tìm kiếm và sắp xếp danh mục */
 .category-management__filter {
   background: #ffffff;
   border: 1px solid #eee8f3;
@@ -18,11 +21,13 @@
   box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
 
+/* Tiêu đề trong khu vực bộ lọc */
 .category-management__filter-title {
   margin: 0 0 14px;
   color: #2b2831;
 }
 
+/* Hàng chứa các ô tìm kiếm, select và nút lọc */
 .category-management__filter-row {
   display: flex;
   align-items: center;
@@ -30,6 +35,7 @@
   flex-wrap: wrap;
 }
 
+/* Khung form thêm mới hoặc cập nhật danh mục */
 .category-management__form {
   background: #ffffff;
   border: 1px solid #eee8f3;
@@ -38,11 +44,13 @@
   box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
 
+/* Tiêu đề trong form thêm/cập nhật danh mục */
 .category-management__form-title {
   margin: 0 0 14px;
   color: #2b2831;
 }
 
+/* Hàng chứa các ô nhập và nút thao tác trong form */
 .category-management__form-row {
   display: flex;
   align-items: center;
@@ -50,6 +58,7 @@
   flex-wrap: wrap;
 }
 
+/* Style chung cho input và select */
 .category-management__input {
   padding: 11px 14px;
   min-width: 220px;
@@ -61,11 +70,13 @@
   font-size: 14px;
 }
 
+/* Hiệu ứng khi input hoặc select được focus */
 .category-management__input:focus {
   border-color: #8c7a6b;
   background: #ffffff;
 }
 
+/* Style chung cho các nút trong trang quản lý danh mục */
 .category-management__btn,
 .category-management__action-btn,
 .category-management__pagination button {
@@ -79,16 +90,19 @@
   color: #4b3f35;
 }
 
+/* Nút submit chính trong form */
 .category-management__btn[type="submit"] {
   background: #2f2a3a;
   color: #ffffff;
 }
 
+/* Nút phụ như Reset hoặc Hủy */
 .category-management__btn--secondary {
   background: #eee5db;
   color: #4b3f35;
 }
 
+/* Bảng hiển thị danh sách danh mục */
 .category-management__table {
   width: 100%;
   border-collapse: collapse;
@@ -99,6 +113,7 @@
   box-shadow: 0 12px 30px rgba(25, 18, 38, 0.04);
 }
 
+/* Ô tiêu đề và ô dữ liệu trong bảng */
 .category-management__table th,
 .category-management__table td {
   padding: 14px 16px;
@@ -107,26 +122,31 @@
   color: #2b2831;
 }
 
+/* Hàng tiêu đề của bảng */
 .category-management__table th {
   background: #faf8f6;
   font-weight: 600;
 }
 
+/* Xóa đường kẻ dưới ở hàng cuối cùng của bảng */
 .category-management__table tr:last-child td {
   border-bottom: none;
 }
 
+/* Nút thao tác trong từng dòng dữ liệu */
 .category-management__action-btn {
   margin-right: 8px;
   background: #eee5db;
   color: #4b3f35;
 }
 
+/* Nút xóa danh mục */
 .category-management__action-btn--danger {
   background: #f3dddd;
   color: #8a2f2f;
 }
 
+/* Khu vực phân trang */
 .category-management__pagination {
   display: flex;
   justify-content: center;
@@ -134,6 +154,7 @@
   gap: 12px;
 }
 
+/* Nút chuyển trang */
 .category-management__pagination button {
   min-height: 38px;
   border: 1px solid #ded6cf;
@@ -141,16 +162,19 @@
   color: #2b2831;
 }
 
+/* Trạng thái nút phân trang bị vô hiệu hóa */
 .category-management__pagination button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* Text hiển thị số trang hiện tại */
 .category-management__pagination span {
   color: #2b2831;
   font-weight: 500;
 }
 
+/* Responsive cho màn hình nhỏ và tablet */
 @media (max-width: 1024px) {
   .category-management__form-row {
     flex-direction: column;

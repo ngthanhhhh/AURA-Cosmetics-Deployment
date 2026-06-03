@@ -1,24 +1,25 @@
+/* Áp dụng box-sizing cho trang đơn hàng và toàn bộ phần tử con */
 .my-orders-page,
 .my-orders-page * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Tính cả padding và border vào kích thước width/height */
 }
 
-.my-orders-page {
-    min-height: calc(100vh - 80px);
+.my-orders-page { /* Layout tổng của trang danh sách đơn hàng */
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ phần header khoảng 80px */
     padding: 32px 24px 48px;
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
-.my-orders-page__header {
-    max-width: 1180px;
-    margin: 0 auto 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.my-orders-page__header { /* Header của trang: tiêu đề + link tiếp tục mua sắm */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 20px; /* Căn giữa header, cách phần dưới 20px */
+    display: flex; /* Dàn tiêu đề và link trên cùng một hàng */
+    justify-content: space-between; /* Đẩy tiêu đề sang trái, link sang phải */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
     gap: 16px;
 }
 
-.my-orders-page__header h2 {
+.my-orders-page__header h2 { /* Tiêu đề trang */
     margin: 0;
     color: #3f2d24;
     font-size: 28px;
@@ -26,14 +27,14 @@
 }
 
 .my-orders-page__header a,
-.my-orders-page__detail-link {
+.my-orders-page__detail-link { /* Style chung cho link header và link xem chi tiết */
     color: #7a5543;
     text-decoration: none;
     font-weight: 700;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease; /* Hiệu ứng đổi màu mượt khi hover */
 }
 
-.my-orders-page__header a {
+.my-orders-page__header a { /* Link tiếp tục mua sắm ở header, được thiết kế giống nút */
     padding: 10px 14px;
     border: 1px solid #d7c4b8;
     border-radius: 999px;
@@ -42,83 +43,85 @@
 }
 
 .my-orders-page__header a:hover,
-.my-orders-page__detail-link:hover {
+.my-orders-page__detail-link:hover { /* Hover cho link header và link xem chi tiết */
     color: #4d3529;
-    text-decoration: none;
+    text-decoration: none; /* Đảm bảo hover vẫn không có gạch chân */
 }
 
-.my-orders-page__filters {
-    max-width: 1180px;
-    margin: 0 auto 16px;
+.my-orders-page__filters { /* Khung bộ lọc/tìm kiếm/sắp xếp đơn hàng */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
     padding: 16px;
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: rgba(255, 255, 255, 0.94);
-    display: grid;
+    display: grid; /* Dùng grid để chia các ô filter thành nhiều cột */
+
+    /* Cột tìm kiếm rộng hơn, 3 cột select nhỏ hơn, cuối cùng là cột nút */
     grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(140px, 1fr)) auto;
     gap: 12px;
-    align-items: end;
+    align-items: end; /* Căn các item xuống đáy để input/select/nút thẳng hàng */
     box-shadow: 0 14px 34px rgba(86, 63, 50, 0.09);
 }
 
-.my-orders-page__filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
+.my-orders-page__filter-group { /* Một nhóm filter gồm label + input/select */
+    display: flex; /* Dàn label và input/select theo chiều dọc */
+    flex-direction: column; /* Chuyển flex thành dạng cột */
+    gap: 7px; /* Khoảng cách giữa label và input/select */
 }
 
-.my-orders-page__filter-group label {
+.my-orders-page__filter-group label { /* Label của filter */
     color: #4b382f;
     font-size: 14px;
     font-weight: 700;
 }
 
 .my-orders-page__filter-group input,
-.my-orders-page__filter-group select {
-    width: 100%;
-    padding: 11px 12px;
+.my-orders-page__filter-group select { /* Style chung cho ô tìm kiếm và ô select */
+    width: 100%; /* Chiếm toàn bộ chiều rộng của group */
+    padding: 11px 12px; /* Khoảng cách bên trong ô nhập/chọn */
     border: 1px solid #dccbc1;
     border-radius: 14px;
     background: #fffaf7;
     color: #3f2d24;
     font: inherit;
-    outline: none;
+    outline: none; /* Bỏ outline mặc định của trình duyệt */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .my-orders-page__filter-group input:focus,
-.my-orders-page__filter-group select:focus {
+.my-orders-page__filter-group select:focus { /* Khi input/select đang được focus */
     border-color: #8b6654;
     background: #fff;
     box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12);
 }
 
-.my-orders-page__filter-actions {
-    display: flex;
+.my-orders-page__filter-actions { /* Khối chứa nút tìm kiếm và đặt lại */
+    display: flex; /* Dàn 2 nút trên cùng một hàng */
     gap: 8px;
 }
 
-.my-orders-page__filter-actions button {
-    min-height: 42px;
-    padding: 10px 14px;
+.my-orders-page__filter-actions button { /* Style chung cho các nút trong filter */
+    min-height: 42px; /* Chiều cao tối thiểu của nút */
+    padding: 10px 14px; /* Khoảng cách bên trong nút */
     border: 1px solid #6b4f3f;
     border-radius: 999px;
     background: #fff;
     color: #6b4f3f;
     cursor: pointer;
     font-weight: 750;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+    white-space: nowrap; /* Không cho chữ trong nút bị xuống dòng */
+    transition: all 0.2s ease; /* Hiệu ứng hover mượt */
 }
 
-.my-orders-page__filter-actions button:first-child {
+.my-orders-page__filter-actions button:first-child { /* Nút đầu tiên trong filter, tức nút Tìm kiếm */
     background: linear-gradient(135deg, #7a5543, #4d3529);
     color: #fff;
     box-shadow: 0 10px 20px rgba(86, 63, 50, 0.18);
 }
 
-.my-orders-page__filter-actions button:hover {
-    transform: translateY(-1px);
+.my-orders-page__filter-actions button:hover { /* Hover cho nút filter */
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
 }
 
 .my-orders-page__error {
@@ -156,75 +159,77 @@
     font-size: 18px;
 }
 
-.my-orders-page__table-wrapper {
-    max-width: 1180px;
-    max-height: 470px;
-    margin: 0 auto;
-    overflow: auto;
+.my-orders-page__table-wrapper { /* Khung bọc bảng danh sách đơn hàng */
+    max-width: 1180px; /* Giới hạn chiều rộng tối đa */
+    max-height: 470px; /* Giới hạn chiều cao bảng để nếu nhiều dòng thì cuộn bên trong */
+    margin: 0 auto; /* Căn giữa bảng */
+    overflow: auto; /* Cho phép cuộn cả ngang và dọc khi bảng quá rộng hoặc quá cao */
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: #fff;
     box-shadow: 0 18px 45px rgba(86, 63, 50, 0.1);
 }
 
+/* Tùy chỉnh thanh cuộn bên trong khung bảng đơn hàng 
+trên trình duyệt WebKit như Chrome, Edge, Safari */
 .my-orders-page__table-wrapper::-webkit-scrollbar {
     width: 9px;
     height: 9px;
 }
 
-.my-orders-page__table-wrapper::-webkit-scrollbar-track {
+.my-orders-page__table-wrapper::-webkit-scrollbar-track { /* Phần nền/đường ray của thanh cuộn */
     background: #f7eee8;
     border-radius: 999px;
 }
 
-.my-orders-page__table-wrapper::-webkit-scrollbar-thumb {
+.my-orders-page__table-wrapper::-webkit-scrollbar-thumb { /* Phần tay kéo của thanh cuộn */
     background: #b79b8a;
     border-radius: 999px;
 }
 
-.my-orders-page__table-wrapper::-webkit-scrollbar-thumb:hover {
+.my-orders-page__table-wrapper::-webkit-scrollbar-thumb:hover { /* Khi rê chuột vào thanh kéo scrollbar */
     background: #8b6654;
 }
 
-.my-orders-page__table {
+.my-orders-page__table { /* Bảng chiếm toàn bộ chiều rộng của khung */
     width: 100%;
     min-width: 980px;
-    border-collapse: collapse;
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh viền bị đôi */
     background: #fff;
 }
 
 .my-orders-page__table th,
-.my-orders-page__table td {
-    padding: 15px 16px;
-    border-bottom: 1px solid #f0e6df;
+.my-orders-page__table td { /* Style chung cho ô tiêu đề và ô dữ liệu */
+    padding: 15px 16px; /* Khoảng cách bên trong ô: trên/dưới 15px, trái/phải 16px */
+    border-bottom: 1px solid #f0e6df;  /* Đường kẻ ngang ngăn cách các dòng */
     text-align: left;
-    vertical-align: middle;
+    vertical-align: middle; /* Căn nội dung giữa theo chiều dọc */
     color: #4b382f;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho nội dung trong ô tự xuống dòng */
 }
 
-.my-orders-page__table th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
+.my-orders-page__table th { /* Header của bảng */
+    position: sticky; /* Giữ hàng tiêu đề dính ở trên khi cuộn bảng */
+    top: 0; /* Khi sticky thì dính ở mép trên của khung bảng */
+    z-index: 2; /* Đảm bảo header nằm trên các dòng dữ liệu khi cuộn */
     background: #fbf4ef;
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em; /* Tăng khoảng cách giữa các chữ cái */
 }
 
-.my-orders-page__table tbody tr {
+.my-orders-page__table tbody tr { /* Các dòng dữ liệu trong bảng */
     transition: background 0.2s ease;
 }
 
-.my-orders-page__table tbody tr:hover {
+.my-orders-page__table tbody tr:hover { /* Khi rê chuột vào một dòng đơn hàng */
     background: #fff9f5;
 }
 
-.my-orders-page__table tbody tr:last-child td {
-    border-bottom: none;
+.my-orders-page__table tbody tr:last-child td { /* Các ô ở dòng cuối cùng */
+    border-bottom: none; /* Bỏ border dưới của dòng cuối để bảng nhìn gọn hơn */
 }
 
 .my-orders-page__table td:first-child {
@@ -237,11 +242,11 @@
     font-weight: 800;
 }
 
-.my-orders-page__status {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 112px;
+.my-orders-page__status { /* Badge hiển thị trạng thái đơn hàng */
+    display: inline-flex; /* Dàn nội dung trong badge theo hàng ngang */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-content: center; /* Căn giữa theo chiều ngang */
+    min-width: 112px; /* Đặt độ rộng tối thiểu để các badge đều nhau */
     padding: 7px 10px;
     border-radius: 999px;
     font-size: 13px;
@@ -278,36 +283,36 @@
     color: #842029;
 }
 
-.my-orders-page__detail-link {
-    display: inline-flex;
+.my-orders-page__detail-link { /* Link xem chi tiết đơn hàng */
+    display: inline-flex; /* Hiển thị link như một nút nhỏ nằm cùng dòng */
     padding: 8px 12px;
     border: 1px solid #d7c4b8;
     border-radius: 999px;
     background: #fffaf7;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho chữ bị xuống dòng */
 }
 
-.my-orders-page__detail-link:hover {
+.my-orders-page__detail-link:hover { /* Hover link xem chi tiết */
     background: #6b4f3f;
     color: #fff;
 }
 
-.my-orders-page__pagination {
-    max-width: 1180px;
-    margin: 18px auto 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
+.my-orders-page__pagination { /* Khung phân trang */
+    max-width: 1180px; /* Giới hạn chiều rộng bằng nội dung chính */
+    margin: 18px auto 0; /* Cách bảng phía trên 18px và căn giữa */
+    display: flex; /* Dàn nút trang trước, số trang, trang sau trên cùng một hàng */
+    justify-content: center; /* Căn cụm phân trang vào giữa */
+    align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+    gap: 12px; /* Khoảng cách giữa các phần tử phân trang */
 }
 
-.my-orders-page__pagination span {
+.my-orders-page__pagination span { /* Text hiển thị số trang hiện tại */
     color: #4b382f;
     font-weight: 700;
 }
 
-.my-orders-page__pagination button {
-    padding: 10px 14px;
+.my-orders-page__pagination button { /* Nút trang trước / trang sau */
+    padding: 10px 14px; /* Khoảng cách bên trong nút */
     border: 1px solid #6b4f3f;
     border-radius: 999px;
     background: #fff;
@@ -317,58 +322,59 @@
     transition: all 0.2s ease;
 }
 
-.my-orders-page__pagination button:hover:not(:disabled) {
+.my-orders-page__pagination button:hover:not(:disabled) { /* Hover nút phân trang khi nút không bị disabled */
     background: #6b4f3f;
     color: #fff;
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
 }
 
+/* Nút phân trang bị khóa, ví dụ đang ở trang đầu hoặc trang cuối */
 .my-orders-page__pagination button:disabled {
-    cursor: not-allowed;
+    cursor: not-allowed; /* Hiện con trỏ báo không bấm được */
     opacity: 0.45;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 1024px */
     .my-orders-page__filters {
-        grid-template-columns: 1fr 1fr;
-        position: static;
+        grid-template-columns: 1fr 1fr; /* Chuyển bộ lọc từ nhiều cột thành 2 cột */
+        position: static; /* Không dùng position đặc biệt, để layout chạy bình thường */
     }
 
     .my-orders-page__filter-actions {
-        grid-column: span 2;
+        grid-column: span 2; /* Cho nhóm nút chiếm ngang 2 cột */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .my-orders-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding tổng của trang cho vừa màn hình nhỏ */
     }
 
     .my-orders-page__header {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: column; /* Chuyển header từ hàng ngang sang cột dọc */
+        align-items: flex-start; /* Căn header về phía trái */
     }
 
     .my-orders-page__header h2 {
-        font-size: 24px;
+        font-size: 24px; /* Giảm cỡ chữ tiêu đề */
     }
 
     .my-orders-page__filters {
-        grid-template-columns: 1fr;
-        border-radius: 18px;
+        grid-template-columns: 1fr; /* Chuyển bộ lọc thành 1 cột */
+        border-radius: 18px; /* Giảm bo góc cho phù hợp màn hình nhỏ */
     }
 
     .my-orders-page__filter-actions {
-        grid-column: auto;
-        flex-direction: column;
+        grid-column: auto; /* Trả nhóm nút về cột hiện tại, không span nhiều cột nữa */
+        flex-direction: column; /* Xếp nút tìm kiếm và đặt lại theo chiều dọc */
     }
 
     .my-orders-page__filter-actions button {
-        width: 100%;
+        width: 100%; /* Mỗi nút chiếm toàn bộ chiều rộng */
     }
 
     .my-orders-page__table-wrapper {
-        max-height: 420px;
+        max-height: 420px; /* Giảm chiều cao tối đa của bảng */
         border-radius: 18px;
     }
 }

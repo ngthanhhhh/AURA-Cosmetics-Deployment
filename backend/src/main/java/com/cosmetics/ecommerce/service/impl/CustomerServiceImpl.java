@@ -19,10 +19,10 @@ import java.util.List;
 /**
  * Cài đặt nghiệp vụ quản lý khách hàng dành cho quản trị viên.
  *
- * Class này xử lý:
- * - Lấy danh sách khách hàng
- * - Xem chi tiết khách hàng
- * - Lấy lịch sử đơn hàng của khách hàng
+ * Bao gồm:
+ * - Lấy danh sách khách hàng có tìm kiếm và phân trang
+ * - Xem thông tin chi tiết khách hàng
+ * - Xem lịch sử đơn hàng của khách hàng
  * - Khóa hoặc mở khóa tài khoản khách hàng
  */
 
@@ -44,6 +44,7 @@ public class CustomerServiceImpl implements  CustomerService{
     @Override
     public Page<CustomerResponse> getAllCustomers(String keyword, Boolean isActive, Pageable pageable){
 
+        // Chuẩn hóa từ khóa tìm kiếm trước khi truy vấn
         keyword = (keyword == null || keyword.trim().isEmpty() ? null : keyword.trim());
 
         return customerRepository.findAllCustomers(keyword, isActive, pageable)
@@ -61,9 +62,12 @@ public class CustomerServiceImpl implements  CustomerService{
      */
     @Override
     public CustomerDetailResponse getCustomerDetail(Integer id){
+
+        // Tìm khách hàng theo ID
         User user = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
+        // Chỉ cho phép xem chi tiết tài khoản khách hàng
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
             throw new BadRequestException("Tài khoản không phải khách hàng");
         }
@@ -79,6 +83,7 @@ public class CustomerServiceImpl implements  CustomerService{
 
                 )).toList();
 
+        // Trả về thông tin khách hàng và lịch sử mua hàng
         return new CustomerDetailResponse(
                 user.getUserId(),
                 user.getName(),
@@ -104,17 +109,21 @@ public class CustomerServiceImpl implements  CustomerService{
     @Transactional
     public void updateStatus(Integer id, Boolean isActive){
 
+        // Kiểm tra trạng thái mới hợp lệ
         if(isActive == null){
             throw new BadRequestException("Trạng thái không hợp lệ");
         }
 
+        // Tìm khách hàng cần cập nhật trạng thái
         User user = customerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khách hàng với ID: " + id));
 
+        // Chỉ áp dụng cho tài khoản khách hàng
         if(!user.getRole().getRoleName().equals("ROLE_CUSTOMER")){
             throw new BadRequestException("Chỉ áp dụng cho khách hàng");
         }
 
+        // Không cho phép cập nhật nếu trạng thái không thay đổi
         if(Boolean.valueOf(isActive).equals(user.getIsActive())){
             throw new BadRequestException("Trạng thái tài khoản không thay đổi");
         }

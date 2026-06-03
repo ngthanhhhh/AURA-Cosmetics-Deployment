@@ -1,9 +1,11 @@
+/* Trang chi tiết khách hàng */
 .customer-detail-page {
     display: flex;
     flex-direction: column;
     gap: 22px;
 }
 
+/* Header và các thao tác quản lý khách hàng */
 .customer-detail-header {
     display: flex;
     justify-content: space-between;
@@ -32,6 +34,7 @@
     flex-shrink: 0;
 }
 
+/* Nút thao tác */
 .customer-detail-btn {
     border: none;
     border-radius: 12px;
@@ -61,6 +64,7 @@
     color: #2f6b43;
 }
 
+/* Bố cục thông tin khách hàng và lịch sử đơn hàng */
 .customer-detail-grid {
     display: grid;
     grid-template-columns: 360px minmax(0, 1fr);
@@ -68,6 +72,8 @@
     align-items: start;
 }
 
+
+/* Thẻ thông tin hồ sơ khách hàng */
 .customer-profile-card,
 .customer-orders-card {
     background: #ffffff;
@@ -85,6 +91,7 @@
     min-width: 0;
 }
 
+/* Thông tin tổng quan khách hàng */
 .customer-profile-top {
     display: flex;
     align-items: center;
@@ -128,6 +135,8 @@
     word-break: break-word;
 }
 
+
+/* Trạng thái tài khoản khách hàng */
 .customer-status-badge {
     display: inline-flex;
     align-items: center;
@@ -153,6 +162,7 @@
     border: 1px solid #ffd1d1;
 }
 
+/* Danh sách thông tin chi tiết khách hàng */
 .customer-info-list {
     display: flex;
     flex-direction: column;
@@ -204,6 +214,7 @@
     font-size: 14px;
 }
 
+/* Bảng lịch sử đơn hàng */
 .customer-order-table-wrapper {
     width: 100%;
     overflow-x: auto;
@@ -254,6 +265,7 @@
     font-weight: 700;
 }
 
+/* Trạng thái đơn hàng */
 .order-status-badge {
     display: inline-flex;
     align-items: center;
@@ -291,6 +303,12 @@
     border: 1px solid #bfe8cf;
 }
 
+.order-status-badge--delivered {
+    background: #e4f6ec;
+    color: #237047;
+    border: 1px solid #bfe8cf;
+}
+
 .order-status-badge--cancelled {
     background: #fff0f0;
     color: #b42318;
@@ -309,6 +327,7 @@
     white-space: nowrap;
 }
 
+/* Phân trang danh sách đơn hàng */
 .customer-order-pagination {
     display: flex;
     align-items: center;
@@ -338,6 +357,7 @@
     font-size: 14px;
 }
 
+/* Trạng thái không có dữ liệu */
 .customer-detail-empty {
     padding: 38px 18px;
     border-radius: 18px;
@@ -348,6 +368,7 @@
     border: 1px dashed #ded6cf;
 }
 
+/* Màn hình lỗi tải dữ liệu */
 .customer-detail-error {
     background: #ffffff;
     border: 1px solid #eee8f3;
@@ -371,6 +392,7 @@
     font-weight: 600;
 }
 
+/* Responsive cho tablet */
 @media (max-width: 1024px) {
     .customer-detail-header {
         flex-direction: column;

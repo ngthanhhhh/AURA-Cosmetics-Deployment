@@ -34,10 +34,16 @@ public interface OrderService {
     OrderResponseDTO placeOrder(Integer userId, OrderRequestDTO request);
 
     /**
-     * Lấy danh sách đơn hàng của người dùng hiện tại.
+     * Lấy danh sách đơn hàng của người dùng.
      *
-     * @param userId ID của người dùng
-     * @return Danh sách đơn hàng của user
+     * @param userId  ID người dùng
+     * @param status  Trạng thái đơn hàng cần lọc, có thể null
+     * @param keyword Từ khóa tìm kiếm, có thể null
+     * @param page    Số trang cần lấy
+     * @param size    Số lượng đơn hàng trên mỗi trang
+     * @param sortBy  Trường dùng để sắp xếp
+     * @param sortDir Chiều sắp xếp
+     * @return Danh sách đơn hàng của người dùng theo dạng phân trang
      */
     Page<OrderResponseDTO> getMyOrders(
         Integer userId,
@@ -50,18 +56,17 @@ public interface OrderService {
     );
 
     /**
-     * Lấy danh sách đơn hàng cho Admin (có phân trang và filter).
+     * Lấy danh sách đơn hàng dành cho Admin.
      *
-     * Hỗ trợ:
-     * - Lọc theo trạng thái đơn hàng
-     * - Tìm kiếm theo keyword (tên khách hàng, mã đơn...)
-     * - Phân trang
-     *
-     * @param status  Trạng thái cần lọc (có thể null)
-     * @param keyword Từ khóa tìm kiếm (có thể null)
-     * @param page    Trang hiện tại
-     * @param size    Số lượng bản ghi mỗi trang
-     * @return Page chứa danh sách đơn hàng
+     * @param status        Trạng thái đơn hàng cần lọc, có thể null
+     * @param keyword       Từ khóa tìm kiếm, có thể null
+     * @param paymentMethod Phương thức thanh toán cần lọc, có thể null
+     * @param paymentStatus Trạng thái thanh toán cần lọc, có thể null
+     * @param page          Số trang cần lấy
+     * @param size          Số lượng đơn hàng trên mỗi trang
+     * @param sortBy        Trường dùng để sắp xếp
+     * @param sortDir       Chiều sắp xếp
+     * @return Danh sách đơn hàng dành cho Admin theo dạng phân trang
      */
     Page<OrderListDTO> getAdminOrders(
         String status, 
@@ -77,11 +82,6 @@ public interface OrderService {
     /**
      * Lấy thông tin chi tiết của một đơn hàng (dành cho Admin).
      *
-     * Bao gồm:
-     * - Thông tin khách hàng
-     * - Danh sách sản phẩm
-     * - Thông tin thanh toán
-     *
      * @param orderId ID của đơn hàng
      * @return Thông tin chi tiết đơn hàng
      */
@@ -90,20 +90,25 @@ public interface OrderService {
     /**
      * Cập nhật trạng thái của đơn hàng (dành cho Admin).
      *
-     * Quy trình:
-     * - Kiểm tra đơn hàng tồn tại
-     * - Validate trạng thái mới
-     * - Kiểm tra luồng chuyển trạng thái hợp lệ
-     * - Nếu COMPLETED -> kiểm tra thanh toán thành công
-     * - Nếu CANCELLED -> hoàn trả sản phẩm về kho
-     *
      * @param orderId ID của đơn hàng
      * @param request Trạng thái mới cần cập nhật
      * @return Thông tin kết quả cập nhật trạng thái
      */
     OrderStatusUpdateResponseDTO updateOrderStatus(Integer orderId, UpdateOrderStatusRequestDTO request);
 
+    /**
+     * Lấy chi tiết đơn hàng của người dùng.
+     *
+     * @param userId  ID người dùng
+     * @param orderId ID đơn hàng
+     * @return Thông tin chi tiết đơn hàng
+     */
     OrderDetailResponseDTO getOrderDetailForCustomer(Integer userId, Integer orderId);
 
+    /**
+     * Xác nhận thanh toán thành công cho đơn hàng COD.
+     *
+     * @param orderId ID đơn hàng COD cần xác nhận thanh toán
+     */
     void confirmCodPayment(Integer orderId);
 }

@@ -29,12 +29,16 @@ public class AdminOrderController {
     private final OrderService orderService;
 
     /**
-     * Lấy danh sách đơn hàng có phân trang và lọc theo điều kiện
+     * Lấy danh sách đơn hàng cho Admin, có phân trang, tìm kiếm, lọc, sắp xếp.
      * * @param status Trạng thái đơn hàng (PENDING,...) - không bắt buộc.
      * @param keyword Từ khóa tìm kiếm (theo tên khách hàng, mã đơn...) - không bắt buộc
+     * @param paymentMethod Phương thức thanh toán cần lọc, ví dụ: COD, VNPAY. - không bắt buộc
+     * @param paymentStatus Trạng thái thanh toán cần lọc, ví dụ: PENDING, SUCCESS, FAILED. - không bắt buộc
      * @param page Số thứ tự trang muốn lấy (mặc định là 0).
      * @param size Số lượng bản ghi trên mỗi trang (mặc định là 10).
-     * @return ResponseEntity chứa đối tượng Page các đơn hàng.
+     * @param sortBy Tên trường dùng để sắp xếp, mặc định là createdAt.
+     * @param sortDir Chiều sắp xếp, gồm asc hoặc desc, mặc định là desc.
+     * @return ResponseEntity chứa đối tượng Page các đơn hàng sau khi thao tác.
      */
     @GetMapping
     public ResponseEntity<Page<OrderListDTO>> getOrders(
@@ -63,12 +67,12 @@ public class AdminOrderController {
 
     /**
      * Lấy thông tin chi tiết của 1 đơn hàng cụ thể theo ID
-     * * @param id Mã định danh của đơn hàng
+     * * @param id ID của đơn hàng cần xem chi tiết
      * @return ResponseEntity chứa thông tin chi tiết đầy đủ của đơn hàng
      */
     @GetMapping("/{id}")
     public ResponseEntity<OrderDetailResponseDTO> getOrderDetail(@PathVariable Integer id){
-        //Tìm kiếm thông tin chi tiết đơn hàng cho Admin qua Service
+        // Gọi Service để lấy chi tiết đơn hàng dành cho Admin
         return ResponseEntity.ok(orderService.getOrderDetailForAdmin(id));
     }
 
@@ -95,6 +99,16 @@ public class AdminOrderController {
         return ResponseEntity.ok(result);
     }
 
+    /**
+     * Xác nhận thanh toán COD thành công cho một đơn hàng.
+     *
+     * API này dùng cho trường hợp khách hàng chọn thanh toán khi nhận hàng.
+     * Sau khi Admin xác nhận đã thu tiền COD, hệ thống sẽ cập nhật trạng thái
+     * thanh toán của đơn hàng sang thành công.
+     *
+     * @param id ID của đơn hàng cần xác nhận thanh toán COD.
+     * @return ResponseEntity chứa thông báo xác nhận thanh toán COD thành công.
+     */
     @PutMapping("/{id}/cod-payment-success")
     public ResponseEntity<String> confirmCodPayment(
         @PathVariable Integer id

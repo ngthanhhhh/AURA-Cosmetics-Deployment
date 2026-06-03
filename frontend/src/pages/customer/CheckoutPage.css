@@ -1,46 +1,50 @@
+/* Áp dụng box-sizing cho trang checkout và toàn bộ phần tử con */
 .checkout-page,
 .checkout-page * {
+    /* Tính cả padding và border vào width/height, giúp layout dễ kiểm soát hơn */
     box-sizing: border-box;
 }
 
 .checkout-page {
-    min-height: calc(100vh - 80px);
-    padding: 32px 24px 48px;
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ phần header khoảng 80px */
+    padding: 32px 24px 48px; /* Khoảng cách bên trong trang: trên 32px, trái/phải 24px, dưới 48px */
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
-.checkout-page__header {
+.checkout-page__header { /* Khoảng cách bên trong trang: trên 32px, trái/phải 24px, dưới 48px */
     max-width: 1180px;
-    margin: 0 auto 20px;
+    margin: 0 auto 20px; /* Căn giữa header, cách phần dưới 20px */
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
 }
 
-.checkout-page__header h2 {
+.checkout-page__header h2 { /* Tiêu đề trong header */
     margin: 0;
     color: #3f2d24;
     font-size: 28px;
     font-weight: 700;
 }
 
+/* Style chung cho link quay lại giỏ hàng và link trong trạng thái giỏ hàng trống */
 .checkout-page__header a,
 .checkout-page__empty a {
     color: #7a5543;
-    text-decoration: none;
+    text-decoration: none; /* Bỏ gạch chân mặc định của link */
     font-weight: 700;
     transition: color 0.2s ease;
 }
 
-.checkout-page__header a {
-    padding: 10px 14px;
-    border: 1px solid #d7c4b8;
+.checkout-page__header a { /* Link quay lại giỏ hàng ở phần header, được thiết kế giống nút */
+    padding: 10px 14px; /* Khoảng cách bên trong link: trên/dưới 10px, trái/phải 14px */
+    border: 1px solid #d7c4b8; /* Viền mảnh màu be */
     border-radius: 999px;
     background: #fff;
-    box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08);
+    box-shadow: 0 8px 18px rgba(86, 63, 50, 0.08); /* Bóng nhẹ giúp nút nổi hơn */
 }
 
+/* Hover cho các link */
 .checkout-page__header a:hover,
 .checkout-page__empty a:hover {
     color: #4d3529;
@@ -49,8 +53,8 @@
 
 .checkout-page__error,
 .checkout-page__success {
-    max-width: 1180px;
-    margin: 0 auto 16px;
+    max-width: 1180px; /* Giới hạn chiều rộng giống phần nội dung chính */
+    margin: 0 auto 16px; /* Căn giữa, cách phần dưới 16px */
     padding: 13px 16px;
     border-radius: 12px;
     font-weight: 500;
@@ -69,8 +73,8 @@
 }
 
 .checkout-page__empty {
-    max-width: 720px;
-    margin: 40px auto 0;
+    max-width: 720px; /* Giới hạn chiều rộng khung trống */
+    margin: 40px auto 0; /* Cách phía trên 40px và căn giữa */
     padding: 42px 28px;
     border: 1px solid #eadbd2;
     border-radius: 22px;
@@ -79,30 +83,32 @@
     box-shadow: 0 18px 45px rgba(86, 63, 50, 0.1);
 }
 
-.checkout-page__empty p {
+.checkout-page__empty p { /* Dòng chữ trong khung giỏ hàng trống */
     margin: 0 0 14px;
     color: #5c463b;
     font-size: 18px;
     font-weight: 600;
 }
 
-.checkout-page__empty a {
-    display: inline-block;
+.checkout-page__empty a { /* Link tiếp tục mua sắm trong trạng thái giỏ hàng trống */
+    display: inline-block; /* Vẫn nằm theo dòng như link, nhưng nhận padding như một khối */
     padding: 11px 18px;
     border-radius: 999px;
     background: #6b4f3f;
     color: #fff;
 }
 
-.checkout-page__content {
+.checkout-page__content { /* Khung nội dung chính: form checkout + tóm tắt đơn hàng */
     max-width: 1180px;
-    margin: 0 auto;
-    display: grid;
+    margin: 0 auto; /* Căn giữa theo chiều ngang */
+    display: grid; /* Dùng CSS Grid để chia layout thành 2 cột */
+    /* Cột trái là form rộng hơn, cột phải là summary nhỏ hơn */
     grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
     gap: 24px;
-    align-items: flex-start;
+    align-items: flex-start; /* Căn hai cột bắt đầu từ phía trên */
 }
 
+/* Style chung cho form thanh toán và khung tóm tắt đơn hàng */
 .checkout-page__form,
 .checkout-page__summary {
     border: 1px solid #eadbd2;
@@ -111,16 +117,17 @@
     box-shadow: 0 18px 45px rgba(86, 63, 50, 0.1);
 }
 
-.checkout-page__form {
+.checkout-page__form { /* Form nhập thông tin nhận hàng */
     padding: 26px;
 }
 
-.checkout-page__summary {
+.checkout-page__summary { /* Khung tóm tắt đơn hàng */
     padding: 24px;
-    position: sticky;
-    top: 96px;
+    position: sticky; /* Giữ summary dính lại khi cuộn trang */
+    top: 96px;/* Khi sticky, summary cách mép trên màn hình 96px */
 }
 
+/* Tiêu đề trong form và summary */
 .checkout-page__form h3,
 .checkout-page__summary h3 {
     margin: 0 0 20px;
@@ -129,31 +136,36 @@
     font-weight: 750;
 }
 
+/* Một nhóm field trong form: label + input/textarea */
 .checkout-page__form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 18px;
+    display: flex; /* Dàn label và input theo chiều dọc */
+    flex-direction: column; /* Chuyển hướng flex thành cột */
+    gap: 8px; /* Khoảng cách giữa label và input */
+    margin-bottom: 18px; /* Cách nhóm field tiếp theo 18px */
 }
 
+/* Label của các field */
 .checkout-page__form-group label {
     color: #4b382f;
     font-weight: 700;
 }
 
+/* Style chung cho input và textarea */
 .checkout-page__form-group input,
 .checkout-page__form-group textarea {
-    width: 100%;
+    width: 100%; /* Chiếm toàn bộ chiều rộng của form group */
     padding: 12px 14px;
     border: 1px solid #dccbc1;
     border-radius: 14px;
     background: #fffaf7;
     color: #3f2d24;
-    font: inherit;
-    outline: none;
+    font: inherit; /* Kế thừa font từ trang, tránh font input bị khác */
+    outline: none; /* Bỏ viền outline mặc định của trình duyệt */
+    /* Tạo hiệu ứng mượt khi focus */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
+/* Khi input hoặc textarea được focus */
 .checkout-page__form-group input:focus,
 .checkout-page__form-group textarea:focus {
     border-color: #8b6654;
@@ -161,43 +173,44 @@
     box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12);
 }
 
+/* Riêng textarea nhập địa chỉ */
 .checkout-page__form-group textarea {
-    resize: vertical;
-    min-height: 110px;
+    resize: vertical; /* Cho phép kéo giãn theo chiều dọc */
+    min-height: 110px; /* Chiều cao tối thiểu của textarea */
 }
 
-.checkout-page__payment-options {
-    display: grid;
-    gap: 12px;
+.checkout-page__payment-options {/* Nhóm lựa chọn phương thức thanh toán */
+    display: grid;/* Dùng grid để các lựa chọn thanh toán xếp thành từng hàng */
+    gap: 12px; /* Khoảng cách giữa các lựa chọn COD và VNPay */
 }
 
-.checkout-page__payment-options label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 13px 14px;
+.checkout-page__payment-options label {/* Mỗi label là một ô lựa chọn phương thức thanh toán */
+    display: flex; /* Dàn radio button và chữ trên cùng một hàng */
+    align-items: center; /* Căn radio button và chữ theo chiều dọc */
+    gap: 10px; /* Khoảng cách giữa radio button và nội dung chữ */
+    padding: 13px 14px; /* Khoảng cách bên trong mỗi ô lựa chọn */
     border: 1px solid #eadbd2;
     border-radius: 16px;
     background: #fffaf7;
     color: #4b382f;
-    cursor: pointer;
+    cursor: pointer;/* Khi rê chuột vào label thì hiện con trỏ bàn tay */
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; /* Tạo hiệu ứng hover mượt */
 }
 
-.checkout-page__payment-options label:hover {
+.checkout-page__payment-options label:hover { /* Khi rê chuột vào một phương thức thanh toán */
     border-color: #b79b8a;
     background: #fff5ef;
 }
 
 .checkout-page__payment-options input {
-    width: 16px;
+    width: 16px; /* Chiều rộng radio button */
     height: 16px;
-    accent-color: #6b4f3f;
+    accent-color: #6b4f3f;/* Màu chủ đạo của radio khi được chọn */
 }
 
-.checkout-page__submit-btn {
-    width: 100%;
+.checkout-page__submit-btn {/* Nút đặt hàng */
+    width: 100%; /* Nút chiếm toàn bộ chiều rộng form */
     margin-top: 6px;
     padding: 14px 22px;
     border: none;
@@ -210,54 +223,55 @@
     transition: all 0.2s ease;
 }
 
+/* Hover nút đặt hàng khi nút không bị disabled */
 .checkout-page__submit-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translateY(-2px); /* Đẩy nút lên nhẹ 2px */
     box-shadow: 0 16px 30px rgba(86, 63, 50, 0.28);
 }
 
-.checkout-page__submit-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
+.checkout-page__submit-btn:disabled {/* Nút đặt hàng khi đang bị khóa */
+    cursor: not-allowed;/* Hiện con trỏ báo không bấm được */
+    opacity: 0.65;/* Làm nút mờ đi */
 }
 
-.checkout-page__items {
-    display: flex;
-    flex-direction: column;
+.checkout-page__items {/* Danh sách sản phẩm trong khung tóm tắt đơn hàng */
+    display: flex;/* Dùng flex để xếp các sản phẩm */
+    flex-direction: column;/* Xếp sản phẩm theo chiều dọc */
     gap: 12px;
 }
 
-.checkout-page__item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
+.checkout-page__item {/* Một sản phẩm trong phần tóm tắt đơn hàng */
+    display: flex;/* Dàn thông tin sản phẩm và giá trên cùng một hàng */
+    justify-content: space-between; /* Đẩy tên/số lượng sang trái, giá sang phải */
+    align-items: flex-start; /* Căn các phần tử theo mép trên */
+    gap: 16px; /* Khoảng cách giữa phần thông tin và giá */
     padding: 14px;
     border: 1px solid #f0e6df;
     border-radius: 16px;
     background: #fffaf7;
 }
 
-.checkout-page__item-name {
-    margin: 0 0 5px;
+.checkout-page__item-name { /* Tên sản phẩm trong phần tóm tắt */
+    margin: 0 0 5px; /* Không cách trên/trái/phải, chỉ cách dưới 5px */
     color: #3f2d24;
     font-weight: 750;
-    line-height: 1.35;
+    line-height: 1.35; /* Chiều cao dòng, giúp tên dài dễ đọc hơn */
 }
 
-.checkout-page__item span {
+.checkout-page__item span { /* Dòng số lượng sản phẩm */
     color: #7b665c;
     font-size: 14px;
 }
 
-.checkout-page__item strong {
+.checkout-page__item strong { /* Giá tiền của từng sản phẩm */
     color: #3f2d24;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho giá tiền bị xuống dòng */
 }
 
-.checkout-page__total {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.checkout-page__total { /* Khung tổng thanh toán */
+    display: flex; /* Dàn chữ "Tổng thanh toán" và số tiền trên cùng một hàng */
+    justify-content: space-between; /* Đẩy label sang trái, tổng tiền sang phải */
+    align-items: center; /* Căn giữa theo chiều dọc */
     gap: 16px;
     margin-top: 18px;
     padding: 18px 0 0;
@@ -276,24 +290,25 @@
     font-weight: 850;
 }
 
+/* Responsive cho màn hình nhỏ hơn hoặc bằng 900px */
 @media (max-width: 900px) {
     .checkout-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding tổng của trang cho vừa màn hình nhỏ */
     }
 
     .checkout-page__content {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển layout từ 2 cột thành 1 cột */
     }
 
     .checkout-page__summary {
-        position: static;
+        position: static; /* Bỏ sticky trên màn hình nhỏ để tránh chiếm chỗ khó chịu */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .checkout-page__header {
-        align-items: flex-start;
-        flex-direction: column;
+        align-items: flex-start; /* Căn các phần tử header về đầu dòng */
+        flex-direction: column; /* Chuyển header từ hàng ngang sang cột dọc */
     }
 
     .checkout-page__header h2 {
@@ -307,11 +322,11 @@
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 520px) { /* Responsive cho điện thoại nhỏ hơn hoặc bằng 520px */
     .checkout-page__item,
     .checkout-page__total {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: column; /* Chuyển item và tổng tiền từ hàng ngang sang cột dọc */
+        align-items: flex-start; /* Căn nội dung về bên trái */
     }
 
     .checkout-page__total strong {

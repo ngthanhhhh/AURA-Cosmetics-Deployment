@@ -14,10 +14,34 @@ import com.cosmetics.ecommerce.enums.OrderStatus;
 import com.cosmetics.ecommerce.enums.PaymentMethod;
 import com.cosmetics.ecommerce.enums.PaymentStatus;
 
+/**
+ * Repository thao tác với dữ liệu Order trong database.
+ */
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer>{
+    /**
+     * Lấy danh sách đơn hàng của người dùng theo userId,
+     * sắp xếp theo thời gian tạo mới nhất trước.
+     *
+     * @param userId ID người dùng
+     * @return Danh sách đơn hàng của người dùng
+     */
     List<Order> findByUser_UserIdOrderByCreatedAtDesc(Integer userId);
 
+    /**
+     * Tìm kiếm danh sách đơn hàng của một người dùng.
+     *
+     * Hỗ trợ:
+     * - Lọc theo trạng thái đơn hàng
+     * - Tìm kiếm theo tên người nhận, số điện thoại hoặc địa chỉ giao hàng
+     * - Phân trang và sắp xếp thông qua Pageable
+     *
+     * @param userId   ID người dùng
+     * @param status   Trạng thái đơn hàng cần lọc, có thể null
+     * @param keyword  Từ khóa tìm kiếm, có thể null
+     * @param pageable Thông tin phân trang và sắp xếp
+     * @return Page chứa danh sách đơn hàng của người dùng
+     */
     @Query("""
             SELECT o
             FROM Order o
@@ -37,7 +61,23 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
         Pageable pageable
     );
 
-    //Tìm kiếm theo tên/sđt; lọc theo trạng thái
+    /**
+     * Tìm kiếm danh sách đơn hàng dành cho Admin.
+     *
+     * Hỗ trợ:
+     * - Lọc theo trạng thái đơn hàng
+     * - Lọc theo phương thức thanh toán
+     * - Lọc theo trạng thái thanh toán
+     * - Tìm kiếm theo thông tin người nhận, địa chỉ, tên khách hàng hoặc email
+     * - Phân trang và sắp xếp thông qua Pageable
+     *
+     * @param status        Trạng thái đơn hàng cần lọc, có thể null
+     * @param keyword       Từ khóa tìm kiếm, có thể null
+     * @param paymentMethod Phương thức thanh toán cần lọc, có thể null
+     * @param paymentStatus Trạng thái thanh toán cần lọc, có thể null
+     * @param pageable      Thông tin phân trang và sắp xếp
+     * @return Page chứa danh sách đơn hàng dành cho Admin
+     */
     @Query("""
             SELECT o
             FROM Order o
@@ -62,10 +102,21 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
         @Param("paymentStatus") PaymentStatus paymentStatus,
         Pageable pageable);
 
-    //Lấy danh sách đơn hàng của một người dùng
+    /**
+     * Lấy danh sách đơn hàng của một người dùng,
+     * sắp xếp theo thời gian tạo mới nhất trước.
+     *
+     * @param user Người dùng cần lấy danh sách đơn hàng
+     * @return Danh sách đơn hàng của người dùng
+     */
     List<Order> findByUserOrderByCreatedAtDesc(User user);
 
-    //Lấy danh sách đơn hàng theo UserId để phục vụ CustomerService
+    /**
+     * Lấy danh sách đơn hàng theo userId.
+     *
+     * @param userId ID người dùng
+     * @return Danh sách đơn hàng của người dùng
+     */
     List<Order> findByUserUserId(Integer userId);
 
 }

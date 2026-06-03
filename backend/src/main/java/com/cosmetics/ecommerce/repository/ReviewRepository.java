@@ -12,9 +12,33 @@ import com.cosmetics.ecommerce.dto.ReviewReportDTO;
 import com.cosmetics.ecommerce.entity.Review;
 import com.cosmetics.ecommerce.enums.ReviewAdminFlag;
 
+/**
+ * Repository thao tác với dữ liệu Review trong database.
+ */
 public interface ReviewRepository extends JpaRepository<Review, Integer>{
+    /**
+     * Lấy danh sách đánh giá của một sản phẩm,
+     * sắp xếp theo thời gian tạo mới nhất trước.
+     *
+     * @param productId ID sản phẩm
+     * @return Danh sách đánh giá của sản phẩm
+     */
     List<Review> findByProduct_ProductIdOrderByCreatedAtDesc(Integer productId);
 
+
+    /**
+     * Lấy báo cáo tổng hợp đánh giá theo từng sản phẩm.
+     *
+     * Báo cáo gồm:
+     * - ID sản phẩm
+     * - Tên sản phẩm
+     * - Tổng số đánh giá
+     * - Điểm đánh giá trung bình
+     * - Tỷ lệ hài lòng
+     *
+     * @return Danh sách báo cáo đánh giá theo sản phẩm
+     */
+    //constructor expression trong JPQL
     @Query("""
             SELECT new com.cosmetics.ecommerce.dto.ReviewReportDTO(
                 p.productId,
@@ -30,6 +54,22 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
             """)
     List<ReviewReportDTO> getReviewReport();
 
+    /**
+     * Tìm kiếm danh sách đánh giá của một sản phẩm.
+     *
+     * Hỗ trợ:
+     * - Lọc theo số sao
+     * - Lọc theo trạng thái verified purchase
+     * - Tìm kiếm theo nội dung bình luận
+     * - Phân trang và sắp xếp thông qua Pageable
+     *
+     * @param productId ID sản phẩm
+     * @param rating    Số sao cần lọc, có thể null
+     * @param verified  Trạng thái verified purchase cần lọc, có thể null
+     * @param keyword   Từ khóa tìm kiếm trong bình luận, có thể null
+     * @param pageable  Thông tin phân trang và sắp xếp
+     * @return Page chứa danh sách đánh giá của sản phẩm
+     */
     @Query("""
             SELECT r
             FROM Review r
@@ -49,6 +89,25 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
         Pageable pageable
     );
 
+    /**
+     * Tìm kiếm danh sách đánh giá dành cho Admin.
+     *
+     * Hỗ trợ:
+     * - Lọc theo số sao
+     * - Lọc theo trạng thái kiểm duyệt
+     * - Lọc theo trạng thái verified purchase
+     * - Lọc theo sản phẩm
+     * - Tìm kiếm theo nội dung bình luận, tên sản phẩm hoặc tên người dùng
+     * - Phân trang và sắp xếp thông qua Pageable
+     *
+     * @param rating    Số sao cần lọc, có thể null
+     * @param flag      Trạng thái kiểm duyệt cần lọc, có thể null
+     * @param verified  Trạng thái verified purchase cần lọc, có thể null
+     * @param productId ID sản phẩm cần lọc, có thể null
+     * @param keyword   Từ khóa tìm kiếm, có thể null
+     * @param pageable  Thông tin phân trang và sắp xếp
+     * @return Page chứa danh sách đánh giá dành cho Admin
+     */
     @Query("""
             SELECT r
             FROM Review r
@@ -74,6 +133,17 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
         Pageable pageble
     );
 
+    /**
+     * Tìm kiếm báo cáo tổng hợp đánh giá theo sản phẩm.
+     *
+     * Hỗ trợ:
+     * - Tìm kiếm theo tên sản phẩm
+     * - Lọc theo điểm đánh giá trung bình tối thiểu
+     *
+     * @param keyword          Từ khóa tìm kiếm theo tên sản phẩm, có thể null
+     * @param minAverageRating Điểm đánh giá trung bình tối thiểu, có thể null
+     * @return Danh sách báo cáo đánh giá theo sản phẩm
+     */
     @Query("""
             SELECT new com.cosmetics.ecommerce.dto.ReviewReportDTO(
                 p.productId,
@@ -96,6 +166,12 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
         @Param("minAverageRating") Double minAverageRating
     );
 
+    /**
+     * Tính điểm đánh giá trung bình của một sản phẩm.
+     *
+     * @param productId ID sản phẩm
+     * @return Điểm đánh giá trung bình của sản phẩm
+     */
     @Query("""
             SELECT AVG(r.rating)
             FROM Review r
@@ -103,5 +179,11 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
             """)
     Double calculateAverageRatingByProductId(@Param("productId") Integer productId);
 
+    /**
+     * Đếm tổng số đánh giá của một sản phẩm.
+     *
+     * @param productId ID sản phẩm
+     * @return Tổng số đánh giá của sản phẩm
+     */
     Long countByProduct_ProductId(Integer productId);
 }
