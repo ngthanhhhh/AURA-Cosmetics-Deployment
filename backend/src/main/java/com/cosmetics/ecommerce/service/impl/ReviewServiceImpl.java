@@ -70,18 +70,19 @@ public class ReviewServiceImpl implements ReviewService{
     /**
      * Tạo đánh giá mới cho sản phẩm.
      *
-     * Quy trình:
-     * - Validate request (rating hợp lệ)
-     * - Kiểm tra user tồn tại
+     * Quy trình xử lý:
+     * - Kiểm tra userId, productId và request đánh giá hợp lệ
+     * - Kiểm tra người dùng tồn tại
      * - Kiểm tra sản phẩm tồn tại
-     * - Kiểm tra user đã mua sản phẩm chưa (verified purchase)
-     * - Tạo Review và gán các thông tin cần thiết
-     * - Lưu vào database
-     * - Trả về DTO cho frontend
+     * - Kiểm tra người dùng đã mua sản phẩm và đơn hàng đã COMPLETED hay chưa
+     * - Tạo Review và gán thông tin user, product, rating, comment
+     * - Gán trạng thái verified purchase nếu thỏa điều kiện
+     * - Lưu Review vào database
+     * - Trả về ReviewResponseDTO cho frontend
      *
-     * @param userId ID người dùng
-     * @param productId ID sản phẩm
-     * @param request Nội dung đánh giá
+     * @param userId    ID người dùng tạo đánh giá
+     * @param productId ID sản phẩm được đánh giá
+     * @param request   Nội dung đánh giá từ client
      * @return Thông tin đánh giá vừa tạo
      */
     @Override
@@ -119,19 +120,34 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     /**
-     * Lấy danh sách đánh giá của một sản phẩm (có thể lọc theo số sao).
+     * Lấy danh sách đánh giá của một sản phẩm.
      *
-     * Quy trình:
+     * Method này hỗ trợ:
+     * - Lọc theo số sao đánh giá
+     * - Lọc theo trạng thái verified purchase
+     * - Tìm kiếm theo từ khóa
+     * - Phân trang
+     * - Sắp xếp theo các trường được cho phép
+     *
+     * Quy trình xử lý:
+     * - Kiểm tra productId hợp lệ
      * - Kiểm tra sản phẩm tồn tại
-     * - Validate rating filter (nếu có)
-     * - Lấy toàn bộ review để tính điểm trung bình
-     * - Nếu có filter → chỉ lấy review theo số sao
-     * - Tính average rating
-     * - Map sang DTO
+     * - Validate rating filter nếu có
+     * - Tạo Pageable từ page, size, sortBy và sortDir
+     * - Truy vấn danh sách review theo các điều kiện lọc/tìm kiếm
+     * - Tính điểm đánh giá trung bình của sản phẩm
+     * - Đếm tổng số đánh giá của sản phẩm
+     * - Đóng gói dữ liệu tổng hợp và danh sách review vào ProductReviewListResponseDTO
      *
-     * @param productId ID sản phẩm
-     * @param rating Số sao cần lọc (có thể null)
-     * @return Thông tin tổng hợp đánh giá sản phẩm
+     * @param productId ID sản phẩm cần lấy danh sách đánh giá
+     * @param rating    Số sao cần lọc, có thể null
+     * @param verified  Trạng thái verified purchase cần lọc, có thể null
+     * @param keyword   Từ khóa tìm kiếm trong đánh giá, có thể null
+     * @param page      Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size      Số lượng đánh giá trên mỗi trang
+     * @param sortBy    Trường dùng để sắp xếp
+     * @param sortDir   Chiều sắp xếp, gồm asc hoặc desc
+     * @return Thông tin tổng hợp đánh giá của sản phẩm và danh sách review theo trang
      */
     @Override
     @Transactional(readOnly = true)
@@ -151,6 +167,7 @@ public class ReviewServiceImpl implements ReviewService{
 
         validateRatingFilter(rating);
 
+        // Tạo thông tin phân trang/sắp xếp cho danh sách review.
         Pageable pageable = buildPageable(
             page,
             size,
@@ -160,6 +177,7 @@ public class ReviewServiceImpl implements ReviewService{
             "createdAt"
         );
 
+        // query danh sách review của sản phẩm.
         Page<ReviewResponseDTO> reviewPage = reviewRepository.searchProductReviews(
             productId, 
             rating, 
@@ -167,11 +185,13 @@ public class ReviewServiceImpl implements ReviewService{
             normalizeKeyword(keyword), 
             pageable).map(this::mapToResponse);
 
+        // Tính điểm trung bình tất cả review của sản phẩm.
         Double averageRatingValue = reviewRepository.calculateAverageRatingByProductId(productId);
         
-        // Tính điểm trung bình
+        // Nếu sản phẩm chưa có review thì kết quả trung bình có thể là null.
         double averageRating = averageRatingValue == null ? 0.0 : averageRatingValue;
 
+        // Đếm tổng số review của sản phẩm đó.
         Long totalReviews = reviewRepository.countByProduct_ProductId(productId);
 
         return ProductReviewListResponseDTO.builder()
@@ -190,9 +210,34 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     /**
-     * Lấy toàn bộ đánh giá (dành cho Admin).
+     * Lấy danh sách đánh giá dành cho Admin.
      *
-     * @return Danh sách tất cả review
+     * Method này hỗ trợ:
+     * - Lọc theo số sao đánh giá
+     * - Lọc theo trạng thái flag của Admin
+     * - Lọc theo trạng thái verified purchase
+     * - Lọc theo sản phẩm
+     * - Tìm kiếm theo từ khóa
+     * - Phân trang
+     * - Sắp xếp theo các trường được cho phép
+     *
+     * Quy trình xử lý:
+     * - Validate rating filter nếu có
+     * - Parse flag từ String sang ReviewAdminFlag nếu có
+     * - Tạo Pageable từ page, size, sortBy và sortDir
+     * - Truy vấn danh sách review theo các điều kiện lọc/tìm kiếm
+     * - Map Review entity sang ReviewResponseDTO
+     *
+     * @param rating    Số sao cần lọc, có thể null
+     * @param flag      Trạng thái flag của Admin, có thể null
+     * @param verified  Trạng thái verified purchase cần lọc, có thể null
+     * @param productId ID sản phẩm cần lọc, có thể null
+     * @param keyword   Từ khóa tìm kiếm trong đánh giá, có thể null
+     * @param page      Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size      Số lượng đánh giá trên mỗi trang
+     * @param sortBy    Trường dùng để sắp xếp
+     * @param sortDir   Chiều sắp xếp, gồm asc hoặc desc
+     * @return Page chứa danh sách đánh giá sau khi lọc, tìm kiếm, phân trang và sắp xếp
      */
     @Override
     @Transactional(readOnly = true)
@@ -210,6 +255,7 @@ public class ReviewServiceImpl implements ReviewService{
         validateRatingFilter(rating);
         ReviewAdminFlag parsedFlag = parseNullableReviewFlag(flag);
 
+        //Tạo thông tin phân trang/sắp xếp.
         Pageable pageable = buildPageable(
             page,
             size,
@@ -228,19 +274,23 @@ public class ReviewServiceImpl implements ReviewService{
             pageable
         ).map(this::mapToResponse);
     }
+
     /**
-     * Cập nhật trạng thái kiểm duyệt của một đánh giá (Admin).
+     * Cập nhật trạng thái kiểm duyệt của một đánh giá dành cho Admin.
      *
-     * Quy trình:
-     * - Validate input flag
-     * - Tìm review
-     * - Parse flag sang enum
-     * - Cập nhật trạng thái
-     * - Lưu và trả về DTO
+     * Quy trình xử lý:
+     * - Kiểm tra reviewId hợp lệ
+     * - Kiểm tra flag không được để trống
+     * - Tìm đánh giá theo reviewId
+     * - Parse flag từ String sang enum ReviewAdminFlag
+     * - Kiểm tra đánh giá có đang ở trạng thái mới chưa
+     * - Cập nhật trạng thái kiểm duyệt
+     * - Lưu thay đổi vào database
+     * - Trả về ReviewResponseDTO sau khi cập nhật
      *
-     * @param reviewId ID đánh giá
-     * @param flag Trạng thái mới (NORMAL, NEGATIVE_FEEDBACK, ATTENTION_NEEDED)
-     * @return Review sau khi cập nhật
+     * @param reviewId ID của đánh giá cần cập nhật
+     * @param flag     Trạng thái kiểm duyệt mới, ví dụ: NORMAL, NEGATIVE_FEEDBACK, ATTENTION_NEEDED
+     * @return Thông tin đánh giá sau khi cập nhật trạng thái kiểm duyệt
      */
     @Override
     @Transactional
@@ -273,9 +323,30 @@ public class ReviewServiceImpl implements ReviewService{
     }
 
     /**
-     * Lấy báo cáo tổng hợp đánh giá (thống kê).
+     * Lấy báo cáo tổng hợp đánh giá theo từng sản phẩm dành cho Admin.
      *
-     * @return Danh sách report (custom query)
+     * Method này hỗ trợ:
+     * - Tìm kiếm theo từ khóa
+     * - Lọc theo điểm đánh giá trung bình tối thiểu
+     * - Sắp xếp theo các trường của report
+     * - Phân trang kết quả
+     *
+     * Quy trình xử lý:
+     * - Kiểm tra minAverageRating phải nằm trong khoảng 0 đến 5 nếu có truyền
+     * - Tạo Pageable cho report từ page, size, sortBy và sortDir
+     * - Truy vấn dữ liệu báo cáo đánh giá từ repository
+     * - Tạo comparator để sắp xếp danh sách report
+     * - Sắp xếp danh sách report theo sortBy và sortDir
+     * - Cắt danh sách theo page và size để phân trang thủ công
+     * - Trả về Page chứa danh sách ReviewReportDTO
+     *
+     * @param keyword          Từ khóa tìm kiếm, có thể null
+     * @param minAverageRating Điểm đánh giá trung bình tối thiểu, có thể null
+     * @param page             Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size             Số lượng report trên mỗi trang
+     * @param sortBy           Trường dùng để sắp xếp
+     * @param sortDir          Chiều sắp xếp, gồm asc hoặc desc
+     * @return Page chứa báo cáo tổng hợp đánh giá sau khi lọc, sắp xếp và phân trang
      */
     @Override
     @Transactional(readOnly = true)
@@ -291,13 +362,16 @@ public class ReviewServiceImpl implements ReviewService{
             throw new BadRequestException("Số sao trung bình phải từ 0 đến 5");
         }
 
+        // Tạo thông tin phân trang/sắp xếp cho report.
         Pageable pageable = buildReportPageable(page, size, sortBy, sortDir);
 
+        // Lấy danh sách report từ repository theo keyword và điểm trung bình tối thiểu.
         List<ReviewReportDTO> reports = reviewRepository.searchReviewReport(
             normalizeKeyword(keyword),
             minAverageRating
         );
 
+        // Tạo bộ so sánh để sort report theo field được chọn
         Comparator<ReviewReportDTO> comparator = buildReviewReportComparator(sortBy);
 
         Sort.Direction direction = parseSortDirection(sortDir);
@@ -306,15 +380,25 @@ public class ReviewServiceImpl implements ReviewService{
         }
 
         List<ReviewReportDTO> sortedReports = reports.stream()
-            .sorted(comparator)
+            .sorted(comparator) //Sắp xếp danh sách report.
             .toList();
             
+        // Lấy vị trí bắt đầu của trang hiện tại.
+        // Ví dụ: page = 2, size = 10 thì offset = 20.
         int start = (int) pageable.getOffset();
+
+        // Tính vị trí kết thúc của trang hiện tại.
+        // Dùng Math.min để end không vượt quá tổng số report hiện có.
         int end = Math.min(start + pageable.getPageSize(), sortedReports.size());
 
+        // Nếu start vượt quá tổng số phần tử thì trang này không có dữ liệu,
+        // trả về danh sách rỗng.
+        // Ngược lại, cắt danh sách từ start đến end để lấy dữ liệu của trang hiện tại.
         List<ReviewReportDTO> pageContent = start >= sortedReports.size() 
             ? List.of() : sortedReports.subList(start, end);
 
+        // Đóng gói dữ liệu trang hiện tại thành Page,
+        // kèm thông tin phân trang và tổng số phần tử.
         return new PageImpl<>(pageContent, pageable, sortedReports.size());
     }
 
@@ -386,6 +470,28 @@ public class ReviewServiceImpl implements ReviewService{
         }
     }
 
+    /**
+     * Tạo đối tượng Pageable dùng cho các truy vấn có phân trang và sắp xếp.
+     *
+     * Method này dùng chung cho nhiều danh sách review/report.
+     * Nó kiểm tra page, size, sortBy và sortDir trước khi tạo Pageable.
+     *
+     * Quy trình xử lý:
+     * - Kiểm tra số trang không được âm
+     * - Kiểm tra kích thước trang phải nằm trong khoảng 1 đến 100
+     * - Nếu sortBy rỗng thì dùng trường sắp xếp mặc định
+     * - Kiểm tra sortBy có thuộc danh sách field được phép sắp xếp hay không
+     * - Chuyển sortDir sang Sort.Direction
+     * - Tạo PageRequest chứa thông tin phân trang và sắp xếp
+     *
+     * @param page              Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size              Số lượng phần tử trên mỗi trang
+     * @param sortBy            Trường dùng để sắp xếp, có thể null
+     * @param sortDir           Chiều sắp xếp, gồm asc hoặc desc
+     * @param allowedSortFields Danh sách các field được phép dùng để sắp xếp
+     * @param defaultSortBy     Field sắp xếp mặc định nếu client không truyền sortBy
+     * @return Pageable chứa thông tin phân trang và sắp xếp hợp lệ
+     */
     private Pageable buildPageable(
         int page,
         int size,
@@ -414,6 +520,29 @@ public class ReviewServiceImpl implements ReviewService{
         return PageRequest.of(page, size, Sort.by(direction, finalSortBy));
     }
 
+    /**
+     * Tạo đối tượng Pageable dùng cho báo cáo tổng hợp đánh giá.
+     *
+     * Method này kiểm tra thông tin phân trang và trường sắp xếp
+     * trước khi tạo Pageable cho report.
+     *
+     * Quy trình xử lý:
+     * - Kiểm tra số trang không được âm
+     * - Kiểm tra kích thước trang phải nằm trong khoảng 1 đến 100
+     * - Nếu sortBy rỗng thì mặc định sắp xếp theo averageRating
+     * - Kiểm tra sortBy có thuộc danh sách field report được phép sắp xếp hay không
+     * - Kiểm tra sortDir có hợp lệ hay không
+     * - Tạo PageRequest chứa thông tin page và size
+     *
+     * Lưu ý: Method này chỉ validate sortBy/sortDir và tạo PageRequest theo page, size.
+     * Việc sắp xếp report được xử lý thủ công bằng Comparator ở service.
+     *
+     * @param page    Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size    Số lượng report trên mỗi trang
+     * @param sortBy  Trường dùng để sắp xếp report, có thể null
+     * @param sortDir Chiều sắp xếp, gồm asc hoặc desc
+     * @return Pageable chứa thông tin phân trang cho báo cáo đánh giá
+     */
     private Pageable buildReportPageable(int page, int size, String sortBy, String sortDir) {
         if (page < 0) {
             throw new BadRequestException("Số trang không hợp lệ!");
@@ -435,6 +564,15 @@ public class ReviewServiceImpl implements ReviewService{
         return PageRequest.of(page, size);
     }
 
+    /**
+     * Chuyển đổi chuỗi hướng sắp xếp từ request sang Sort.Direction.
+     *
+     * Nếu sortDir không được truyền hoặc rỗng, hệ thống mặc định dùng DESC.
+     * Method này chỉ chấp nhận hai giá trị hợp lệ là asc và desc.
+     *
+     * @param sortDir Hướng sắp xếp dạng String từ request
+     * @return Sort.Direction tương ứng dùng cho Pageable hoặc Comparator
+     */
     private Sort.Direction parseSortDirection(String sortDir) {
         if (sortDir == null || sortDir.trim().isEmpty()) {
             return Sort.Direction.DESC;
@@ -477,13 +615,30 @@ public class ReviewServiceImpl implements ReviewService{
         return keyword.trim();
     }
 
+    /**
+     * Tạo Comparator dùng để sắp xếp báo cáo tổng hợp đánh giá.
+     *
+     * Method này dựa vào sortBy để chọn field cần sắp xếp.
+     * Nếu sortBy không được truyền hoặc rỗng, hệ thống mặc định
+     * sắp xếp theo averageRating.
+     *
+     * Các field được hỗ trợ gồm:
+     * - productId
+     * - productName
+     * - totalReviews
+     * - averageRating
+     * - satisfactionRate
+     *
+     * @param sortBy Trường dùng để sắp xếp báo cáo đánh giá
+     * @return Comparator dùng để sắp xếp danh sách ReviewReportDTO
+     */
     private Comparator<ReviewReportDTO> buildReviewReportComparator(String sortBy) {
         String finalSortBy = (sortBy == null || sortBy.trim().isEmpty()) 
             ? "averageRating" : sortBy.trim();
         
         return switch (finalSortBy) {
             case "productId" -> Comparator.comparing(
-                ReviewReportDTO::getProductId,
+                ReviewReportDTO::getProductId, //method reference, tương đương:report -> report.getProductId()
                 Comparator.nullsLast(Integer::compareTo)
             );
 
