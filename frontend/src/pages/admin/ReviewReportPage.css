@@ -1,15 +1,17 @@
+/* Áp dụng box-sizing cho toàn bộ trang báo cáo và các phần tử con */
 .review-report-page,
 .review-report-page * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* Tính cả padding và border vào width/height */
 }
 
-.review-report-page {
-    --review-report-content-width: 1180px;
-    min-height: calc(100vh - 80px);
-    padding: 32px 24px 48px;
+.review-report-page { /* Layout tổng của trang báo cáo mức độ hài lòng */
+    --review-report-content-width: 1180px; /* Biến CSS lưu chiều rộng nội dung chính của trang */
+    min-height: calc(100vh - 80px); /* Chiều cao tối thiểu = chiều cao màn hình trừ header khoảng 80px */
+    padding: 32px 24px 48px; /* Khoảng cách bên trong trang */
     background: linear-gradient(180deg, #fffaf7 0%, #f8f2ee 100%);
 }
 
+/* Các khối nội dung chính dùng chung chiều rộng và căn giữa */
 .review-report-page__header,
 .review-report-page__filters,
 .review-report-page__error,
@@ -17,113 +19,122 @@
 .review-report-page__summary,
 .review-report-page__table-wrapper,
 .review-report-page__pagination {
+    /* Chiều rộng tối đa là 1180px, nhưng vẫn co lại nếu màn hình nhỏ */
     width: min(100%, var(--review-report-content-width));
+
+    /* Căn giữa theo chiều ngang */
     margin-left: auto;
     margin-right: auto;
 }
 
-.review-report-page__header {
-    margin: 0 auto 20px;
+.review-report-page__header { /* Header của trang */
+    margin: 0 auto 20px; /* Căn giữa, cách phần dưới 20px */
 }
 
-.review-report-page__header h2 {
-    margin: 0;
+.review-report-page__header h2 { /* Tiêu đề trang */
+    margin: 0; /* Xóa margin mặc định */
     color: #3f2d24;
     font-size: 28px;
     font-weight: 750;
 }
 
-.review-report-page__filters {
+.review-report-page__filters { /* Form tìm kiếm, lọc và sắp xếp báo cáo */
     margin: 0 auto 16px;
     padding: 18px;
     border: 1px solid #eadbd2;
     border-radius: 22px;
     background: #fff;
-    display: grid;
+    display: grid; /* Dùng grid để chia các ô filter thành nhiều cột */
+
+    /* Cột tìm kiếm rộng hơn, 3 cột giữa chia đều, cột cuối auto cho nút */
     grid-template-columns: minmax(260px, 1.4fr) repeat(3, minmax(145px, 1fr)) auto;
-    gap: 14px;
-    align-items: end;
-    box-shadow: 0 14px 34px rgba(86, 63, 50, 0.09);
+    gap: 14px; /* Khoảng cách giữa các ô */
+    align-items: end; /* Căn các ô xuống đáy để input/select/nút thẳng hàng */
+    box-shadow: 0 14px 34px rgba(86, 63, 50, 0.09); /* Bóng nhẹ cho form */
 }
 
-.review-report-page__filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-    min-width: 0;
+.review-report-page__filter-group { /* Một nhóm filter gồm label và input/select */
+    display: flex; /* Dàn label và ô nhập/chọn theo chiều dọc */
+    flex-direction: column; /* Chuyển flex thành cột */
+    gap: 7px; /* Khoảng cách giữa label và input/select */
+    min-width: 0; /* Cho phép group co lại trong grid, tránh vỡ layout */
 }
 
-.review-report-page__filter-group label {
+.review-report-page__filter-group label { /* Label của filter */
     color: #4b382f;
     font-size: 14px;
     font-weight: 700;
 }
 
 .review-report-page__filter-group input,
-.review-report-page__filter-group select {
-    width: 100%;
-    min-height: 42px;
-    padding: 11px 12px;
-    border: 1px solid #dccbc1;
-    border-radius: 14px;
+.review-report-page__filter-group select { /* Style chung cho input và select trong form filter */
+    width: 100%; /* Chiếm toàn bộ chiều rộng của group */
+    min-height: 42px; /* Chiều cao tối thiểu để các ô đều nhau */
+    padding: 11px 12px; /* Khoảng cách bên trong ô */
+    border: 1px solid #dccbc1; /* Viền ô */
+    border-radius: 14px; /* Bo tròn góc */
     background: #fffaf7;
     color: #3f2d24;
-    font: inherit;
-    outline: none;
+    font: inherit; /* Kế thừa font chung */
+    outline: none; /* Bỏ outline mặc định của trình duyệt */
+    
+    /* Hiệu ứng mượt khi focus */
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .review-report-page__filter-group input:focus,
-.review-report-page__filter-group select:focus {
+.review-report-page__filter-group select:focus { /* Khi input/select đang được focus */
     border-color: #8b6654;
     background: #fff;
     box-shadow: 0 0 0 4px rgba(107, 79, 63, 0.12);
 }
 
-.review-report-page__filter-actions {
-    display: flex;
-    gap: 8px;
+.review-report-page__filter-actions { /* Khối chứa nút tìm kiếm và đặt lại */
+    display: flex; /* Dàn các nút trên cùng một hàng */
+    gap: 8px; /* Khoảng cách giữa các nút */
 }
 
 .review-report-page__filter-actions button,
-.review-report-page__pagination button {
-    min-height: 42px;
-    padding: 10px 16px;
+.review-report-page__pagination button { /* Style chung cho nút filter và nút phân trang */
+    min-height: 42px; /* Chiều cao tối thiểu */
+    padding: 10px 16px; /* Khoảng cách bên trong nút */
     border: 1px solid #6b4f3f;
     border-radius: 999px;
     background: #fff;
     color: #6b4f3f;
     cursor: pointer;
     font-weight: 750;
-    white-space: nowrap;
-    transition: all 0.2s ease;
+    white-space: nowrap; /* Không cho chữ trong nút xuống dòng */
+    transition: all 0.2s ease; /* Hiệu ứng hover mượt */
 }
 
+/* Nút đầu tiên trong filter, tức nút Tìm kiếm */
 .review-report-page__filter-actions button:first-child {
-    background: linear-gradient(135deg, #7a5543, #4d3529);
+    background: linear-gradient(135deg, #7a5543, #4d3529); /* Nền chuyển màu nâu */
     color: #fff;
-    box-shadow: 0 10px 20px rgba(86, 63, 50, 0.18);
+    box-shadow: 0 10px 20px rgba(86, 63, 50, 0.18); /* Bóng nhẹ cho nút chính */
 }
 
+/* Hover cho nút filter và nút phân trang khi nút không bị disabled */
 .review-report-page__filter-actions button:hover,
 .review-report-page__pagination button:hover:not(:disabled) {
-    transform: translateY(-1px);
+    transform: translateY(-1px); /* Đẩy nút lên nhẹ */
 }
 
-.review-report-page__pagination button:hover:not(:disabled) {
+.review-report-page__pagination button:hover:not(:disabled) { /* Hover riêng cho nút phân trang */
     background: #6b4f3f;
     color: #fff;
 }
 
-.review-report-page__pagination button:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
+.review-report-page__pagination button:disabled { /* Nút phân trang bị khóa */
+    cursor: not-allowed; /* Hiện con trỏ không cho bấm */
+    opacity: 0.45; /* Làm nút mờ đi */
 }
 
-.review-report-page__error {
-    margin: 0 auto 16px;
-    padding: 13px 16px;
-    border: 1px solid #f2b6bd;
+.review-report-page__error { /* Khung hiển thị lỗi */
+    margin: 0 auto 16px; /* Cách phần dưới 16px */
+    padding: 13px 16px; /* Khoảng cách bên trong */
+    border: 1px solid #f2b6bd; /* Viền đỏ nhạt */
     border-radius: 12px;
     background: #fff0f2;
     color: #9b1c31;
@@ -131,95 +142,96 @@
 }
 
 .review-report-page__empty,
-.review-report-page__summary {
-    margin: 0 auto 16px;
-    padding: 16px 18px;
+.review-report-page__summary { /* Style chung cho khung rỗng và khung tổng số sản phẩm */
+    margin: 0 auto 16px; /* Cách phần dưới 16px */
+    padding: 16px 18px; /* Khoảng cách bên trong */
     border: 1px solid #eadbd2;
     border-radius: 18px;
     background: #fff;
     color: #5c463b;
-    box-shadow: 0 12px 28px rgba(86, 63, 50, 0.08);
+    box-shadow: 0 12px 28px rgba(86, 63, 50, 0.08); /* Bóng nhẹ */
 }
 
-.review-report-page__empty {
-    margin-top: 24px;
-    padding: 38px 24px;
-    text-align: center;
-    font-weight: 600;
+.review-report-page__empty { /* Khung hiển thị khi không có dữ liệu báo cáo */
+    margin-top: 24px; /* Cách phía trên 24px */
+    padding: 38px 24px; /* Tăng padding để trạng thái rỗng nhìn thoáng hơn */
+    text-align: center; /* Căn giữa nội dung */
+    font-weight: 600; /* Làm chữ đậm vừa */
 }
 
-.review-report-page__summary strong {
+.review-report-page__summary strong { /* Làm nổi bật số tổng sản phẩm trong báo cáo */
     color: #3f2d24;
     font-size: 18px;
 }
 
-.review-report-page__table-wrapper {
-    max-height: 460px;
-    margin: 0 auto;
-    overflow-y: auto;
-    overflow-x: auto;
-    border: 1px solid #eadbd2;
+.review-report-page__table-wrapper { /* Khung bọc bảng báo cáo */
+    max-height: 460px; /* Giới hạn chiều cao, nếu nhiều dòng thì cuộn dọc */
+    margin: 0 auto; /* Căn giữa bảng */
+    overflow-y: auto; /* Cho phép cuộn dọc */
+    overflow-x: auto; /* Cho phép cuộn ngang nếu bảng quá rộng */
+    border: 1px solid #eadbd2; /* Viền ngoài */
     border-radius: 18px;
     background: #fff;
-    box-shadow: 0 14px 32px rgba(86, 63, 50, 0.08);
+    box-shadow: 0 14px 32px rgba(86, 63, 50, 0.08); /* Bóng nhẹ cho khung bảng */
 }
 
+/* Tùy chỉnh thanh cuộn trong khung bảng báo cáo */
 .review-report-page__table-wrapper::-webkit-scrollbar {
-    width: 9px;
-    height: 9px;
+    width: 9px; /* Độ rộng thanh cuộn dọc */
+    height: 9px; /* Chiều cao thanh cuộn ngang */
 }
 
-.review-report-page__table-wrapper::-webkit-scrollbar-track {
+.review-report-page__table-wrapper::-webkit-scrollbar-track { /* Track/nền phía sau thanh cuộn */
     background: #f7eee8;
     border-radius: 999px;
 }
 
-.review-report-page__table-wrapper::-webkit-scrollbar-thumb {
+.review-report-page__table-wrapper::-webkit-scrollbar-thumb { /* Phần tay kéo của thanh cuộn */
     background: #b79b8a;
     border-radius: 999px;
 }
 
-.review-report-page__table-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #8b6654;
+.review-report-page__table-wrapper::-webkit-scrollbar-thumb:hover { /* Khi rê chuột vào thanh kéo */
+    background: #8b6654; /* Đổi màu thanh kéo đậm hơn */
 }
 
-.review-report-page__table {
-    width: 100%;
-    min-width: 780px;
-    border-collapse: collapse;
+.review-report-page__table { /* Bảng báo cáo mức độ hài lòng */
+    width: 100%; /* Bảng chiếm toàn bộ chiều rộng khung */
+    min-width: 780px; /* Chiều rộng tối thiểu để bảng không bị ép quá nhỏ */
+    border-collapse: collapse; /* Gộp viền các ô lại, tránh viền bị đôi */
     background: #fff;
     font-size: 13px;
 }
 
 .review-report-page__table th,
-.review-report-page__table td {
-    padding: 10px 11px;
-    border-bottom: 1px solid #f0e6df;
-    text-align: left;
-    vertical-align: middle;
+.review-report-page__table td { /* Style chung cho ô tiêu đề và ô dữ liệu */
+    padding: 10px 11px; /* Khoảng cách bên trong ô */
+    border-bottom: 1px solid #f0e6df; /* Đường kẻ ngang giữa các dòng */
+    text-align: left; /* Căn chữ về bên trái */
+    vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
     color: #4b382f;
 }
 
-.review-report-page__table th {
+.review-report-page__table th { /* Header của bảng */
     background: #fbf4ef;
     color: #6b4f3f;
     font-size: 13px;
     font-weight: 750;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
+    text-transform: uppercase; /* Chuyển chữ thành in hoa */
+    letter-spacing: 0.04em; /* Tăng khoảng cách giữa các chữ cái */
+    white-space: nowrap; /* Không cho tiêu đề cột xuống dòng */
 }
 
-.review-report-page__table tbody tr {
-    transition: background 0.2s ease;
+.review-report-page__table tbody tr { /* Các dòng dữ liệu trong bảng */
+    transition: background 0.2s ease; /* Tạo hiệu ứng đổi nền mượt khi hover */
 }
 
-.review-report-page__table tbody tr:hover {
+.review-report-page__table tbody tr:hover { /* Khi rê chuột vào một dòng báo cáo */
     background: #fff9f5;
 }
 
 .review-report-page__table tbody tr:last-child td {
-    border-bottom: none;
+    border-bottom: none; /* Bỏ border dưới của dòng cuối để bảng nhìn gọn hơn */
 }
 
 .review-report-page__table td:first-child,
@@ -227,7 +239,7 @@
 .review-report-page__table td:nth-child(4) {
     color: #3f2d24;
     font-weight: 800;
-    white-space: nowrap;
+    white-space: nowrap; /* Không cho nội dung xuống dòng */
 }
 
 .review-report-page__table td:nth-child(2) {
@@ -235,82 +247,82 @@
     font-weight: 700;
 }
 
-.review-report-page__rate {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-width: 190px;
+.review-report-page__rate { /* Khối hiển thị tỷ lệ hài lòng */
+    display: flex; /* Dàn thanh progress và số phần trăm trên cùng một hàng */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    gap: 10px; /* Khoảng cách giữa thanh progress và số phần trăm */
+    min-width: 190px; /* Đặt chiều rộng tối thiểu để layout ổn định */
 }
 
-.review-report-page__rate-bar {
+.review-report-page__rate-bar { /* Thanh nền của tỷ lệ hài lòng */
     width: 130px;
     height: 9px;
     border-radius: 999px;
     background: #f0e6df;
-    overflow: hidden;
+    overflow: hidden; /* Ẩn phần fill vượt ra ngoài border-radius */
 }
 
-.review-report-page__rate-fill {
-    height: 100%;
+.review-report-page__rate-fill { /* Phần fill thể hiện tỷ lệ hài lòng */
+    height: 100%; /* Chiều cao bằng toàn bộ thanh nền */
     border-radius: 999px;
     background: linear-gradient(135deg, #7a5543, #4d3529);
 }
 
-.review-report-page__rate span {
-    min-width: 42px;
+.review-report-page__rate span { /* Số phần trăm bên cạnh thanh tỷ lệ */
+    min-width: 42px; /* Đặt chiều rộng tối thiểu để số phần trăm không làm lệch layout */
     color: #3f2d24;
     font-weight: 800;
     font-size: 13px;
 }
 
-.review-report-page__pagination {
-    margin: 18px auto 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
+.review-report-page__pagination { /* Khung phân trang */
+    margin: 18px auto 0; /* Cách bảng phía trên 18px và căn giữa */
+    display: flex; /* Dàn nút trang trước, số trang, trang sau trên cùng một hàng */
+    justify-content: center; /* Căn cụm phân trang vào giữa */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    gap: 12px; /* Khoảng cách giữa các phần tử */
 }
 
-.review-report-page__pagination span {
+.review-report-page__pagination span { /* Text hiển thị số trang */
     color: #4b382f;
     font-weight: 700;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1100px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 1100px */
     .review-report-page__filters {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr; /* Chuyển form filter thành 2 cột */
     }
 
     .review-report-page__filter-actions {
-        grid-column: span 2;
+        grid-column: span 2; /* Cho nhóm nút chiếm 2 cột */
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px) { /* Responsive cho màn hình nhỏ hơn hoặc bằng 768px */
     .review-report-page {
-        padding: 22px 14px 36px;
+        padding: 22px 14px 36px; /* Giảm padding tổng của trang cho vừa màn hình nhỏ */
     }
 
     .review-report-page__header h2 {
-        font-size: 24px;
+        font-size: 24px; /* Giảm cỡ chữ tiêu đề */
     }
 
     .review-report-page__filters {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* Chuyển form filter thành 1 cột */
         border-radius: 18px;
     }
 
-    .review-report-page__filter-actions {
-        grid-column: auto;
-        flex-direction: column;
+    .review-report-page__filter-actions { 
+        grid-column: auto; /* Không còn cần span 2 cột khi layout chỉ còn 1 cột */
+        flex-direction: column; /* Xếp nút tìm kiếm và đặt lại theo chiều dọc */
     }
 
     .review-report-page__filter-actions button {
-        width: 100%;
+        width: 100%; /* Mỗi nút chiếm toàn bộ chiều rộng */
     }
 
     .review-report-page__table-wrapper {
-        max-height: 420px;
-        border-radius: 18px;
+        max-height: 420px; /* Giảm chiều cao tối đa của bảng */
+        border-radius: 18px; /* Giảm bo góc cho hợp màn hình nhỏ */
     }
 }
