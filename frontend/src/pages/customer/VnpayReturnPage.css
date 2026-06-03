@@ -1,36 +1,37 @@
+/* Layout tổng của trang kết quả thanh toán VNPay */
 .vnpay-return-page {
-    min-height: 60vh;
+    min-height: 60vh; /* Chiều cao tối thiểu của khu vực kết quả */
     padding: 48px 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; /* Dùng flex để căn card kết quả */
+    justify-content: center; /* Căn card vào giữa theo chiều ngang */
+    align-items: center;  /* Căn card vào giữa theo chiều dọc */
 }
 
-.vnpay-return-card {
-    width: 100%;
-    max-width: 520px;
+.vnpay-return-card { /* Card hiển thị kết quả thanh toán */
+    width: 100%; /* Card chiếm tối đa chiều rộng có thể */
+    max-width: 520px; /* Giới hạn card không rộng quá 520px */
     padding: 32px;
     border: 1px solid #ddd;
     border-radius: 16px;
     background: #fff;
-    text-align: center;
+    text-align: center; /* Căn giữa toàn bộ nội dung trong card */
 }
 
-.vnpay-return-card.success {
+.vnpay-return-card.success { /* Card khi thanh toán thành công */
     border-color: #badbcc;
 }
 
-.vnpay-return-card.failed {
+.vnpay-return-card.failed { /* Card khi thanh toán thất bại */
     border-color: #f5c2c7;
 }
 
 .vnpay-return-icon {
     width: 72px;
     height: 72px;
-    margin: 0 auto 16px;
+    margin: 0 auto 16px; /* Căn giữa icon và cách phần dưới 16px */
     border-radius: 50%;
-    display: flex;
-    align-items: center;
+    display: flex; /* Dùng flex để căn dấu ✓ hoặc ! vào giữa */
+    align-items: center; /* Căn giữa theo chiều dọc */
     justify-content: center;
     background: #6b4f3f;
     color: #fff;
@@ -53,18 +54,18 @@
 .vnpay-return-card p {
     margin: 0;
     color: #555;
-    line-height: 1.6;
+    line-height: 1.6; /* Giãn dòng cho dễ đọc */
 }
 
-.vnpay-return-actions {
+.vnpay-return-actions { /* Khung chứa các nút điều hướng */
     margin-top: 24px;
-    display: flex;
-    justify-content: center;
+    display: flex; /* Dàn các nút theo hàng ngang */
+    justify-content: center; /* Căn cụm nút vào giữa */
     gap: 12px;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Cho phép nút xuống dòng nếu màn hình nhỏ */
 }
 
-.vnpay-return-btn {
+.vnpay-return-btn { /* Style chung cho nút điều hướng */
     padding: 10px 16px;
     border-radius: 8px;
     text-decoration: none;
@@ -82,18 +83,18 @@
     background: #fff;
 }
 
-.vnpay-return-loader {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto 16px;
+.vnpay-return-loader { /* Vòng loading khi đang xử lý kết quả thanh toán */
+    width: 48px; /* Chiều rộng loader */
+    height: 48px; /* Chiều cao loader */
+    margin: 0 auto 16px; /* Căn giữa loader và cách phần dưới 16px */
     border: 4px solid #eee;
-    border-top-color: #6b4f3f;
+    border-top-color: #6b4f3f; /* Phần viền trên màu nâu để tạo hiệu ứng quay */
     border-radius: 50%;
-    animation: vnpay-spin 0.8s linear infinite;
+    animation: vnpay-spin 0.8s linear infinite; /* Gắn animation quay vô hạn */
 }
 
-@keyframes vnpay-spin {
+@keyframes vnpay-spin { /* Định nghĩa animation quay cho loader */
     to {
-        transform: rotate(360deg);
+        transform: rotate(360deg); /* Quay đủ 360 độ */
     }
 }
