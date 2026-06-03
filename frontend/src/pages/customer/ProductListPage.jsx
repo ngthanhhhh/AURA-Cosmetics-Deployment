@@ -15,6 +15,18 @@ import { categoryService } from "../../features/categories/categoryService";
 import ScrollTopButton from "../../components/common/ScrollTopButton";
 import "./ProductListPage.css";
 
+/**
+ * Trang danh sách sản phẩm dành cho khách hàng.
+ *
+ * Chức năng chính:
+ * - Hiển thị danh sách sản phẩm.
+ * - Tìm kiếm sản phẩm theo từ khóa.
+ * - Lọc sản phẩm theo danh mục và khoảng giá.
+ * - Sắp xếp sản phẩm theo nhiều tiêu chí.
+ * - Đồng bộ bộ lọc với URL query params.
+ * - Phân trang danh sách sản phẩm.
+ * - Hiển thị đánh giá trung bình và số lượng đánh giá.
+ */
 function ProductListPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -36,6 +48,15 @@ function ProductListPage() {
 
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Áp dụng bộ lọc và cập nhật query params trên URL.
+   *
+   * Hàm này gom các điều kiện lọc hiện tại hoặc giá trị ghi đè
+   * rồi đưa vào URL để dữ liệu sản phẩm được tải lại theo bộ lọc mới.
+   *
+   * @param {Object} overrides Các giá trị bộ lọc cần ghi đè.
+   * @param {number} nextPage Trang cần tải sau khi áp dụng bộ lọc.
+   */
   const applyFilters = (overrides = {}, nextPage = 0) => {
     const nextKeyword = overrides.keyword ?? keyword;
     const nextCategoryId = overrides.categoryId ?? categoryId;
@@ -58,6 +79,12 @@ function ProductListPage() {
     setSearchParams(params);
   };
 
+  /**
+   * Tải danh sách danh mục sản phẩm.
+   *
+   * Danh mục được dùng để hiển thị trong bộ lọc danh mục
+   * ở thanh tìm kiếm phía trên danh sách sản phẩm.
+   */
   const loadCategories = async () => {
     try {
       const data = await categoryService.getAllCategories({
@@ -73,6 +100,21 @@ function ProductListPage() {
     }
   };
 
+  /**
+   * Tải danh sách sản phẩm theo bộ lọc hiện tại.
+   *
+   * Hàm nhận các điều kiện lọc, phân trang và sắp xếp,
+   * sau đó gọi API để lấy danh sách sản phẩm tương ứng.
+   *
+   * @param {Object} filters Bộ lọc sản phẩm.
+   * @param {string} filters.keyword Từ khóa tìm kiếm.
+   * @param {string} filters.categoryId ID danh mục.
+   * @param {string} filters.minPrice Giá thấp nhất.
+   * @param {string} filters.maxPrice Giá cao nhất.
+   * @param {number} filters.page Trang hiện tại.
+   * @param {string} filters.sortBy Tiêu chí sắp xếp.
+   * @param {string} filters.direction Hướng sắp xếp.
+   */
   const loadProducts = async (filters) => {
     try {
       setLoading(true);
@@ -98,10 +140,21 @@ function ProductListPage() {
     }
   };
 
+  /**
+   * Tải danh mục một lần khi trang danh sách sản phẩm được mở.
+   */
   useEffect(() => {
     loadCategories();
   }, []);
 
+  /**
+   * Đồng bộ bộ lọc từ URL query params vào state.
+   *
+   * Mỗi khi searchParams thay đổi, hệ thống sẽ:
+   * - Đọc lại điều kiện lọc từ URL.
+   * - Cập nhật state trên giao diện.
+   * - Gọi API tải lại danh sách sản phẩm.
+   */
   useEffect(() => {
     const currentFilters = {
       keyword: searchParams.get("keyword") || "",
@@ -124,6 +177,14 @@ function ProductListPage() {
     loadProducts(currentFilters);
   }, [searchParams]);
 
+  /**
+   * Kiểm tra tính hợp lệ của khoảng giá.
+   *
+   * Giá từ và giá đến không được âm.
+   * Nếu nhập cả hai giá trị thì giá từ không được lớn hơn giá đến.
+   *
+   * @returns {boolean} true nếu khoảng giá hợp lệ, false nếu không hợp lệ.
+   */
   const validatePrice = () => {
     const min = minPrice === "" ? null : Number(minPrice);
     const max = maxPrice === "" ? null : Number(maxPrice);
@@ -146,6 +207,14 @@ function ProductListPage() {
     return true;
   };
 
+  /**
+   * Xử lý submit form tìm kiếm sản phẩm.
+   *
+   * Trước khi áp dụng bộ lọc, hàm kiểm tra khoảng giá.
+   * Nếu hợp lệ, danh sách sản phẩm được tải lại từ trang đầu tiên.
+   *
+   * @param {Object} e Sự kiện submit form.
+   */
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -154,16 +223,38 @@ function ProductListPage() {
     applyFilters({}, 0);
   };
 
+  /**
+   * Reset toàn bộ bộ lọc về trạng thái mặc định.
+   *
+   * Hàm xóa query params trên URL, đồng thời đóng khung lọc
+   * và menu sắp xếp nếu đang mở.
+   */
   const handleReset = () => {
     setSearchParams({});
     setShowFilters(false);
     setShowSort(false);
   };
 
+  /**
+   * Chuyển trang danh sách sản phẩm.
+   *
+   * Khi đổi trang, các điều kiện lọc hiện tại vẫn được giữ nguyên.
+   *
+   * @param {number} nextPage Trang cần chuyển đến.
+   */
   const handlePageChange = (nextPage) => {
     applyFilters({}, nextPage);
   };
 
+  /**
+   * Áp dụng tiêu chí sắp xếp sản phẩm.
+   *
+   * Sau khi chọn kiểu sắp xếp, menu sắp xếp được đóng lại
+   * và danh sách sản phẩm được tải lại từ trang đầu tiên.
+   *
+   * @param {string} nextSortBy Tiêu chí sắp xếp.
+   * @param {string} nextDirection Hướng sắp xếp.
+   */
   const handleSort = (nextSortBy, nextDirection) => {
     setSortBy(nextSortBy);
     setDirection(nextDirection);
@@ -182,6 +273,7 @@ function ProductListPage() {
 
   return (
     <div className="discover-page">
+      {/* Tiêu đề chính của trang khám phá sản phẩm */}
       <div className="discover-header">
         <span>✦</span>
         <h1>KHÁM PHÁ</h1>
@@ -192,6 +284,7 @@ function ProductListPage() {
         Khám phá những sản phẩm làm đẹp được yêu thích nhất
       </p>
 
+      {/* Khu vực tìm kiếm, lọc danh mục, lọc giá và sắp xếp sản phẩm */}
       <form className="discover-filter" onSubmit={handleSubmit}>
         <div className="discover-topbar">
           <div className="discover-category">
@@ -279,6 +372,7 @@ function ProductListPage() {
           </div>
         </div>
 
+        {/* Khu vực nhập khoảng giá, chỉ hiển thị khi người dùng mở bộ lọc */}
         {showFilters && (
           <div className="discover-price-row">
             <div className="discover-price-left">
@@ -350,8 +444,10 @@ function ProductListPage() {
         )}
       </form>
 
+      {/* Thông báo trạng thái khi đang tải sản phẩm */}
       {loading && <p className="discover-message">Đang tải sản phẩm...</p>}
 
+      {/* Thông báo khi không có sản phẩm phù hợp với bộ lọc hiện tại */}
       {!loading && products.length === 0 && (
         <p className="discover-message">
           {categoryId || keyword || minPrice || maxPrice
@@ -360,6 +456,7 @@ function ProductListPage() {
         </p>
       )}
 
+      {/* Lưới hiển thị danh sách sản phẩm */}
       <div className="discover-grid">
         {products.map((product) => (
           <div className="discover-card" key={product.productId}>
@@ -396,6 +493,7 @@ function ProductListPage() {
         ))}
       </div>
 
+      {/* Phân trang danh sách sản phẩm */}
       <div className="discover-pagination">
         <button
           type="button"
@@ -416,6 +514,7 @@ function ProductListPage() {
         </button>
       </div>
 
+      {/* Nút reset toàn bộ bộ lọc của trang danh sách sản phẩm */}
       <button
         type="button"
         className="discover-reset-btn"

@@ -3,19 +3,11 @@ USE web_store;
 -- =========================================================
 -- FINAL SAMPLE DATA - AURA COSMETICS
 -- File này dùng sau create_tables.sql.
--- Đã dọn:
---   1) Không DROP/CREATE TABLE schema.
---   2) Password mẫu đổi sang BCrypt cho mật khẩu 123456.
---   3) Bỏ data test bẩn trong bản Quỳnh clean trước đó.
---   4) Có procedure sinh thêm nhiều đơn hàng/users để test dashboard/thống kê.
 --
--- Tài khoản mẫu:
+-- Tài khoản mẫu dùng cho demo/kiểm thử:
 --   Admin: admin@aurabeauty.vn / 123456
 --   Customer: khach1@gmail.com / 123456
 -- =========================================================
-
--- Seed data sạch, dựa trên sample data của Quỳnh nhưng chạy theo schema chuẩn create_tables.sql.
--- Đã bỏ phần DROP/CREATE/LOCK TABLE của dump và dọn các dòng test bẩn/lệch dữ liệu.
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE reviews;
@@ -35,7 +27,7 @@ INSERT INTO roles (role_id, role_name) VALUES
 (1, 'ROLE_ADMIN'),
 (2, 'ROLE_CUSTOMER');
 
--- 2. Users lấy từ sample data của Quỳnh
+-- 2. Users
 INSERT INTO users (user_id, name, email, password, address, phone, role_id, is_active, created_at, updated_at) VALUES
 (1, 'Admin Aura', 'admin@aurabeauty.vn', '$2a$10$M51wR6tRHQXa83AUJ7EB3e.QF2nUZW0G.fXJzdBaM2MECUHCegIZe', '97 Man Thiện, Quận 9, HCM', '0901112222', 1, TRUE, '2026-05-20 15:13:52', '2026-05-20 15:13:52'),
 (2, 'Quỳnh Manager', 'quynh@aurabeauty.vn', '$2a$10$M51wR6tRHQXa83AUJ7EB3e.QF2nUZW0G.fXJzdBaM2MECUHCegIZe', 'Thủ Đức, HCM', '0903334444', 1, TRUE, '2026-05-20 15:13:52', '2026-05-20 15:13:52'),
@@ -52,7 +44,7 @@ INSERT INTO users (user_id, name, email, password, address, phone, role_id, is_a
 (14, 'Nguyễn Hải Đăng', 'admin12345@gmail.com', '$2a$10$M51wR6tRHQXa83AUJ7EB3e.QF2nUZW0G.fXJzdBaM2MECUHCegIZe', '', '0112234567', 1, TRUE, '2026-05-24 19:15:15', '2026-05-24 19:15:40'),
 (15, 'Nguyễn Kiệt', 'customer12345@gmail.com', '$2a$10$M51wR6tRHQXa83AUJ7EB3e.QF2nUZW0G.fXJzdBaM2MECUHCegIZe', '', '0345117235', 2, TRUE, '2026-05-24 19:37:50', '2026-05-24 19:37:50');
 
--- 3. Categories lấy từ sample data của Quỳnh
+-- 3. Categories
 INSERT INTO categories (category_id, name, description, created_at, updated_at) VALUES
 (1, 'Làm Sạch', 'Sữa rửa mặt, tẩy trang', '2026-05-20 14:49:21', '2026-05-20 14:49:21'),
 (2, 'Dưỡng Da', 'Serum, kem dưỡng phục hồi', '2026-05-20 14:49:21', '2026-05-20 14:49:21'),
@@ -64,7 +56,7 @@ INSERT INTO categories (category_id, name, description, created_at, updated_at) 
 (8, 'Trang điểm mắt', 'Sản phẩm hỗ trợ trang điểm mắt', '2026-05-20 16:36:06', '2026-05-20 16:36:06'),
 (9, 'Dụng cụ trang điểm', 'Cọ trang điểm, mút trang điểm,...', '2026-05-24 16:53:01', '2026-05-24 16:53:01');
 
--- 4. Products lấy từ sample data của Quỳnh, đã bỏ sản phẩm test loppy
+-- 4. Products
 INSERT INTO products (product_id, name, price, stock, description, image, status, category_id, created_at, updated_at) VALUES
 (1, 'Sữa Rửa Mặt Aura B5', 185000.00, 99, 'Làm sạch dịu nhẹ', 'https://res.cloudinary.com/dibq4hudo/image/upload/v1779288987/aura/products/ewbfzjsuijsy22nrov3g.jpg', 'ACTIVE', 1, '2026-05-20 14:49:21', '2026-05-24 16:14:39'),
 (2, 'Nước Tẩy Trang Aura', 210000.00, 49, 'Sạch sâu bã nhờn', 'https://res.cloudinary.com/dibq4hudo/image/upload/v1779289005/aura/products/inoz2cbrl9qeswluyt4x.jpg', 'ACTIVE', 1, '2026-05-20 14:49:21', '2026-05-24 16:16:00'),
@@ -142,7 +134,7 @@ INSERT INTO cart_items (cart_item_id, cart_id, product_id, quantity) VALUES
 (5, 3, 10, 1),
 (6, 4, 15, 10);
 
--- 6. Orders: giữ sample Quỳnh, bỏ order test 20 triệu và sửa order 5 về 185000 cho khớp order_items
+-- 6. Orders
 INSERT INTO orders (order_id, user_id, total_price, recipient_name, recipient_phone, shipping_address, status, created_at, updated_at) VALUES
 (1, 3, 620000.00, 'Nguyễn Văn Khách', '0981112222', 'Quận 1, HCM', 'COMPLETED', '2026-03-01 02:00:00', '2026-05-21 15:03:13'),
 (2, 4, 440000.00, 'Lê Thị Thanh', '0983334444', 'Quận 7, HCM', 'COMPLETED', '2026-03-05 07:00:00', '2026-05-21 15:03:13'),
@@ -168,7 +160,7 @@ INSERT INTO order_items (order_item_id, order_id, product_id, product_name, quan
 (11, 9, 3, 'Tẩy Tế Bào Chết Cafe', 1, 120000.00),
 (12, 10, 48, 'Trọn Bộ 30 Cọ Make Up Sang Trọng', 1, 399000.00);
 
--- 8. Payments: sửa amount/payment_date của order 5, giữ PENDING thì payment_date = NULL
+-- 8. Payments
 INSERT INTO payments (payment_id, order_id, payment_method, transaction_no, amount, payment_date, status) VALUES
 (1, 1, 'VNPAY', NULL, 620000.00, '2026-05-21 15:03:13', 'SUCCESS'),
 (2, 2, 'COD', NULL, 440000.00, '2026-05-21 15:03:13', 'SUCCESS'),
@@ -180,7 +172,7 @@ INSERT INTO payments (payment_id, order_id, payment_method, transaction_no, amou
 (9, 9, 'COD', NULL, 120000.00, '2026-05-24 16:18:26', 'SUCCESS'),
 (10, 10, 'COD', NULL, 399000.00, NULL, 'PENDING');
 
--- 9. Reviews: kết hợp review mẫu nghiệp vụ và review thật từ sample Quỳnh, bỏ review test bẩn/product đã xóa
+-- 9. Reviews
 INSERT INTO reviews (user_id, product_id, rating, comment, is_verified_purchase, admin_flag, created_at) VALUES
 (3, 1, 5, 'Sữa rửa mặt xài rất êm, da không bị khô. Đóng gói cẩn thận, giao hàng nhanh!', TRUE, 'NORMAL', '2026-03-03 10:00:00'),
 (3, 8, 4, 'Màu son lên môi chuẩn đẹp, nhưng ăn uống xong thì hơi mau trôi nha shop.', TRUE, 'NORMAL', '2026-03-03 10:05:00'),

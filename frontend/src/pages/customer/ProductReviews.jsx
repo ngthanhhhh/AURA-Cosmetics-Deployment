@@ -6,16 +6,6 @@ import { reviewService } from "../../features/reviews/reviewService";
 import { formatDate } from "../../utils/formatDate";
 import "./ProductReviews.css";
 
-/**
- * Component hiển thị và xử lý đánh giá của một sản phẩm.
- *
- * Component này hỗ trợ:
- * - Lấy danh sách đánh giá theo productId
- * - Lọc đánh giá theo số sao, trạng thái đã mua hàng, từ khóa
- * - Sắp xếp và phân trang đánh giá
- * - Hiển thị thống kê số lượng đánh giá theo từng mức sao
- * - Cho phép khách hàng gửi đánh giá mới
- */
 function ProductReviews({productId}) {
     // State lưu dữ liệu tổng của API đánh giá trả về.
     // VD: reviews, totalPages, totalElements, averageRating,...
@@ -58,16 +48,6 @@ function ProductReviews({productId}) {
         1: 0,
     });
 
-    /**
-     * Gọi API lấy danh sách đánh giá của sản phẩm hiện tại.
-     *
-     * Request gửi lên backend gồm:
-     * - rating: lọc theo số sao
-     * - verified: lọc đánh giá từ người đã mua hàng hay chưa
-     * - keyword: tìm kiếm theo nội dung đánh giá
-     * - page, size: phân trang
-     * - sortBy, sortDir: sắp xếp
-     */
     const fetchReviews = async () => {
         if (!productId) return; // Nếu chưa có productId thì không gọi API.
 
@@ -101,12 +81,6 @@ function ProductReviews({productId}) {
         }
     };
 
-    /**
-     * Lấy dữ liệu đánh giá để tính thống kê số lượng review theo từng mức sao.
-     *
-     * Hàm này gọi API lấy nhiều review hơn một trang bình thường,
-     * sau đó tự đếm số lượng review 1 sao, 2 sao, ..., 5 sao ở frontend.
-     */
     const fetchRatingSummary = async () => {
         if (!productId) return; // Nếu chưa có productId thì không gọi API.
 
@@ -149,35 +123,17 @@ function ProductReviews({productId}) {
         }
     };
 
-    /**
-     * Tự động tải lại đánh giá khi:
-     * - productId thay đổi
-     * - page thay đổi
-     * - bộ lọc rating/verified thay đổi
-     * - kiểu sắp xếp thay đổi
-     *
-     * keyword không nằm trong dependency để tránh gọi API liên tục khi đang gõ.
-     * Tìm kiếm keyword chỉ chạy khi submit form.
-     */
     useEffect(() => {
         fetchReviews();
         fetchRatingSummary();
     }, [productId, page, rating, verified, sortBy, sortDir]);
 
-    /**
-     * Xử lý khi submit form tìm kiếm đánh giá.
-     *
-     * @param event Sự kiện submit form
-     */
     const handleSearchSubmit = (event) => {
         event.preventDefault(); // Ngăn form reload lại trang.
         setPage(0); // Khi tìm kiếm mới thì quay về trang đầu tiên.
         fetchReviews(); // Gọi lại API với keyword hiện tại.
     };
 
-    /**
-     * Đặt lại toàn bộ bộ lọc và sắp xếp về mặc định.
-     */
     const handleReset = () => {
         setRating("");
         setVerified("");
@@ -187,11 +143,6 @@ function ProductReviews({productId}) {
         setPage(0);
     };
 
-    /**
-     * Xử lý gửi đánh giá mới cho sản phẩm.
-     *
-     * @param event Sự kiện submit form đánh giá
-     */
     const handleSubmitReview = async (event) => {
         event.preventDefault(); // Ngăn form reload lại trang.
 
@@ -230,16 +181,6 @@ function ProductReviews({productId}) {
         }
     };
 
-    /**
-     * Render số sao dưới dạng ký tự.
-     *
-     * Ví dụ:
-     * - value = 5 => ★★★★★
-     * - value = 3 => ★★★☆☆
-     *
-     * @param value Số sao cần hiển thị
-     * @returns Chuỗi ký tự sao
-     */
     const renderStars = (value) => {
         // Làm tròn và chuyển value về number, nếu không có thì mặc định là 0.
         const ratingValue = Math.round(Number(value || 0));
@@ -250,7 +191,6 @@ function ProductReviews({productId}) {
 
     return (
         <section className="product-reviews">
-            {/* Khối tổng quan đánh giá của sản phẩm */}
             <div className="product-reviews__summary">
                 {/* Phần bên trái: tổng số đánh giá, điểm trung bình và sao trung bình */}
                 <div className="product-reviews__summary-left">
@@ -269,6 +209,7 @@ function ProductReviews({productId}) {
                     <p>{reviewData?.totalReviews || 0} đánh giá</p>
                 </div>
 
+                {/* Khu vực thống kê số lượng đánh giá theo từng mức sao */}
                 <div className="product-reviews__summary-center">
                     <button type="button">Tất cả ({reviewData?.totalReviews || 0})</button>
                     <button type="button">5 ★ ({ratingSummary[5]})</button>
@@ -288,6 +229,7 @@ function ProductReviews({productId}) {
                     <Filter size={28} />  {/* Icon filter lấy từ thư viện lucide-react */}
                 </button>
 
+                {/* Khu vực mở form viết đánh giá */}
                 <div className="product-reviews__write-box">
                     <p>Chia sẻ nhận xét của bạn về sản phẩm này</p>
 
@@ -301,13 +243,14 @@ function ProductReviews({productId}) {
                 </div>
             </div>
 
+            {/* Thông báo lỗi khi tải hoặc gửi đánh giá thất bại */}
             {error && <div className="product-reviews__error">{error}</div>} 
 
+            {/* Thông báo thành công sau khi gửi đánh giá */}
             {successMessage && (
                 <div className="product-reviews__success">{successMessage}</div>
             )}  
 
-            {/* Chỉ render form bộ lọc khi showFilters = true */}
             {showFilters && (
                 <form className="product-reviews__filters" onSubmit={handleSearchSubmit}>
                     {/* Ô tìm kiếm trong nội dung bình luận */}
@@ -399,7 +342,6 @@ function ProductReviews({productId}) {
                 </form>
             )}
  
-            {/* Chỉ render form viết đánh giá khi showReviewForm = true */}
             {showReviewForm && (
                 <form className="product-reviews__form" onSubmit={handleSubmitReview}>
                     <h4>Gửi đánh giá của bạn</h4>
@@ -437,7 +379,6 @@ function ProductReviews({productId}) {
                 </form>
             )}
 
-            {/* Nếu đang tải dữ liệu thì hiển thị loading */}
             {loading ? (
                 <p>Đang tải đánh giá...</p>
             ) : reviews.length === 0 ? (
@@ -447,7 +388,6 @@ function ProductReviews({productId}) {
                 </div>
             ) : (
                 <>
-                    {/* Danh sách các đánh giá */}
                     <div className="product-reviews__list">
                         {reviews.map((review) => (
                             <article key={review.reviewId} className="product-reviews__item">

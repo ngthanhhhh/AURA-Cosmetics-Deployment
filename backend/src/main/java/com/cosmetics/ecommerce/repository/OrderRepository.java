@@ -46,9 +46,9 @@ public interface OrderRepository extends JpaRepository<Order, Integer>{
             SELECT o
             FROM Order o
             WHERE o.user.userId = :userId
-            AND (:status IS NULL OR o.status = :status) //Nếu có status thì lọc status
+            AND (:status IS NULL OR o.status = :status)
             AND (
-                :keyword IS NULL //Nếu có keyword thì tìm theo tên người nhận / số điện thoại / địa chỉ
+                :keyword IS NULL
                 OR LOWER(o.recipientName) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR LOWER(o.recipientPhone) LIKE LOWER(CONCAT('%', :keyword, '%'))
                 OR LOWER(o.shippingAddress) LIKE LOWER(CONCAT('%', :keyword, '%'))
