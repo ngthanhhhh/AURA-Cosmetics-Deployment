@@ -9,16 +9,15 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Utility hỗ trợ xử lý các thao tác liên quan đến VNPay.
+ * Utility hỗ trợ xử lý các thao tác kỹ thuật liên quan đến VNPay.
  *
  * Bao gồm:
  * - Tạo chữ ký bảo mật bằng HMAC SHA512
- * - Build query string để gửi request sang VNPay
- * - Build chuỗi dữ liệu chuẩn hóa để ký (hashData)
+ * - Build query string để gắn vào URL thanh toán
+ * - Build chuỗi hashData dùng để ký dữ liệu
  *
- * Ý nghĩa:
- * - Đảm bảo dữ liệu gửi đi không bị thay đổi (integrity)
- * - Hỗ trợ xác thực dữ liệu khi VNPay callback về
+ * Class này giúp đảm bảo dữ liệu gửi sang VNPay và dữ liệu VNPay trả về
+ * có thể được kiểm tra tính toàn vẹn thông qua chữ ký bảo mật.
  */
 public class VnPayUtil {
 

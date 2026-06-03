@@ -67,6 +67,7 @@ public class PaymentServiceImpl implements PaymentService{
      * - Ký dữ liệu bằng HMAC SHA512
      * - Trả về URL thanh toán hoàn chỉnh
      *
+     * @param userId ID của người dùng đang thực hiện thanh toán
      * @param orderId ID của đơn hàng cần thanh toán
      * @param ipAddress Địa chỉ IP của người dùng tạo thanh toán
      * @return URL thanh toán VNPay
@@ -197,13 +198,14 @@ public class PaymentServiceImpl implements PaymentService{
      * Xử lý phản hồi trả về từ VNPay sau khi người dùng thanh toán.
      *
      * Quy trình xử lý:
+     * - Kiểm tra dữ liệu phản hồi từ VNPay
      * - Lấy chữ ký VNPay gửi về
      * - Loại bỏ các field chữ ký khỏi dữ liệu cần kiểm tra
      * - Tính lại chữ ký bằng hashSecret
      * - So sánh chữ ký để xác thực phản hồi
      * - Tìm Payment theo mã giao dịch VNPay
      * - Nếu giao dịch thành công thì cập nhật Payment SUCCESS
-     * - Cập nhật đơn hàng sang trạng thái PREPARING
+     *   và chuyển đơn hàng sang trạng thái PREPARING
      * - Nếu giao dịch thất bại thì cập nhật Payment FAILED
      *
      * @param params Toàn bộ tham số VNPay redirect về hệ thống

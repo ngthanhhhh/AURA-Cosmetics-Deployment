@@ -46,11 +46,13 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Service triển khai các nghiệp vụ liên quan đến đơn hàng.
- * Bao gồm:
- * - Đặt hàng (checkout)
- * - Xem lịch sử đơn hàng của khách hàng
- * - Admin xem danh sách đơn hàng
- * - Admin xem chi tiết đơn hàng
+ *
+ * Bao gồm các chức năng chính như đặt hàng, xem lịch sử và chi tiết đơn hàng,
+ * quản lý danh sách đơn hàng cho Admin, cập nhật trạng thái đơn hàng,
+ * xác nhận thanh toán COD và hoàn kho khi hủy đơn.
+ *
+ * Service này đồng thời kiểm tra luồng chuyển trạng thái, điều kiện thanh toán
+ * và tạo snapshot OrderItem tại thời điểm checkout.
  */
 @Service
 @RequiredArgsConstructor
@@ -97,22 +99,30 @@ public class OrderServiceImpl implements OrderService{
      * Thực hiện chức năng đặt hàng cho người dùng.
      *
      * Quy trình xử lý:
+     * - Kiểm tra userId và request đặt hàng hợp lệ
      * - Kiểm tra người dùng tồn tại
-     * - Lấy giỏ hàng hiện tại
-     * - Kiểm tra số lượng tồn kho của từng sản phẩm
-     * - Tạo đơn hàng và chi tiết đơn hàng
-     * - Tạo thông tin thanh toán
-     * - Xóa giỏ hàng sau khi đặt thành công
+     * - Lấy giỏ hàng hiện có của người dùng và kiểm tra giỏ không rỗng
+     * - Tạo đơn hàng với trạng thái mặc định là PENDING
+     * - Duyệt từng sản phẩm trong giỏ:
+     *   + Khóa sản phẩm khi kiểm tra tồn kho
+     *   + Kiểm tra sản phẩm còn kinh doanh
+     *   + Kiểm tra số lượng tồn kho
+     *   + Trừ số lượng tồn kho
+     *   + Tạo snapshot OrderItem bằng Prototype để lưu tên, giá tại thời điểm đặt hàng
+     * - Cập nhật tổng tiền cuối cùng cho đơn hàng
+     * - Tạo bản ghi thanh toán với trạng thái PENDING
+     * - Xóa giỏ hàng sau khi đặt hàng thành công
+     * - Trả về thông tin đơn hàng cho client
      *
      * @param userId  ID của người dùng đang đặt hàng
-     * @param request Thông tin người nhận và phương thức thanh toán
+     * @param request Thông tin người nhận, địa chỉ giao hàng và phương thức thanh toán
      * @return Thông tin đơn hàng sau khi đặt thành công
      */
     @Override
     @Transactional
     public OrderResponseDTO placeOrder(Integer userId, OrderRequestDTO request) {
 
-        validateUserId(userId);
+        validateUserId(userId); // kiểm tra giá trị userId truyền vào có hợp lệ không
         validateOrderRequest(request);
 
         //1. Kiểm tra sự tồn tại của User
@@ -137,7 +147,7 @@ public class OrderServiceImpl implements OrderService{
         order.setStatus(OrderStatus.PENDING);
         order.setTotalPrice(BigDecimal.ZERO); //Tạm thời gán bằng 0, cộng dồn sau
 
-        Order savedOrder = orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order); //OrderItem cần biết nó thuộc về đơn hàng số mấy.
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         //4. Xử lý từng sản phẩm trong giỏ: Kiểm tra kho, trừ kho và tạo chi tiết đơn hàng (OrderItem)
@@ -212,10 +222,24 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /**
-     * Lấy danh sách các đơn hàng của người dùng hiện tại.
+     * Lấy danh sách đơn hàng của người dùng hiện tại.
      *
-     * @param userId ID của người dùng
-     * @return Danh sách đơn hàng được sắp xếp theo thời gian tạo giảm dần
+     * API/service này hỗ trợ:
+     * - Lọc theo trạng thái đơn hàng
+     * - Tìm kiếm theo từ khóa
+     * - Phân trang
+     * - Sắp xếp theo trường và chiều sắp xếp được truyền vào
+     *
+     * @param userId  ID của người dùng cần lấy danh sách đơn hàng.
+     * @param status  Trạng thái đơn hàng cần lọc, ví dụ: PENDING, PREPARING, SHIPPING,...
+     *                Không bắt buộc.
+     * @param keyword Từ khóa tìm kiếm theo thông tin đơn hàng. Không bắt buộc.
+     * @param page    Số thứ tự trang muốn lấy, mặc định thường là 0.
+     * @param size    Số lượng đơn hàng trên mỗi trang.
+     * @param sortBy  Trường dùng để sắp xếp, ví dụ: createdAt, totalPrice, status.
+     * @param sortDir Chiều sắp xếp, gồm asc hoặc desc.
+     * @return Page chứa danh sách đơn hàng của người dùng sau khi lọc, tìm kiếm,
+     *         phân trang, sắp xếp và chuyển sang OrderResponseDTO.
      */
     @Override
     @Transactional(readOnly = true)
@@ -232,9 +256,9 @@ public class OrderServiceImpl implements OrderService{
         validateUserId(userId);
 
         OrderStatus orderStatus = parseNullableOrderStatus(status);
-        Pageable pageable = buildOrderPageable(page, size, sortBy, sortDir);
+        Pageable pageable = buildOrderPageable(page, size, sortBy, sortDir); //Tạo thông tin phân trang và sắp xếp.
 
-        //Tìm đơn hàng theo userId, sắp xếp mới nhất lên đầu và map sang DTO
+        //Tìm đơn hàng theo userId, áp dụng lọc/tìm kiếm/phân trang và map sang DTO
         return orderRepository.searchMyOrders(
             userId,
             orderStatus,
@@ -253,13 +277,30 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /**
-     * Lấy danh sách đơn hàng dành cho Admin, hỗ trợ lọc và phân trang.
+     * Lấy danh sách đơn hàng dành cho Admin.
      *
-     * @param status  Trạng thái đơn hàng cần lọc - không bắt buộc
-     * @param keyword Từ khóa tìm kiếm theo tên người nhận hoặc số điện thoại - không bắt buộc
-     * @param page    Số trang cần lấy
-     * @param size    Số lượng bản ghi trên mỗi trang
-     * @return Danh sách đơn hàng dạng phân trang
+     * Method này hỗ trợ:
+     * - Lọc theo trạng thái đơn hàng
+     * - Lọc theo phương thức thanh toán
+     * - Lọc theo trạng thái thanh toán
+     * - Tìm kiếm theo từ khóa
+     * - Phân trang
+     * - Sắp xếp
+     *
+     * @param status        Trạng thái đơn hàng cần lọc, ví dụ: PENDING, PREPARING, SHIPPING,...
+     *                      Không bắt buộc.
+     * @param keyword       Từ khóa tìm kiếm theo thông tin đơn hàng hoặc người nhận.
+     *                      Không bắt buộc.
+     * @param paymentMethod Phương thức thanh toán cần lọc, ví dụ: COD, VNPAY.
+     *                      Không bắt buộc.
+     * @param paymentStatus Trạng thái thanh toán cần lọc, ví dụ: PENDING, SUCCESS, FAILED.
+     *                      Không bắt buộc.
+     * @param page          Số thứ tự trang cần lấy.
+     * @param size          Số lượng bản ghi trên mỗi trang.
+     * @param sortBy        Trường dùng để sắp xếp, ví dụ: createdAt, totalPrice, status.
+     * @param sortDir       Chiều sắp xếp, gồm asc hoặc desc.
+     * @return Page danh sách đơn hàng sau khi lọc, tìm kiếm, phân trang,
+     *         sắp xếp và chuyển sang OrderListDTO.
      */
     @Override
     @Transactional(readOnly = true)
@@ -273,6 +314,7 @@ public class OrderServiceImpl implements OrderService{
         String sortBy,
         String sortDir
     ) {
+        // Nếu không truyền gì thì để null nghĩa là không lọc theo điều kiện đó.
         OrderStatus orderStatus = parseNullableOrderStatus(status);
         PaymentMethod parsedPaymentMethod = parseNullablePaymentMethod(paymentMethod);
         PaymentStatus parsedPaymentStatus = parseNullablePaymentStatus(paymentStatus);
@@ -318,13 +360,13 @@ public class OrderServiceImpl implements OrderService{
      *
      * Thông tin trả về bao gồm:
      * - Thông tin chung của đơn hàng
-     * - Danh sách sản phẩm trong đơn
+     * - Danh sách sản phẩm trong đơn hàng
      * - Thông tin thanh toán
      *
      * Xử lý thêm các trường hợp:
      * - Không tìm thấy đơn hàng
-     * - Sản phẩm trong đơn đã bị xóa khỏi hệ thống
-     * - Đơn hàng chưa có thông tin thanh toán
+     * - Sản phẩm trong đơn đã ngừng kinh doanh hoặc không còn đầy đủ thông tin
+     * - Không tìm thấy thông tin thanh toán do dữ liệu bất thường
      *
      * @param orderId ID của đơn hàng cần xem chi tiết
      * @return Thông tin chi tiết đầy đủ của đơn hàng
@@ -351,20 +393,21 @@ public class OrderServiceImpl implements OrderService{
      * Cập nhật trạng thái đơn hàng cho Admin.
      *
      * Flow xử lý:
-     * - Validate request
-     * - Parse trạng thái mới
-     * - Kiểm tra chuyển trạng thái hợp lệ
-     * - Check thanh toán nếu chuyển sang COMPLETED
+     * - Kiểm tra orderId hợp lệ
+     * - Validate request cập nhật trạng thái
+     * - Tìm đơn hàng theo orderId
+     * - Parse trạng thái mới từ request
+     * - Kiểm tra đơn hàng có đang ở trạng thái đó chưa
+     * - Kiểm tra luồng chuyển trạng thái hợp lệ
+     * - Kiểm tra điều kiện thanh toán trước khi xử lý trạng thái mới
+     * - Kiểm tra thanh toán nếu chuyển sang COMPLETED
      * - Hoàn kho nếu chuyển sang CANCELLED
-     * - Cập nhật trạng thái và lưu DB
+     * - Cập nhật trạng thái đơn hàng và lưu vào database
      *
      * @param orderId ID của đơn hàng cần cập nhật
-     * @param request Dữ liệu chứa trạng thái mới (status)
-     * @return DTO chứa:
-     *         - trạng thái cũ
-     *         - trạng thái mới
-     *         - message kết quả
-     *         - danh sách trạng thái tiếp theo (dùng cho FE)
+     * @param request Dữ liệu chứa trạng thái mới
+     * @return DTO chứa trạng thái cũ, trạng thái mới, message kết quả
+     *         và danh sách trạng thái tiếp theo dùng cho frontend
      */
     @Override
     @Transactional
@@ -385,10 +428,13 @@ public class OrderServiceImpl implements OrderService{
 
         validatePaymentBeforeProcessing(order, newStatus);
 
+        // Nếu muốn chuyển sang COMPLETED thì 
+        // bắt buộc kiểm tra payment đã hợp lệ/thành công.
         if (newStatus == OrderStatus.COMPLETED) {
             validatePaymentForCompletion(orderId);
         }
 
+        // Nếu hủy đơn thì hoàn lại số lượng sản phẩm vào kho.
         if (newStatus == OrderStatus.CANCELLED) {
             restockProductsIfNeeded(order);
         }
@@ -405,6 +451,22 @@ public class OrderServiceImpl implements OrderService{
                 .build();
     }
 
+    /**
+     * Lấy thông tin chi tiết của một đơn hàng dành cho khách hàng.
+     *
+     * Method này chỉ cho phép người dùng xem đơn hàng thuộc về chính mình.
+     *
+     * Quy trình xử lý:
+     * - Tìm đơn hàng theo orderId
+     * - Kiểm tra đơn hàng có thuộc về userId hiện tại hay không
+     * - Lấy danh sách sản phẩm trong đơn hàng
+     * - Lấy thông tin thanh toán của đơn hàng
+     * - Đóng gói dữ liệu thành OrderDetailResponseDTO để trả về
+     *
+     * @param userId  ID của người dùng hiện tại
+     * @param orderId ID của đơn hàng cần xem chi tiết
+     * @return Thông tin chi tiết của đơn hàng
+     */
     @Override
     @Transactional(readOnly = true)
     public OrderDetailResponseDTO getOrderDetailForCustomer(Integer userId, Integer orderId) {
@@ -414,8 +476,8 @@ public class OrderServiceImpl implements OrderService{
             throw new BadRequestException("Bạn không có quyền xem đơn hàng này");
         }
 
-        List<OrderItemDTO> items = orderItemRepository.findByOrder(order)
-            .stream()
+        List<OrderItemDTO> items = orderItemRepository.findByOrder(order) //lấy danh sách OrderItem thuộc về đơn hàng này
+            .stream() // bắt đầu duyệt từng phần tử trong list
             .map(this::mapToOrderItemDTO)
             .collect(Collectors.toList());
 
@@ -423,6 +485,24 @@ public class OrderServiceImpl implements OrderService{
         return buildOrderDetailResponse(order, paymentOpt, items);
     }
 
+    /**
+     * Xác nhận thanh toán thành công cho đơn hàng COD.
+     *
+     * Method này dùng khi Admin xác nhận đã thu tiền từ khách hàng
+     * đối với đơn thanh toán khi nhận hàng.
+     *
+     * Quy trình xử lý:
+     * - Kiểm tra orderId hợp lệ
+     * - Tìm đơn hàng theo orderId
+     * - Tìm thông tin thanh toán của đơn hàng
+     * - Kiểm tra đơn hàng có dùng phương thức COD hay không
+     * - Kiểm tra đơn hàng đã được xác nhận thanh toán trước đó chưa
+     * - Chỉ cho phép xác nhận khi đơn hàng đã được giao
+     * - Cập nhật trạng thái thanh toán sang SUCCESS
+     * - Lưu thời gian xác nhận thanh toán
+     *
+     * @param orderId ID của đơn hàng cần xác nhận thanh toán COD
+     */
     public void confirmCodPayment(Integer orderId) {
         validateOrderId(orderId);
         Order order = orderRepository.findById(orderId)
@@ -431,6 +511,8 @@ public class OrderServiceImpl implements OrderService{
         Payment payment = paymentRepository.findByOrder_OrderId(orderId)
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin thanh toán!"));
 
+        // Chỉ cho xác nhận thủ công với đơn COD. 
+        // VNPay thì đã có callback xử lý riêng.
         if (payment.getPaymentMethod() != PaymentMethod.COD) {
             throw new BadRequestException(
                 "Chỉ hỗ trợ xác nhận thanh toán cho đơn COD"
@@ -441,6 +523,8 @@ public class OrderServiceImpl implements OrderService{
             throw new BadRequestException("Đơn hàng này đã được xác nhận thanh toán!");
         }
 
+        // Chỉ cho xác nhận COD khi đơn đã giao hoặc hoàn tất. 
+        // Vì COD là trả tiền khi nhận hàng.
         if (order.getStatus() != OrderStatus.DELIVERED && order.getStatus() != OrderStatus.COMPLETED) {
             throw new BadRequestException("Chỉ có thể xác nhận thanh toán đơn khi đã giao");
         }
@@ -457,6 +541,7 @@ public class OrderServiceImpl implements OrderService{
      * Ngoài việc mapping dữ liệu cơ bản, method này còn:
      * - Tính thành tiền của từng sản phẩm
      * - Kiểm tra sản phẩm đã bị xóa khỏi hệ thống hay chưa
+     * - Thêm ghi chú nếu sản phẩm không còn tồn tại/liên kết
      *
      * @param item Entity chi tiết đơn hàng
      * @return DTO chi tiết sản phẩm trong đơn hàng
@@ -482,15 +567,21 @@ public class OrderServiceImpl implements OrderService{
     /**
      * Tạo OrderDetailResponseDTO từ dữ liệu Order, Payment và danh sách OrderItemDTO.
      *
-     * Nếu đơn hàng có thông tin thanh toán:
-     * - Gán đầy đủ thông tin payment
+     * Method này gom các dữ liệu liên quan đến chi tiết đơn hàng
+     * thành một DTO hoàn chỉnh để trả về cho client.
      *
-     * Nếu đơn hàng chưa có thông tin thanh toán:
-     * - Gán message thông báo phù hợp
+     * Nếu tìm thấy thông tin thanh toán:
+     * - Gán đầy đủ paymentMethod, paymentStatus, paymentAmount,
+     *   transactionNo và paymentDate.
+     *
+     * Nếu không tìm thấy thông tin thanh toán do dữ liệu bất thường:
+     * - Đánh dấu hasPayment = false
+     * - Gán các trường payment là null
+     * - Gán paymentMessage để thông báo tình trạng thiếu dữ liệu thanh toán
      *
      * @param order      Thông tin đơn hàng
-     * @param paymentOpt Thông tin thanh toán, có thể rỗng
-     * @param items      Danh sách sản phẩm trong đơn
+     * @param paymentOpt Thông tin thanh toán dưới dạng Optional
+     * @param items      Danh sách sản phẩm trong đơn hàng
      * @return DTO chi tiết đơn hàng hoàn chỉnh
      */
     private OrderDetailResponseDTO buildOrderDetailResponse(
@@ -498,6 +589,7 @@ public class OrderServiceImpl implements OrderService{
         Optional<Payment> paymentOpt,
         List<OrderItemDTO> items
     ) {
+        // Tạo builder tạm để bắt đầu dựng OrderDetailResponseDTO
         OrderDetailResponseDTO.OrderDetailResponseDTOBuilder builder = OrderDetailResponseDTO.builder()
             .orderId(order.getOrderId())
             .customerName(order.getUser() != null ? order.getUser().getName() : null)
@@ -531,6 +623,14 @@ public class OrderServiceImpl implements OrderService{
         return builder.build();
     }
 
+    /**
+     * Kiểm tra request cập nhật trạng thái đơn hàng.
+     *
+     * Method này đảm bảo request không bị null
+     * và trạng thái mới không được để trống.
+     *
+     * @param request Dữ liệu cập nhật trạng thái đơn hàng
+     */
     private void validateUpdateStatusRequest(UpdateOrderStatusRequestDTO request) {
         if (request == null) {
             throw new BadRequestException("Request cập nhật trạng thái không hợp lệ!");
@@ -555,6 +655,15 @@ public class OrderServiceImpl implements OrderService{
         }
     }
 
+    /**
+     * Kiểm tra việc chuyển trạng thái đơn hàng có hợp lệ hay không.
+     *
+     * Method này dựa vào bảng VALID_TRANSITIONS để xác định
+     * trạng thái hiện tại được phép chuyển sang những trạng thái nào.
+     *
+     * @param currentStatus Trạng thái hiện tại của đơn hàng
+     * @param newStatus     Trạng thái mới muốn chuyển sang
+     */
     private void validateStatusTransition(OrderStatus currentStatus, OrderStatus newStatus) {
         Set<OrderStatus> allowedStatuses = VALID_TRANSITIONS.getOrDefault(currentStatus, Collections.emptySet());
     
@@ -566,6 +675,14 @@ public class OrderServiceImpl implements OrderService{
         }
     }
 
+    /**
+     * Kiểm tra điều kiện thanh toán trước khi hoàn thành đơn hàng.
+     *
+     * Đơn hàng chỉ được chuyển sang COMPLETED khi đã có thông tin thanh toán
+     * và trạng thái thanh toán là SUCCESS.
+     *
+     * @param orderId ID của đơn hàng cần kiểm tra thanh toán
+     */
     private void validatePaymentForCompletion(Integer orderId) {
         Payment payment = paymentRepository.findByOrder_OrderId(orderId)
             .orElseThrow(() -> new BadRequestException("Không thể hoàn thành đơn hàng do chưa có thông tin thanh toán!"));
@@ -575,6 +692,16 @@ public class OrderServiceImpl implements OrderService{
         }
     }
 
+    /**
+     * Kiểm tra điều kiện thanh toán trước khi xử lý trạng thái mới của đơn hàng.
+     *
+     * Nếu đơn hàng bị hủy thì bỏ qua kiểm tra thanh toán.
+     * Nếu đơn hàng thanh toán bằng VNPay thì chỉ cho xử lý tiếp
+     * khi thanh toán đã thành công.
+     *
+     * @param order     Đơn hàng cần kiểm tra
+     * @param newStatus Trạng thái mới muốn cập nhật
+     */
     private void validatePaymentBeforeProcessing(Order order, OrderStatus newStatus) {
         if (newStatus == OrderStatus.CANCELLED) {
             return;
@@ -594,10 +721,14 @@ public class OrderServiceImpl implements OrderService{
     }
 
     /**
-     * Hoàn lại số lượng sản phẩm vào kho khi hủy đơn.
+     * Kiểm tra điều kiện hủy đơn và hoàn lại số lượng sản phẩm vào kho.
      *
-     * @param order Đơn hàng cần xử lý
-     * @throws BadRequestException nếu không thể hủy đơn
+     * Method này chỉ cho phép hoàn kho khi đơn hàng còn có thể hủy.
+     * Nếu đơn hàng đã giao thành công, đã hoàn thành hoặc đã thanh toán thành công
+     * thì không cho phép hủy.
+     *
+     * @param order Đơn hàng cần xử lý khi hủy
+     * @throws BadRequestException nếu đơn hàng không đủ điều kiện để hủy
      *
      * Side effect:
      * - Cập nhật lại stock trong bảng Product
@@ -613,19 +744,34 @@ public class OrderServiceImpl implements OrderService{
             throw new BadRequestException("Không thể hủy đơn hàng đã thanh toán thành công!");
         }
 
+        // Lấy danh sách sản phẩm trong đơn hàng.
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
 
         for (OrderItem item : orderItems) {
+            // Nếu item không còn liên kết với product thì bỏ qua item này, 
+            // chuyển sang item tiếp theo.
             if (item.getProduct() == null) continue;
 
+            // Tìm sản phẩm theo id và khóa dòng sản phẩm đó trong database.
             Product lockedProduct = productRepository.findByIdWithLock(item.getProduct().getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Sản phẩm không tồn tại trong hệ thống!"));
 
+            // Hoàn kho: stock mới = stock hiện tại + số lượng đã mua trong đơn
             lockedProduct.setStock(lockedProduct.getStock() + item.getQuantity());
             productRepository.save(lockedProduct);
         }
     }
 
+    /**
+     * Tạo message phản hồi sau khi cập nhật trạng thái đơn hàng.
+     *
+     * Nếu trạng thái mới là CANCELLED, message sẽ thông báo thêm
+     * rằng sản phẩm trong đơn đã được hoàn lại vào kho.
+     * Các trạng thái còn lại trả về message cập nhật thành công chung.
+     *
+     * @param newStatus Trạng thái mới của đơn hàng sau khi cập nhật
+     * @return Message thông báo kết quả cập nhật trạng thái
+     */
     private String buildUpdateStatusMessage(OrderStatus newStatus) {
         if (newStatus == OrderStatus.CANCELLED) {
             return "Hủy đơn thành công và đã hoàn trả sản phẩm vào kho hàng!";
@@ -639,12 +785,12 @@ public class OrderServiceImpl implements OrderService{
      * @param currentStatus Trạng thái hiện tại của đơn hàng
      * @return Danh sách trạng thái có thể chuyển tiếp (dùng cho FE hiển thị dropdown)
      */
-    private List<String> getAvailableNextStatuses(OrderStatus currenStatus) {
-        return VALID_TRANSITIONS.getOrDefault(currenStatus, Collections.emptySet())
+    private List<String> getAvailableNextStatuses(OrderStatus currentStatus) {
+        return VALID_TRANSITIONS.getOrDefault(currentStatus, Collections.emptySet())
                 .stream()
-                .map(Enum::name)
+                .map(Enum::name) //Đổi từng enum thành String.
                 .sorted()
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); //Gom kết quả lại thành List<String>
     }
 
     private void validateOrderRequest(OrderRequestDTO request) {
@@ -691,6 +837,23 @@ public class OrderServiceImpl implements OrderService{
         }
     }
 
+    /**
+     * Tạo đối tượng Pageable dùng cho truy vấn danh sách đơn hàng có phân trang và sắp xếp.
+     *
+     * Method này kiểm tra:
+     * - Số trang không được âm
+     * - Kích thước trang phải nằm trong khoảng 1 đến 100
+     * - Trường sắp xếp phải thuộc danh sách cho phép
+     * - Chiều sắp xếp phải hợp lệ
+     *
+     * Nếu client không truyền sortBy, hệ thống mặc định sắp xếp theo createdAt.
+     *
+     * @param page    Số thứ tự trang cần lấy, bắt đầu từ 0
+     * @param size    Số lượng đơn hàng trên mỗi trang
+     * @param sortBy  Trường dùng để sắp xếp
+     * @param sortDir Chiều sắp xếp, gồm asc hoặc desc
+     * @return Pageable chứa thông tin phân trang và sắp xếp
+     */
     private Pageable buildOrderPageable(int page, int size, String sortBy, String sortDir) {
         if (page < 0) {
             throw new BadRequestException("Số trang không hợp lệ!");
@@ -705,11 +868,24 @@ public class OrderServiceImpl implements OrderService{
             throw new BadRequestException("Tiêu chí sắp xếp đơn hàng không hợp lệ!");
         }
 
-        Sort.Direction direction = parseSortDirection(sortDir);
+        Sort.Direction direction = parseSortDirection(sortDir); //Chuyển chuỗi asc / desc thành kiểu Sort.Direction.
 
         return PageRequest.of(page, size, Sort.by(direction, finalSortBy));
     }
 
+    /**
+     * Chuyển đổi chuỗi hướng sắp xếp từ request sang Sort.Direction.
+     *
+     * Nếu client không truyền sortDir hoặc truyền rỗng,
+     * hệ thống mặc định sắp xếp giảm dần theo DESC.
+     *
+     * Method này chỉ chấp nhận hai giá trị:
+     * - asc: sắp xếp tăng dần
+     * - desc: sắp xếp giảm dần
+     *
+     * @param sortDir Hướng sắp xếp dạng String từ request
+     * @return Sort.Direction tương ứng dùng cho Pageable
+     */
     private Sort.Direction parseSortDirection(String sortDir) {
         if (sortDir == null || sortDir.trim().isEmpty()) {
             return Sort.Direction.DESC;
@@ -766,7 +942,6 @@ public class OrderServiceImpl implements OrderService{
         if (keyword == null || keyword.trim().isEmpty()) {
             return null;
         }
-
         return keyword.trim();
     }
 }
