@@ -160,6 +160,10 @@ function DashboardPage() {
             value: dashboardData?.deliveredOrders || 0,
         },
         {
+            title: "Hoàn tất",
+            value: dashboardData?.completedOrders || 0,
+        },
+        {
             title: "Đã hủy",
             value: dashboardData?.cancelledOrders || 0,
         },
