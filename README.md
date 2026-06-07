@@ -85,13 +85,27 @@ Lưu ý:
 
 ## 6. Cấu hình backend
 
-Mở file:
+Vì file `application.properties` chứa một số thông tin cấu hình cục bộ và thông tin nhạy cảm nên file này không được đẩy trực tiếp lên GitHub. Thay vào đó, project có cung cấp file cấu hình mẫu:
+
+```text
+backend/src/main/resources/application.properties.example
+```
+
+Trước khi chạy backend, cần tạo file cấu hình thật bằng cách copy hoặc đổi tên file mẫu:
+
+```text
+backend/src/main/resources/application.properties.example
+→ backend/src/main/resources/application.properties
+```
+
+
+Sau đó mở file:
 
 ```text
 backend/src/main/resources/application.properties
 ```
 
-Kiểm tra thông tin kết nối MySQL:
+và chỉnh lại thông tin kết nối MySQL theo máy đang chạy:
 
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/web_store?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
@@ -103,7 +117,7 @@ Sửa `spring.datasource.password` thành mật khẩu MySQL trên máy đang ch
 
 ### Lưu ý về cấu hình bảo mật
 
-Một số thông tin nhạy cảm như VNPay Sandbox key và Cloudinary API secret có thể được thay bằng giá trị `YOUR_...` trong file `application.properties`.
+Một số thông tin nhạy cảm như VNPay Sandbox key và Cloudinary API secret hoặc JWT secret có thể được thay bằng giá trị `YOUR_...` trong file `application.properties`.
 
 - Các ảnh sản phẩm mẫu vẫn hiển thị bình thường vì database đã lưu sẵn URL ảnh.
 - Cloudinary chỉ cần thiết khi kiểm thử chức năng thêm/sửa sản phẩm có upload ảnh mới.
