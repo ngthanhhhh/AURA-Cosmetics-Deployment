@@ -18,8 +18,8 @@ services:
 
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p123456"]
-      interval: 8s
-      timeout: 3s
+      interval: 10s
+      timeout: 5s
       retries: 10
 
   backend:
