@@ -10,6 +10,9 @@ import "./AdminAccountManagementPage.css";
 import Loading from "../../components/common/Loading";
 import { formatDate } from "../../utils/formatDate";
 
+import { notify } from "../../utils/notify";
+import { confirmDelete } from "../../utils/confirm";
+
 const COLUMNS = ["STT", "Họ tên", "Email", "Ngày tạo", "Trạng thái", "Hành động"];
 const SIZE = 10;
 
@@ -140,12 +143,17 @@ function AdminAccountManagementPage(){
      * @param {number} id ID tài khoản admin.
      */
     const handleDelete = async (id) => {
-        if (!window.confirm("Xác nhận vô hiệu hóa tài khoản này?")) return;
+        const ok = await confirmDelete(
+            "Xác nhận vô hiệu hóa",
+            "Bạn có chắc muốn vô hiệu hóa tài khoản này?"
+        );
+
+        if (!ok) return;
         try {
             await deleteAdminAccount(id);
             await loadAccounts(page);
         } catch (err){
-            alert(err.response?.data?.message || "Thao tác thất bại");
+            notify.success(err.response?.data?.message || "Thao tác thất bại");
         }
     };
 

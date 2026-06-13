@@ -9,6 +9,8 @@ import ScrollTopButton from "../../components/common/ScrollTopButton";
 
 import "./ProductDetailPage.css";
 
+import { notify } from "../../utils/notify";
+
 /**
  * Trang chi tiết sản phẩm.
  *
@@ -47,7 +49,7 @@ function ProductDetailPage() {
       setProduct(data);
     } catch (error) {
       console.error("Lỗi tải chi tiết sản phẩm:", error);
-      alert("Không thể tải chi tiết sản phẩm");
+      notify.error("Không thể tải chi tiết sản phẩm");
     } finally {
       setLoading(false);
     }
@@ -101,7 +103,7 @@ function ProductDetailPage() {
     } catch (error) {
       console.error("Add to cart error:", error);
 
-      alert(
+      notify.error(
         error?.response?.data?.message ||
           error?.message ||
           "Không thể thêm sản phẩm vào giỏ hàng"

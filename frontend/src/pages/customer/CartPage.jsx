@@ -4,6 +4,7 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { useEffect, useContext, useState} from "react";
 import "./CartPage.css";
 
+import { confirmDelete } from "../../utils/confirm";
 /**
  * Trang giỏ hàng của khách hàng.
  *
@@ -103,7 +104,7 @@ function CartPage() {
      * @param item Sản phẩm cần xóa khỏi giỏ hàng
      */
     const handleRemove = async (item) => {
-        const confirmDelete = window.confirm(
+        const confirmDelete = window.confirmDelete(
             "Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?"
         );
 
