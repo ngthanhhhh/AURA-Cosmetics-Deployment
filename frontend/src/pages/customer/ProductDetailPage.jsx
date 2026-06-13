@@ -193,6 +193,10 @@ function ProductDetailPage() {
             {product.description}
           </p>
 
+          <p className="product-detail__note">
+            Chỉ thêm tối đa 99 sản phẩm vào giỏ hàng!
+          </p>
+
           {/* Khu vực chọn số lượng và thêm sản phẩm vào giỏ hàng */}
           <div className="product-detail__cart-box">
             <label htmlFor="quantity">Số lượng:</label>
