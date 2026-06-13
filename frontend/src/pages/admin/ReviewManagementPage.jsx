@@ -329,7 +329,7 @@ function ReviewManagementPage() {
                 <div className="admin-reviews-page__success">{successMessage}</div>
             )}
 
-            // Nếu không có đánh giá phù hợp thì hiển thị trạng thái rỗng.
+            {/*Nếu không có đánh giá phù hợp thì hiển thị trạng thái rỗng.*/}
             {loading ? (
                 <p>Đang tải danh sách đánh giá...</p>
             ) : reviews.length === 0 ? (
