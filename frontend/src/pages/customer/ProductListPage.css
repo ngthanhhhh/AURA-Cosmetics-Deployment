@@ -3,7 +3,7 @@
 ========================= */
 .discover-page {
   padding: 24px 34px 40px;
-  background: #fff3eb31;
+  background: #e3b36b15;
   min-height: 100vh;
 }
 
@@ -299,7 +299,7 @@
 .discover-grid {
   margin-top: 32px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 22px;
 }
 
@@ -310,37 +310,38 @@
   overflow: hidden;
   border: 1px solid #f0e6df;
   transition: 0.25s;
+  cursor: pointer;
 }
 
 /* Hover card sản phẩm */
 .discover-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-15px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
 }
 
 /* Ảnh sản phẩm */
 .discover-card img {
   width: 100%;
-  height: 260px;
+  height: 180px;
   object-fit: cover;
   background: #f6efe9;
 }
 
 /* Nội dung bên trong card */
 .discover-card-content {
-  padding: 18px;
+  padding: 10px;
 }
 
 /* Tên sản phẩm */
 .discover-card-content h3 {
-  height: 72px;
+  height: 48px;
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1.2;
   color: #c8481e;
 
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
 
   overflow: hidden;
@@ -349,14 +350,15 @@
 
 /* Tên danh mục sản phẩm */
 .discover-category-name {
-  margin: 8px 0;
+  margin: 6px 0;
+  font-size: 18px;
   color: #222020;
 }
 
 /* Giá sản phẩm */
 .discover-card-content strong {
   color: #601915;
-  font-size: 22px;
+  font-size: 20px;
 }
 
 /* Khu vực đánh giá sao */
@@ -364,7 +366,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-top: 9px;
+  margin-top: 4px;
 }
 
 /* Chữ đánh giá */
@@ -376,7 +378,8 @@
 /* Thông tin tồn kho */
 .discover-stock {
   color: #6f6472;
-  margin-top: 10px;
+  margin-top: 8px;
+  font-size: 16px
 }
 
 /* Nút xem chi tiết */
@@ -385,10 +388,16 @@
   display: inline-block;
   background: #e17b28;
   color: #ffffff;
-  padding: 11px 16px;
+  padding: 8px 12px;
   border-radius: 14px;
   text-decoration: none;
   font-weight: 700;
+}
+
+.discover-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 /* =========================
@@ -533,3 +542,4 @@
     font-size: 42px;
   }
 }
+

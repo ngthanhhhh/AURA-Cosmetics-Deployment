@@ -8,6 +8,9 @@ import {
 import "./CustomerDetailPage.css";
 import { formatDate } from "../../utils/formatDate";
 
+import { notify } from "../../utils/notify";
+import { confirmDelete } from "../../utils/confirm";
+
 const ORDER_PAGE_SIZE = 5;
 
 function CustomerDetailPage() {
@@ -57,16 +60,19 @@ function CustomerDetailPage() {
 
         const action = customer.isActive ? "khóa" : "mở khóa";
 
-        if(!window.confirm(`Bạn có chắc muốn ${action} tài khoản này không?`)) {
-            return;
-        }
+        const ok = await confirmDelete(
+        `${action === "khóa" ? "Khóa" : "Mở khóa"} tài khoản`,
+        `Bạn có chắc muốn ${action} tài khoản này không?`
+        );
+
+        if (!ok) return;
        
         try{
              
             const customerIdValue = customer?.id;
 
             if(!customerIdValue){
-                alert("Không xác định được ID khách hàng");
+                notify.error("Không xác định được ID khách hàng");
                 return;
             }
 
@@ -74,7 +80,7 @@ function CustomerDetailPage() {
             await loadCustomerDetail();  
         } catch (err){
             console.error("Lỗi cập nhật trạng thái:", err);
-            alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
+            notify.error("Cập nhật trạng thái thất bại, vui lòng thử lại!");
         }
     };
 

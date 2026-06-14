@@ -5,6 +5,10 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { formatDate } from "../../utils/formatDate";
 import "./OrderDetailManagementPage.css";
 
+import { notify } from "../../utils/notify";
+import { confirmUpdate } from "../../utils/confirm";
+
+
 /**
  * Trang Admin xem và quản lý chi tiết một đơn hàng.
  *
@@ -154,11 +158,13 @@ function OrderDetailManagementPage() {
         }
 
         // Hiển thị hộp thoại xác nhận trước khi cập nhật.
-        const confirmUpdate = window.confirm(
+        const isConfirmed = await confirmUpdate(
+            "Cập nhật trạng thái đơn hàng",
             `Bạn có chắc muốn chuyển đơn hàng sang trạng thái "${getStatusLabel(selectedStatus)}" không?`
         );
 
-        if (!confirmUpdate) return;
+
+        if (!isConfirmed) return;
 
         try {
             // Bật trạng thái updating và xóa thông báo cũ.
@@ -197,9 +203,12 @@ function OrderDetailManagementPage() {
      * sau khi Admin xác nhận khách đã thanh toán thành công.
      */
     const handleConfirmCodPayment = async () => {
-        const confirmUpdate = window.confirm("Xác nhận đơn COD này đã thanh toán thành công?");
+        const isConfirmed = await confirmUpdate(
+            "Xác nhận thanh toán COD",
+            "Xác nhận đơn COD này đã thanh toán thành công?"
+        );
 
-        if (!confirmUpdate) return;
+        if (!isConfirmed) return;
         try {
             setUpdating(true); // Bật trạng thái updating và xóa thông báo cũ.
             setError("");

@@ -85,6 +85,17 @@
   color: #6b6474;
 }
 
+.product-detail__note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: #fff2dd;
+    border-left: 4px solid #ff9800;
+    font-size: 14px;
+    color: #8a2f2f;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
 /* =========================
    KHU VỰC THÊM VÀO GIỎ HÀNG
    Gồm label số lượng, ô nhập số lượng và nút thêm vào giỏ

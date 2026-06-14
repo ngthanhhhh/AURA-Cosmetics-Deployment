@@ -6,6 +6,9 @@ import Loading from "../../components/common/Loading";
 import "./CustomerManagementPage.css";
 import { formatDate } from "../../utils/formatDate";
 
+import { notify } from "../../utils/notify";
+import { confirmDelete } from "../../utils/confirm";
+
 const SORT_OPTIONS = [
     { label: "Mới nhất", value: "createdAt,desc"},
     { label: "Cũ nhất", value: "createdAt,asc"},
@@ -124,20 +127,25 @@ function CustomerManagementPage() {
     const handleToggleStatus = async (id, currentStatus) => {
         
         if(!id){
-            alert("Không xác định được khách hàng");
+            notify.error("Không xác định được khách hàng");
             return;
         }
         
         const action = currentStatus ? "khóa" : "mở khóa";
 
-        if(!window.confirm(`Bạn có chắc muốn ${action} tài khoản này không?`)) return;
+        const ok = await confirmDelete(
+            `${action === "khóa" ? "Khóa" : "Mở khóa"} tài khoản`,
+            `Bạn có chắc muốn ${action} tài khoản này không?`
+        );
+
+        if (!ok) return;
 
         
         try{
             await updateCustomersStatus(id, !currentStatus);
             await loadCustomers();
         } catch {
-            alert("Cập nhật trạng thái thất bại, vui lòng thử lại!");
+            notify.error("Cập nhật trạng thái thất bại, vui lòng thử lại!");
         }
     };
 
@@ -176,7 +184,7 @@ function CustomerManagementPage() {
                     onClick={() => {
                         
                         if(!customer.id){
-                            alert("Không xác định được khách hàng");
+                            notify.error("Không xác định được khách hàng");
                             return;
                         }
 

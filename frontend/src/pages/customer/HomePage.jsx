@@ -33,21 +33,25 @@ export default function HomePage() {
 
   const products = [
     {
-      name: "Serum dưỡng sáng da",
+      productId: 4,
+      name: "Serum HA lấp lánh",
       price: "350.000đ",
       image: "/images/serum-duong-sang.jpg",
     },
     {
-      name: "Kem dưỡng ẩm phục hồi",
-      price: "420.000đ",
+      productId: 27,
+      name: "Bảng mắt Aura 12 ô màu, chất nhũ.",
+      price: "280.000 đ",
       image: "/images/kem-duong-am.jpg",
     },
     {
-      name: "Son môi mềm mịn",
-      price: "210.000đ",
+      productId: 3,
+      name: "Tẩy Tế Bào Chết Cafe Sữa Dừa",
+      price: "550.000 đ",
       image: "/images/son-moi.jpg",
     },
     {
+      productId: 2,
       name: "Nước tẩy trang Aura",
       price: "210.000đ",
       image: "/images/nc-tay-trang.jpg",
@@ -113,9 +117,13 @@ export default function HomePage() {
         <p className="section-label">SẢN PHẨM NỔI BẬT</p>
         <h2>Sản phẩm được yêu thích</h2>
 
-        <div className="product-grid">
-          {products.map((item) => (
-            <div className="product-card" key={item.name}>
+      <div className="product-grid">
+        {products.map((item) => (
+          <div
+            className="product-card"
+            key={item.productId}
+            onClick={() => navigate(`/products/${item.productId}`)}
+          >
               <img src={item.image} alt={item.name} />
               <div className="product-info">
                 <h3>{item.name}</h3>

@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { categoryService } from "../../features/categories/categoryService";
 import "./CategoryManagementPage.css";
 
+import { notify } from "../../utils/notify";
+import { confirmDelete } from "../../utils/confirm";
+
 /* =========================================================
    CATEGORY MANAGEMENT PAGE
    ---------------------------------------------------------
@@ -94,7 +97,7 @@ function CategoryManagementPage() {
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Load categories error:", error);
-      alert(error.response?.data?.message || "Không thể tải danh sách danh mục");
+      notify.error(error.response?.data?.message || "Không thể tải danh sách danh mục");
     }
   };
 
@@ -199,17 +202,17 @@ function CategoryManagementPage() {
     };
 
     if (!data.name) {
-      alert("Tên danh mục không được để trống");
+      notify.error("Tên danh mục không được để trống");
       return;
     }
 
     try {
       if (editingId) {
         await categoryService.updateCategory(editingId, data);
-        alert("Cập nhật danh mục thành công");
+        notify.success("Cập nhật danh mục thành công");
       } else {
         await categoryService.createCategory(data);
-        alert("Thêm danh mục thành công");
+        notify.success("Thêm danh mục thành công");
       }
 
       resetForm();
@@ -222,7 +225,7 @@ function CategoryManagementPage() {
       });
     } catch (error) {
       console.error("Save category error:", error);
-      alert(error.response?.data?.message || "Thao tác thất bại");
+      notify.error(error.response?.data?.message || "Thao tác thất bại");
     }
   };
 
@@ -256,11 +259,16 @@ function CategoryManagementPage() {
      thông báo lỗi từ backend sẽ được hiển thị.
   ========================================================= */
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+    const ok = await confirmDelete(
+      "Xóa danh mục",
+      "Bạn có chắc muốn xóa danh mục này?"
+    );
+
+    if (!ok) return;
 
     try {
       await categoryService.deleteCategory(id);
-      alert("Xóa danh mục thành công");
+      notify.success("Xóa danh mục thành công");
 
       await loadCategories({
         nextKeyword: keyword,
@@ -270,7 +278,7 @@ function CategoryManagementPage() {
       });
     } catch (error) {
       console.error("Delete category error:", error);
-      alert(error.response?.data?.message || "Không thể xóa danh mục");
+      notify.error(error.response?.data?.message || "Không thể xóa danh mục");
     }
   };
 
