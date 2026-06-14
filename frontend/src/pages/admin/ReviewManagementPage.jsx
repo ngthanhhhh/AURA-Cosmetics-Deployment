@@ -266,7 +266,7 @@ function ReviewManagementPage() {
 
                 {/* Bộ lọc theo trạng thái xác nhận mua hàng */}
                 <div className="admin-reviews-page__filter-group">
-                    <label>xác nhận mua hàng</label>
+                    <label>Xác nhận mua hàng</label>
                     <select
                         value={verified}
                         onChange={(event) => {
@@ -329,7 +329,7 @@ function ReviewManagementPage() {
                 <div className="admin-reviews-page__success">{successMessage}</div>
             )}
 
-            // Nếu không có đánh giá phù hợp thì hiển thị trạng thái rỗng.
+            {/*Nếu không có đánh giá phù hợp thì hiển thị trạng thái rỗng.*/}
             {loading ? (
                 <p>Đang tải danh sách đánh giá...</p>
             ) : reviews.length === 0 ? (

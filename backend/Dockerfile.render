@@ -1,0 +1,41 @@
+# Dùng image Java 17 JDK để build ứng dụng Spring Boot
+FROM eclipse-temurin:17-jdk AS build
+
+# Thiết lập thư mục làm việc bên trong container
+WORKDIR /app
+
+# Copy các file Maven Wrapper và file cấu hình Maven vào container
+# Dùng để tải dependency và build project
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Cấp quyền thực thi cho file mvnw
+RUN chmod +x mvnw
+
+# Tải trước các dependency của Maven
+# Tận dụng cache Docker, tránh tải lại dependency nếu pom.xml không đổi
+RUN ./mvnw dependency:go-offline -B
+
+# Copy toàn bộ source code backend vào container
+COPY src src
+
+# Build ứng dụng Spring Boot và bỏ qua test để quá trình build nhanh hơn
+# Sau bước này, file .jar sẽ được tạo trong thư mục target
+RUN ./mvnw clean package -DskipTests
+
+# Sử dụng image Java 17 JRE cho giai đoạn chạy ứng dụng
+# JRE nhẹ hơn JDK vì chỉ cần chạy file .jar, không cần biên dịch code
+FROM eclipse-temurin:17-jre
+
+# Thiết lập thư mục làm việc cho container runtime
+WORKDIR /app
+
+# Copy file .jar đã được build từ stage build sang stage runtime
+COPY --from=build /app/target/*.jar app.jar
+
+# Khai báo port mà ứng dụng Spring Boot sử dụng
+EXPOSE 8080
+
+# Lệnh chạy ứng dụng khi container khởi động
+ENTRYPOINT ["java", "-jar", "app.jar"]
