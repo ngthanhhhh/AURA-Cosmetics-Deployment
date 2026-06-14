@@ -14,6 +14,7 @@ import { categoryService } from "../../features/categories/categoryService";
 
 import ScrollTopButton from "../../components/common/ScrollTopButton";
 import "./ProductListPage.css";
+import { notify } from "../../utils/notify";
 
 /**
  * Trang danh sách sản phẩm dành cho khách hàng.
@@ -125,7 +126,7 @@ function ProductListPage() {
         minPrice: filters.minPrice || undefined,
         maxPrice: filters.maxPrice || undefined,
         page: filters.page,
-        size: 12,
+        size: 20,
         sortBy: filters.sortBy,
         direction: filters.direction,
       });
@@ -134,7 +135,7 @@ function ProductListPage() {
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Lỗi tải sản phẩm:", error);
-      alert("Không thể tải sản phẩm");
+      notify.error("Không thể tải sản phẩm");
     } finally {
       setLoading(false);
     }
@@ -177,6 +178,12 @@ function ProductListPage() {
     loadProducts(currentFilters);
   }, [searchParams]);
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [page]);
   /**
    * Kiểm tra tính hợp lệ của khoảng giá.
    *
@@ -190,17 +197,17 @@ function ProductListPage() {
     const max = maxPrice === "" ? null : Number(maxPrice);
 
     if (min !== null && min < 0) {
-      alert("Giá từ không hợp lệ");
+      notify.warning("Giá từ không hợp lệ");
       return false;
     }
 
     if (max !== null && max < 0) {
-      alert("Giá đến không hợp lệ");
+      notify.warning("Giá đến không hợp lệ");
       return false;
     }
 
     if (min !== null && max !== null && min > max) {
-      alert("Giá từ không được lớn hơn giá đến");
+      notify.warning("Giá từ không được lớn hơn giá đến");
       return false;
     }
 
@@ -459,23 +466,34 @@ function ProductListPage() {
       {/* Lưới hiển thị danh sách sản phẩm */}
       <div className="discover-grid">
         {products.map((product) => (
-          <div className="discover-card" key={product.productId}>
-            <img
-              src={product.image || "/favicon.svg"}
-              alt={product.name}
-            />
+          <Link
+            key={product.productId}
+            to={`/products/${product.productId}`}
+            className="discover-card-link"
+          >
+            <div className="discover-card">
+              <img
+                src={product.image || "/favicon.svg"}
+                alt={product.name}
+              />
 
-            <div className="discover-card-content">
-              <h3>{product.name}</h3>
+              <div className="discover-card-content">
+                <h3>{product.name}</h3>
 
-              <p className="discover-category-name">{product.categoryName}</p>
+                <p className="discover-category-name">
+                  {product.categoryName}
+                </p>
 
-              <strong>
-                {Number(product.price).toLocaleString("vi-VN")} đ
-              </strong>
+                <strong>
+                  {Number(product.price).toLocaleString("vi-VN")} đ
+                </strong>
 
                 <div className="discover-rating">
-                  <Star size={14} fill="#ff7b29" color="#ff7b29" />
+                  <Star
+                    size={14}
+                    fill="#ff7b29"
+                    color="#ff7b29"
+                  />
                   <span>
                     {Number(product.averageRating || 0).toFixed(1)}
                     {" "}
@@ -483,13 +501,13 @@ function ProductListPage() {
                   </span>
                 </div>
 
-              <p className="discover-stock">Kho: {product.stock}</p>
+                <p className="discover-stock">
+                  Kho: {product.stock}
+                </p>
 
-              <Link to={`/products/${product.productId}`}>
-                Xem chi tiết
-              </Link>
+              </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 
