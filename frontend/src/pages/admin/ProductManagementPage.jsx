@@ -3,6 +3,9 @@ import { productService } from "../../features/products/productService";
 import "./ProductManagementPage.css";
 import { categoryService } from "../../features/categories/categoryService";
 
+import { notify } from "../../utils/notify";
+import { confirmDelete } from "../../utils/confirm";
+
 /**
  * Trang quản lý sản phẩm dành cho quản trị viên.
  *
@@ -81,7 +84,7 @@ function ProductManagementPage() {
       setTotalPages(data.totalPages || 0);
     } catch (error) {
       console.error("Load products error:", error);
-      alert("Không thể tải sản phẩm");
+      notify.error("Không thể tải sản phẩm");
     }
   };
 
@@ -203,10 +206,10 @@ function ProductManagementPage() {
         image: data.imageUrl,
       }));
 
-      alert("Upload ảnh thành công");
+      notify.success("Upload ảnh thành công");
     } catch (error) {
       console.error("Upload image error:", error);
-      alert(error.response?.data?.message || "Upload ảnh thất bại");
+      notify.error(error.response?.data?.message || "Upload ảnh thất bại");
     } finally {
       setUploadingImage(false);
     }
@@ -231,17 +234,17 @@ function ProductManagementPage() {
     try {
       if (editingId) {
         await productService.updateProduct(editingId, data);
-        alert("Cập nhật sản phẩm thành công");
+        notify.success("Cập nhật sản phẩm thành công");
       } else {
         await productService.createProduct(data);
-        alert("Thêm sản phẩm thành công");
+        notify.success("Thêm sản phẩm thành công");
       }
 
       resetForm();
       loadProducts();
     } catch (error) {
       console.error("Save product error:", error);
-      alert(error.response?.data?.message || "Thao tác thất bại");
+      notify.error(error.response?.data?.message || "Thao tác thất bại");
     }
   };
 
@@ -283,15 +286,20 @@ function ProductManagementPage() {
    * Trước khi xóa sẽ hiển thị confirm để tránh admin thao tác nhầm.
    */
   const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này?")) return;
+    const confirmed = await confirmDelete(
+      "Xóa sản phẩm",
+      "Bạn có chắc muốn xóa sản phẩm này?"
+    );
+
+  if (!confirmed) return;
 
     try {
       await productService.deleteProduct(id);
-      alert("Xóa sản phẩm thành công");
+      notify.success("Xóa sản phẩm thành công");
       loadProducts();
     } catch (error) {
       console.error("Delete product error:", error);
-      alert(error.response?.data?.message || "Không thể xóa sản phẩm");
+      notify.error(error.response?.data?.message || "Không thể xóa sản phẩm");
     }
   };
 

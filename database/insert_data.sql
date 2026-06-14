@@ -1,5 +1,5 @@
 USE web_store;
-
+SET NAMES utf8mb4;
 -- =========================================================
 -- FINAL SAMPLE DATA - AURA COSMETICS
 -- File này dùng sau create_tables.sql.

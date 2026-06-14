@@ -8,6 +8,8 @@ import { AuthContext } from "../../context/AuthContext";
 import { CartContext } from "../../context/CartContext";
 import { logoutUser } from "../../features/auth/authService";
 
+
+
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,9 +53,26 @@ export default function Header() {
     });
   };
 
+  const handleLogoClick = (e) => {
+    e.preventDefault();
+
+    if (location.pathname === "/") {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
     <header className="main-header">
-      <Link to="/" className="logo">
+      <Link
+        to="/"
+        className="logo"
+        onClick={handleLogoClick}
+      >
         AURA
       </Link>
 

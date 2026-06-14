@@ -9,6 +9,8 @@ import {
     changeAdminPassword,
 } from "../../features/adminAccounts/adminAccountService";
 
+import { notify } from "../../utils/notify";
+
 const EMPTY_FORM = { name: "", email: "", password: "", isActive: true};
 const EMPTY_PASSWORD_FORM = { newPassword: "", confirmPassword: ""};
 
@@ -88,7 +90,7 @@ function AdminAccountModal({ open, mode, account, onClose, onSubmit}) {
             }
             onSubmit(); // báo page load lại
         } catch (err){
-            alert(err.response?.data?.message || "Có lỗi xảy ra");
+            notify.error(err.response?.data?.message || "Có lỗi xảy ra");
         } finally {
             setLoading(false);
         }
