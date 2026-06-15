@@ -98,7 +98,6 @@ backend/src/main/resources/application.properties.example
 → backend/src/main/resources/application.properties
 ```
 
-
 Sau đó mở file:
 
 ```text
