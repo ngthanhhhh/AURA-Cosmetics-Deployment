@@ -9,7 +9,8 @@ import "./CustomerDetailPage.css";
 import { formatDate } from "../../utils/formatDate";
 
 import { notify } from "../../utils/notify";
-import { confirmDelete } from "../../utils/confirm";
+
+import { confirmAction } from "../../utils/confirm";
 
 const ORDER_PAGE_SIZE = 5;
 
@@ -60,7 +61,7 @@ function CustomerDetailPage() {
 
         const action = customer.isActive ? "khóa" : "mở khóa";
 
-        const ok = await confirmDelete(
+        const ok = await confirmAction(
         `${action === "khóa" ? "Khóa" : "Mở khóa"} tài khoản`,
         `Bạn có chắc muốn ${action} tài khoản này không?`
         );
