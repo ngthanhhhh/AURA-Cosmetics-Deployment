@@ -58,7 +58,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService{
 
-    private static final String PRODUCT_DISCONTINUED_NOTE = "Sản phẩm này hiện đã ngừng kinh doanh";
     private static final String NO_PAYMENT_MESSAGE = "Chưa có thông tin thanh toán";
     private static final Set<String> ORDER_SORT_FIELDS = Set.of(
         "orderId",
@@ -547,20 +546,30 @@ public class OrderServiceImpl implements OrderService{
      * @return DTO chi tiết sản phẩm trong đơn hàng
      */
     private OrderItemDTO mapToOrderItemDTO(OrderItem item) {
-        boolean discontinued = item.getProduct() == null;
+        Product product = item.getProduct();
+    
+        boolean discontinued = product == null || product.getStatus() != ProductStatus.ACTIVE;
 
         BigDecimal subTotal = item.getPrice()
                 .multiply(BigDecimal.valueOf(item.getQuantity()));
 
+        String note = null;
+
+        if (product == null) {
+            note = "Sản phẩm đã bị xóa khỏi hệ thống.";
+        } else if (product.getStatus() != ProductStatus.ACTIVE) {
+            note = "Sản phẩm này hiện đã ngừng kinh doanh";
+        }
+
         return OrderItemDTO.builder()
                 .orderItemId(item.getOrderItemId())
-                .productId(item.getProduct() != null ? item.getProduct().getProductId() : null)
+                .productId(product != null ? product.getProductId() : null)
                 .productName(item.getProductName())
                 .quantity(item.getQuantity())
                 .price(item.getPrice())
                 .subTotal(subTotal)
                 .discontinued(discontinued)
-                .note(discontinued ? PRODUCT_DISCONTINUED_NOTE : null)
+                .note(note)
                 .build();
     }
 
