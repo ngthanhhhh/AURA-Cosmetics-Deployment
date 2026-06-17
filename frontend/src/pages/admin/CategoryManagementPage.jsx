@@ -202,7 +202,7 @@ function CategoryManagementPage() {
     };
 
     if (!data.name) {
-      notify.error("Tên danh mục không được để trống");
+      notify.warning("Tên danh mục không được để trống");
       return;
     }
 
