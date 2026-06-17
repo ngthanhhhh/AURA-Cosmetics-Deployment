@@ -7,7 +7,7 @@ import "./CustomerManagementPage.css";
 import { formatDate } from "../../utils/formatDate";
 
 import { notify } from "../../utils/notify";
-import { confirmDelete } from "../../utils/confirm";
+import { confirmAction } from "../../utils/confirm";
 
 const SORT_OPTIONS = [
     { label: "Mới nhất", value: "createdAt,desc"},
@@ -133,7 +133,7 @@ function CustomerManagementPage() {
         
         const action = currentStatus ? "khóa" : "mở khóa";
 
-        const ok = await confirmDelete(
+        const ok = await confirmAction(
             `${action === "khóa" ? "Khóa" : "Mở khóa"} tài khoản`,
             `Bạn có chắc muốn ${action} tài khoản này không?`
         );

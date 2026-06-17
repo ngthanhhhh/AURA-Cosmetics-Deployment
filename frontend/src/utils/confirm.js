@@ -44,3 +44,27 @@ export const confirmUpdate = async (
 
     return result.isConfirmed;
 };
+
+
+export const confirmAction = async (
+    title = "Xác nhận thao tác",
+    text = "Bạn có chắc muốn thực hiện thao tác này?"
+) => {
+    const result = await Swal.fire({
+        title,
+        text,
+        icon: "warning",
+
+        showCancelButton: true,
+
+        confirmButtonText: "Đồng ý",
+        cancelButtonText: "Hủy",
+
+        confirmButtonColor: "#f39c12",
+        cancelButtonColor: "#6c757d",
+
+        reverseButtons: true,
+    });
+
+    return result.isConfirmed;
+};

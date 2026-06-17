@@ -11,7 +11,8 @@ import Loading from "../../components/common/Loading";
 import { formatDate } from "../../utils/formatDate";
 
 import { notify } from "../../utils/notify";
-import { confirmDelete } from "../../utils/confirm";
+
+import { confirmAction } from "../../utils/confirm";
 
 const COLUMNS = ["STT", "Họ tên", "Email", "Ngày tạo", "Trạng thái", "Hành động"];
 const SIZE = 10;
@@ -143,7 +144,7 @@ function AdminAccountManagementPage(){
      * @param {number} id ID tài khoản admin.
      */
     const handleDelete = async (id) => {
-        const ok = await confirmDelete(
+        const ok = await confirmAction(
             "Xác nhận vô hiệu hóa",
             "Bạn có chắc muốn vô hiệu hóa tài khoản này?"
         );
