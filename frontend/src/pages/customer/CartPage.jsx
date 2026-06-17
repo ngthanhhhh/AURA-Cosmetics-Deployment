@@ -104,11 +104,12 @@ function CartPage() {
      * @param item Sản phẩm cần xóa khỏi giỏ hàng
      */
     const handleRemove = async (item) => {
-        const confirmDelete = window.confirmDelete(
-            "Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?"
+        const isConfirmed = await confirmDelete(
+            "Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?",
+            "Sản phẩm sẽ được xóa khỏi giỏ hàng của bạn."
         );
 
-        if (!confirmDelete) return;
+        if (!isConfirmed) return;
 
         try {
             setPageError("");
