@@ -154,7 +154,7 @@ function AdminAccountManagementPage(){
             await deleteAdminAccount(id);
             await loadAccounts(page);
         } catch (err){
-            notify.success(err.response?.data?.message || "Thao tác thất bại");
+            notify.error(err.response?.data?.message || "Thao tác thất bại");
         }
     };
 
