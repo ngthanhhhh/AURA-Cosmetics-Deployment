@@ -223,7 +223,6 @@ function ProductReviews({productId}) {
                 <button
                     type="button"
                     className="product-reviews__filter-toggle"
-                    // Đảo trạng thái showFilters: đang ẩn thì hiện, đang hiện thì ẩn.
                     onClick={() => setShowFilters((prev) => !prev)}
                 >
                     <Filter size={28} />  {/* Icon filter lấy từ thư viện lucide-react */}
@@ -235,7 +234,6 @@ function ProductReviews({productId}) {
 
                     <button
                         type="button"
-                        // Đảo trạng thái showReviewForm để ẩn/hiện form đánh giá.
                         onClick={() => setShowReviewForm((prev) => !prev)}
                     >
                         Viết đánh giá
@@ -270,9 +268,8 @@ function ProductReviews({productId}) {
                         <select
                             value={rating}
                             onChange={(event) => {
-                                // Cập nhật rating cần lọc.
                                 setRating(event.target.value);
-                                setPage(0);// Khi đổi bộ lọc thì quay về trang đầu.
+                                setPage(0);
                             }}
                         >
                             <option value="">Tất cả</option>
@@ -290,8 +287,8 @@ function ProductReviews({productId}) {
                         <select
                             value={verified}
                             onChange={(event) => {
-                                setVerified(event.target.value); // Cập nhật giá trị lọc verified.
-                                setPage(0); // Khi đổi bộ lọc thì quay về trang đầu.
+                                setVerified(event.target.value);
+                                setPage(0);
                             }}
                         >
                             <option value="">Tất cả</option>
@@ -306,8 +303,8 @@ function ProductReviews({productId}) {
                         <select
                             value={sortBy}
                             onChange={(event) => {
-                                setSortBy(event.target.value); // Cập nhật trường sắp xếp.
-                                setPage(0); // Khi đổi sắp xếp thì quay về trang đầu.
+                                setSortBy(event.target.value);
+                                setPage(0);
                             }}
                         >
                             <option value="createdAt">Thời gian tạo</option>
@@ -323,8 +320,8 @@ function ProductReviews({productId}) {
                         <select
                             value={sortDir}
                             onChange={(event) => {
-                                setSortDir(event.target.value); // Cập nhật chiều sắp xếp asc/desc.
-                                setPage(0); // Khi đổi chiều sắp xếp thì quay về trang đầu.
+                                setSortDir(event.target.value);
+                                setPage(0);
                             }}
                         >
                             <option value="desc">Giảm dần</option>
@@ -373,7 +370,7 @@ function ProductReviews({productId}) {
                         </div>
                     </div>
 
-                    <button type="submit" disabled={submitting}> {/* Nút submit đánh giá, bị khóa khi đang gửi */}
+                    <button type="submit" disabled={submitting}>
                         {submitting ? "Đang gửi..." : "Gửi đánh giá"}
                     </button>
                 </form>
@@ -382,7 +379,6 @@ function ProductReviews({productId}) {
             {loading ? (
                 <p>Đang tải đánh giá...</p>
             ) : reviews.length === 0 ? (
-                // Nếu không có review phù hợp thì hiển thị trạng thái rỗng.
                 <div className="product-reviews__empty">
                     <p>Chưa  có đánh giá phù hợp.</p>
                 </div>
@@ -396,7 +392,8 @@ function ProductReviews({productId}) {
                                     <div>
                                         {/* Tên người đánh giá */}
                                         <strong>{review.userName}</strong>
-                                        <div className="product-reviews__stars"> {/* Số sao của đánh giá */}
+                                        {/* Số sao của đánh giá */}
+                                        <div className="product-reviews__stars"> 
                                             {renderStars(review.rating)}
                                         </div>
                                     </div>
@@ -422,8 +419,8 @@ function ProductReviews({productId}) {
                     <div className="product-reviews__pagination">
                         <button
                             type="button"
-                            disabled={reviewData?.first || page <= 0} // Khóa nút nếu đang ở trang đầu.
-                            onClick={() => setPage((prev) => prev - 1)} // Lùi về trang trước.
+                            disabled={reviewData?.first || page <= 0}
+                            onClick={() => setPage((prev) => prev - 1)}
                         >
                             Trang trước
                         </button>
@@ -436,11 +433,7 @@ function ProductReviews({productId}) {
 
                         <button
                             type="button"
-
-                            // Khóa nút nếu đang ở trang cuối.
                             disabled={reviewData?.last || page + 1 >= (reviewData?.totalPages || 1)}
-
-                            // Chuyển sang trang sau.
                             onClick={() => setPage((prev) => prev + 1)}
                         >
                             Trang sau

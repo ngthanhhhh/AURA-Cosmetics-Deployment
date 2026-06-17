@@ -174,7 +174,7 @@ function CartPage() {
 
                 <tbody>
                     {cartItems.map((item) => {
-                        // Kiểm tra sản phẩm hiện tại có đang cập nhật/xóa hay không.
+                        {/*Kiểm tra sản phẩm hiện tại có đang cập nhật/xóa hay không.*/}
                         const isUpdating = updatingProductId === item.productId;
 
                         return (

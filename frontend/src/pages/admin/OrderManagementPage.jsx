@@ -166,9 +166,8 @@ function OrderManagementPage() {
                     <select
                         value={status}
                         onChange={(event) => {
-                            // Cập nhật trạng thái đơn cần lọc.
                             setStatus(event.target.value);
-                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
+                            setPage(0);
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -186,8 +185,8 @@ function OrderManagementPage() {
                     <select
                         value={paymentMethod}
                         onChange={(event) => {
-                            setPaymentMethod(event.target.value); // Cập nhật phương thức thanh toán cần lọc.
-                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
+                            setPaymentMethod(event.target.value);
+                            setPage(0);
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -201,8 +200,8 @@ function OrderManagementPage() {
                     <select
                         value={paymentStatus}
                         onChange={(event) => {
-                            setPaymentStatus(event.target.value); // Cập nhật trạng thái thanh toán cần lọc.
-                            setPage(0); // Khi đổi bộ lọc thì quay về trang đầu tiên.
+                            setPaymentStatus(event.target.value);
+                            setPage(0);
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -217,8 +216,8 @@ function OrderManagementPage() {
                     <select
                         value={sortBy}
                         onChange={(event) => {
-                            setSortBy(event.target.value); // Cập nhật trường sắp xếp.
-                            setPage(0); // Khi đổi sắp xếp thì quay về trang đầu tiên.
+                            setSortBy(event.target.value);
+                            setPage(0);
                         }}
                     >
                         <option value="createdAt">Ngày tạo</option>
@@ -234,8 +233,8 @@ function OrderManagementPage() {
                     <select
                         value={sortDir}
                         onChange={(event) => {
-                            setSortDir(event.target.value); // Cập nhật chiều sắp xếp asc/desc.
-                            setPage(0); // Khi đổi chiều sắp xếp thì quay về trang đầu tiên.
+                            setSortDir(event.target.value);
+                            setPage(0);
                         }}
                     >
                         <option value="desc">Giảm dần</option>
@@ -340,8 +339,8 @@ function OrderManagementPage() {
                     <div className="admin-orders-page__pagination">
                         <button
                             type="button"
-                            disabled={page <= 0} // Không cho bấm nếu đang ở trang đầu tiên.
-                            onClick={() => setPage((prev) => prev - 1)} // Chuyển về trang trước.
+                            disabled={page <= 0}
+                            onClick={() => setPage((prev) => prev - 1)}
                         >
                             Trang trước
                         </button>
@@ -352,8 +351,8 @@ function OrderManagementPage() {
 
                         <button
                             type="button"
-                            disabled={page + 1 >= totalPages} // Không cho bấm nếu đang ở trang cuối.
-                            onClick={() => setPage((prev) => prev + 1)} // Chuyển sang trang sau.
+                            disabled={page + 1 >= totalPages}
+                            onClick={() => setPage((prev) => prev + 1)}
                         >
                             Trang sau
                         </button>

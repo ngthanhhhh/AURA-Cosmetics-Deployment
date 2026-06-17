@@ -137,7 +137,7 @@ function MyOrdersPage() {
                         value={status}
                         onChange={(event) => {
                             setStatus(event.target.value);
-                            setPage(0); // Khi đổi trạng thái lọc thì quay về trang đầu tiên.
+                            setPage(0);
                         }}
                     >
                         <option value="">Tất cả</option>
@@ -157,7 +157,7 @@ function MyOrdersPage() {
                         value={sortBy}
                         onChange={(event) => {
                             setSortBy(event.target.value);
-                            setPage(0); // Khi đổi kiểu sắp xếp thì quay về trang đầu tiên.
+                            setPage(0);
                         }}
                     >
                         <option value="createdAt">Ngày đặt hàng</option>
@@ -195,7 +195,6 @@ function MyOrdersPage() {
             {loading ? (
                 <p>Đang tải danh sách đơn hàng...</p>
             ) : orders.length === 0 ? (
-                // Nếu không có đơn hàng thì hiển thị trạng thái rỗng.
                 <div className="my-orders-page__empty">
                     <p>Bạn chưa có đơn hàng nào hoặc không có đơn hàng phù hợp.</p>
                 </div>
@@ -254,8 +253,8 @@ function MyOrdersPage() {
                     <div className="my-orders-page__pagination">
                         <button
                             type="button"
-                            disabled={page <= 0} // Không cho bấm nếu đang ở trang đầu tiên.
-                            onClick={() => setPage((prev) => prev - 1)} // Lùi về trang trước.
+                            disabled={page <= 0}
+                            onClick={() => setPage((prev) => prev - 1)}
                         >
                             Trang trước
                         </button>
@@ -265,10 +264,12 @@ function MyOrdersPage() {
                             Trang {page + 1} / {totalPages || 1}
                         </span>
 
+                        {/* Không cho bấm nếu đang ở trang cuối */}
+                        {/* Khi bấm thì chuyển sang trang sau */}
                         <button
                             type="button"
-                            disabled={page + 1 >= totalPages} // Không cho bấm nếu đang ở trang cuối.
-                            onClick={() => setPage((prev) => prev + 1)} // Chuyển sang trang sau.
+                            disabled={page + 1 >= totalPages}
+                            onClick={() => setPage((prev) => prev + 1)}
                         >
                             Trang sau
                         </button>

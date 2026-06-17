@@ -431,8 +431,8 @@ function ReviewManagementPage() {
                     <div className="admin-reviews-page__pagination">
                         <button
                             type="button"
-                            disabled={page <= 0} // Không cho bấm nếu đang ở trang đầu tiên.
-                            onClick={() => setPage((prev) => prev - 1)} // Chuyển về trang trước.
+                            disabled={page <= 0}
+                            onClick={() => setPage((prev) => prev - 1)}
                         >
                             Trang trước
                         </button>
@@ -443,8 +443,8 @@ function ReviewManagementPage() {
 
                         <button
                             type="button"
-                            disabled={page + 1 >= totalPages} // Không cho bấm nếu đang ở trang cuối.
-                            onClick={() => setPage((prev) => prev + 1)} // Chuyển sang trang sau.
+                            disabled={page + 1 >= totalPages}
+                            onClick={() => setPage((prev) => prev + 1)}
                         >
                             Trang sau
                         </button>
