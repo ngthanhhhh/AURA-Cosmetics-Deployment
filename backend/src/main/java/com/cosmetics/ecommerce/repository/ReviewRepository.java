@@ -130,7 +130,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
         @Param("verified") Boolean verified,
         @Param("productId") Integer productId,
         @Param("keyword") String keyword,
-        Pageable pageble
+        Pageable pageable
     );
 
     /**
